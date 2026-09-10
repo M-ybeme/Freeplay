@@ -1,0 +1,49 @@
+:root {
+  --void: #080612;
+  --surface: #111022;
+  --surface-2: #19162d;
+
+  --laser-blue: #00d9ff;
+  --uv-purple: #8b3dff;
+  --toxic: #8cff00;
+  --hot-pink: #ff2bd6;
+  --orange: #ff8a00;
+
+  --text: #f4f1ff;
+  --muted: #9690ad;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--void);
+  color: var(--text);
+  font-family:
+    system-ui,
+    -apple-system,
+    "Segoe UI",
+    sans-serif;
+}
+
+button {
+  font-family: inherit;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
