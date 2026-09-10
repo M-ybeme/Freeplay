@@ -1,0 +1,269 @@
+.minesweeper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  max-width: 540px;
+  gap: 0.65rem;
+}
+
+/* ---------- HUD ---------- */
+
+.minesweeper__hud {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.minesweeper__level {
+  color: var(--muted);
+}
+
+.minesweeper__stats {
+  display: flex;
+  gap: 0.75rem;
+}
+
+/* ---------- Difficulty / mode selectors ---------- */
+
+.minesweeper__difficulty,
+.minesweeper__mode {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.4rem;
+  width: 100%;
+}
+
+.minesweeper__difficulty-btn,
+.minesweeper__mode-btn {
+  min-height: 40px;
+  padding: 0.5rem 0.7rem;
+  font-size: 0.7rem;
+  letter-spacing: 0.04em;
+}
+
+/* ---------- Difficulty-change confirmation ---------- */
+
+.minesweeper__confirm {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  width: 100%;
+  background: var(--surface);
+  border: 1px solid var(--hot-pink);
+  border-radius: 4px;
+}
+
+.minesweeper__confirm-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+/* ---------- Board ---------- */
+
+.minesweeper__board-wrap {
+  width: 100%;
+  overflow-x: auto;
+  display: flex;
+  /*
+   * Centering a flex child that's wider than its container makes the left
+   * portion of the overflow unreachable by scrolling (scrollLeft can't go
+   * negative) - real bug, caught by actually measuring Expert's board.
+   * Beginner/Intermediate never overflow, so centering them is always safe;
+   * Expert overrides to flex-start below so every cell stays reachable.
+   */
+  justify-content: center;
+  padding: 0.2rem 0 0.4rem;
+}
+
+.minesweeper__board-wrap--expert {
+  position: relative;
+  justify-content: flex-start;
+}
+
+/*
+ * A static hint that there's more board to scroll to. This is a decorative
+ * overlay (not a mask on the actual cells) deliberately - fading the real
+ * board content would also fade/obscure the interactive cells living right
+ * at that edge, which is the opposite of helpful.
+ */
+.minesweeper__board-wrap--expert::after {
+  content: "";
+  position: absolute;
+  top: 8px;
+  right: 0;
+  bottom: 8px;
+  width: 18px;
+  background: linear-gradient(90deg, transparent, var(--void) 85%);
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+.minesweeper-board {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(var(--cols), minmax(var(--cell-min, 20px), var(--cell-max, 36px)));
+  gap: 2px;
+  padding: 8px;
+  background: var(--void);
+  background-image: radial-gradient(rgba(0, 217, 255, 0.12) 1px, transparent 1.2px);
+  background-size: 10px 10px;
+  border: 1px solid rgba(0, 217, 255, 0.4);
+  border-radius: 4px;
+  box-shadow:
+    inset 0 0 24px rgba(0, 0, 0, 0.6),
+    0 0 20px rgba(0, 217, 255, 0.1);
+}
+
+.minesweeper-board--beginner {
+  --cell-min: 32px;
+  --cell-max: 44px;
+}
+
+.minesweeper-board--intermediate {
+  --cell-min: 20px;
+  --cell-max: 30px;
+}
+
+.minesweeper-board--expert {
+  --cell-min: 20px;
+  --cell-max: 26px;
+}
+
+/* ---------- Cells ---------- */
+
+.minesweeper-cell {
+  position: relative;
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--surface);
+  border: 1px solid rgba(0, 217, 255, 0.16);
+  border-radius: 2px;
+  cursor: pointer;
+  touch-action: manipulation;
+  user-select: none;
+  -webkit-user-select: none;
+  font-family: var(--font-display);
+  font-weight: 700;
+  transition:
+    background 100ms ease,
+    border-color 100ms ease;
+}
+
+.minesweeper-cell:hover {
+  border-color: rgba(0, 217, 255, 0.55);
+}
+
+.minesweeper-cell:focus {
+  outline: none;
+}
+
+.minesweeper-cell:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: -2px;
+  z-index: 1;
+}
+
+.minesweeper-cell--revealed {
+  background: var(--void);
+  border-color: var(--surface-2);
+  cursor: default;
+}
+
+.minesweeper-cell--flagged {
+  background: var(--surface-2);
+}
+
+.minesweeper-cell--mine {
+  background: rgba(255, 43, 214, 0.12);
+}
+
+.minesweeper-cell--triggered {
+  background: var(--hot-pink);
+  border-color: var(--hot-pink);
+}
+
+.minesweeper-cell--inert {
+  cursor: default;
+  pointer-events: none;
+}
+
+.minesweeper-cell__number {
+  font-size: 62%;
+  line-height: 1;
+}
+
+/* Flag: a small signal pennant, not a cloth flag. */
+.minesweeper-cell__flag {
+  width: 50%;
+  height: 50%;
+  background: var(--uv-purple-text);
+  clip-path: polygon(0 0, 100% 50%, 0 100%);
+  box-shadow: 0 0 6px rgba(163, 102, 255, 0.55);
+}
+
+/* Mine: a compact hazard contact - core + ring, no bomb silhouette. */
+.minesweeper-cell__mine {
+  position: relative;
+  width: 58%;
+  height: 58%;
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--hot-pink) 0%, transparent 72%);
+}
+
+.minesweeper-cell__mine::before {
+  content: "";
+  position: absolute;
+  inset: 30%;
+  background: var(--orange);
+  border-radius: 50%;
+}
+
+.minesweeper-cell--triggered .minesweeper-cell__mine {
+  background: radial-gradient(circle, var(--void) 0%, transparent 72%);
+}
+
+.minesweeper-cell--triggered .minesweeper-cell__mine::before {
+  background: var(--void);
+}
+
+/* ---------- Result ---------- */
+
+.minesweeper__result {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.85rem 1rem;
+  width: 100%;
+  border-radius: 4px;
+}
+
+.minesweeper__result-title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.1rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.minesweeper__result-title--success {
+  color: var(--toxic);
+}
+
+.minesweeper__result-title--danger {
+  color: var(--hot-pink);
+}
+
+.minesweeper__result-detail {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--muted);
+}

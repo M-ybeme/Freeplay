@@ -1,4 +1,5 @@
 import type { GameDefinition } from "../../types/game";
+import { Minesweeper } from "./Minesweeper";
 
 export const definition: GameDefinition = {
   id: "minesweeper",
@@ -6,9 +7,7 @@ export const definition: GameDefinition = {
   description: "Clear the board without detonating a mine.",
   category: "puzzle",
   supportsTouch: true,
-  supportsKeyboard: false,
+  supportsKeyboard: true,
 };
 
-export default function Minesweeper() {
-  return <p>Minesweeper is coming soon.</p>;
-}
+export default Minesweeper;
