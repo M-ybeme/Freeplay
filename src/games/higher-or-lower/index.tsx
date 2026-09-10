@@ -1,15 +1,14 @@
 import type { GameDefinition } from "../../types/game";
+import { HigherOrLower } from "./HigherOrLower";
 
 export const definition: GameDefinition = {
   id: "higher-or-lower",
   name: "Higher or Lower",
-  description: "Guess whether the next card is higher or lower.",
-  category: "cards",
-  icon: "🎴",
+  description: "Guess whether the next number is higher or lower.",
+  category: "arcade",
+  icon: "📡",
   supportsTouch: true,
   supportsKeyboard: true,
 };
 
-export default function HigherOrLower() {
-  return <p>Higher or Lower is coming soon.</p>;
-}
+export default HigherOrLower;
