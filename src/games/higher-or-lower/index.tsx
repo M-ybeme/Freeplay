@@ -6,7 +6,6 @@ export const definition: GameDefinition = {
   name: "Higher or Lower",
   description: "Guess whether the next number is higher or lower.",
   category: "arcade",
-  icon: "📡",
   supportsTouch: true,
   supportsKeyboard: true,
 };

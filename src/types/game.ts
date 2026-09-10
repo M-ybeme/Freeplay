@@ -12,7 +12,6 @@ export interface GameDefinition {
   name: string;
   description: string;
   category: GameCategory;
-  icon: string;
   orientation?: "portrait" | "landscape" | "any";
   supportsTouch: boolean;
   supportsKeyboard: boolean;

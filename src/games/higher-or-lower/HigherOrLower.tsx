@@ -27,7 +27,9 @@ export function HigherOrLower() {
 
   return (
     <div className={`hol${accentClass}`}>
-      <p className="fp-label hol__round">// ROUND {String(round).padStart(2, "0")}</p>
+      <p className="fp-label hol__round">
+        // HL-01 · ROUND {String(round).padStart(2, "0")}
+      </p>
 
       <div
         key={status === "gameOver" ? "final" : round}

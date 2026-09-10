@@ -5,7 +5,6 @@ export const definition: GameDefinition = {
   name: "Minesweeper",
   description: "Clear the board without detonating a mine.",
   category: "puzzle",
-  icon: "💣",
   supportsTouch: true,
   supportsKeyboard: false,
 };

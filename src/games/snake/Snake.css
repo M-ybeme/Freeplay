@@ -29,39 +29,49 @@
   margin: 0 auto;
   background-color: var(--void);
   background-image:
-    linear-gradient(rgba(0, 217, 255, 0.07) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(0, 217, 255, 0.07) 1px, transparent 1px);
-  background-position: -1px -1px;
-  border: 1px solid rgba(0, 217, 255, 0.4);
+    radial-gradient(rgba(0, 217, 255, 0.16) 1px, transparent 1.4px),
+    linear-gradient(rgba(0, 217, 255, 0.1) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 217, 255, 0.1) 1px, transparent 1px);
+  background-position:
+    -1px -1px,
+    -1px -1px,
+    -1px -1px;
+  border: 1px solid rgba(0, 217, 255, 0.5);
   border-radius: 4px;
   box-shadow:
-    0 0 24px rgba(0, 217, 255, 0.12),
-    inset 0 0 24px rgba(0, 0, 0, 0.6);
+    0 0 24px rgba(0, 217, 255, 0.16),
+    inset 0 0 28px rgba(0, 0, 0, 0.65);
   overflow: hidden;
   touch-action: none;
 }
 
-.snake-board::before,
-.snake-board::after {
-  content: "";
+/* Corner brackets come from the shared .fp-corner-marks class; just push
+   them in slightly further than the default so they clear the border. */
+.snake-board.fp-corner-marks::before,
+.snake-board.fp-corner-marks::after {
+  width: 14px;
+  height: 14px;
+  border-color: rgba(0, 217, 255, 0.6);
+}
+
+.snake-board.fp-corner-marks::before {
+  top: 5px;
+  left: 5px;
+}
+
+.snake-board.fp-corner-marks::after {
+  bottom: 5px;
+  right: 5px;
+}
+
+.snake-board__tag {
   position: absolute;
-  width: 12px;
-  height: 12px;
+  top: 8px;
+  right: 18px;
+  z-index: 1;
+  font-size: 0.6rem;
+  color: rgba(0, 217, 255, 0.5);
   pointer-events: none;
-}
-
-.snake-board::before {
-  top: 6px;
-  left: 6px;
-  border-top: 1px solid rgba(0, 217, 255, 0.55);
-  border-left: 1px solid rgba(0, 217, 255, 0.55);
-}
-
-.snake-board::after {
-  bottom: 6px;
-  right: 6px;
-  border-bottom: 1px solid rgba(0, 217, 255, 0.55);
-  border-right: 1px solid rgba(0, 217, 255, 0.55);
 }
 
 /* ---------- Snake ---------- */
@@ -224,14 +234,16 @@
   min-width: 44px;
   min-height: 44px;
   font-size: 1.1rem;
-  color: var(--text);
+  color: var(--laser-blue);
   background: var(--surface);
-  border: 1px solid var(--surface-2);
+  border: 1.5px solid rgba(0, 217, 255, 0.3);
   border-radius: 4px;
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 6px 100%, 0 calc(100% - 6px));
   cursor: pointer;
   transition:
     border-color 120ms ease,
     box-shadow 120ms ease,
+    background 80ms ease,
     transform 80ms ease;
 }
 
@@ -241,7 +253,10 @@
 }
 
 .snake__dpad-btn:active {
-  transform: scale(0.94);
+  background: var(--surface-2);
+  border-color: var(--laser-blue);
+  box-shadow: 0 0 14px rgba(0, 217, 255, 0.55);
+  transform: scale(0.92);
 }
 
 .snake__dpad-btn:focus {
@@ -249,6 +264,7 @@
 }
 
 .snake__dpad-btn:focus-visible {
+  clip-path: none;
   outline: 3px solid var(--focus-ring);
   outline-offset: 2px;
 }

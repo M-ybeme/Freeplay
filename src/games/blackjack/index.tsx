@@ -5,7 +5,6 @@ export const definition: GameDefinition = {
   name: "Blackjack",
   description: "Classic blackjack against the dealer.",
   category: "cards",
-  icon: "🂡",
   supportsTouch: true,
   supportsKeyboard: false,
 };

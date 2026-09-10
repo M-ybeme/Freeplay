@@ -4,7 +4,7 @@
 }
 
 .home__header {
-  margin-bottom: 2rem;
+  margin-bottom: 1.75rem;
 }
 
 .home__logo {
@@ -25,6 +25,30 @@
 .home__divider {
   margin: 1rem 0 0;
   max-width: 320px;
+}
+
+.home__select-bar {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.home__select-label {
+  color: var(--laser-blue);
+}
+
+.home__select-count {
+  color: var(--muted);
+}
+
+.home__select-divider {
+  margin: 0.5rem 0 1.25rem;
+}
+
+.home__grid-frame {
+  padding: 1rem;
 }
 
 .home__grid {

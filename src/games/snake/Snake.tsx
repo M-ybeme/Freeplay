@@ -74,13 +74,17 @@ export function Snake() {
       </div>
 
       <div
-        className="snake-board"
+        className="snake-board fp-corner-marks"
         style={{
           backgroundSize: `${100 / boardSize}% ${100 / boardSize}%`,
         }}
         onTouchStart={onTouchStart}
         onTouchEnd={onTouchEnd}
       >
+        <span className="fp-label snake-board__tag" aria-hidden="true">
+          Grid {boardSize}×{boardSize}
+        </span>
+
         {snake.map((segment, index) => (
           <div
             key={index === 0 ? "head" : `body-${index}`}
