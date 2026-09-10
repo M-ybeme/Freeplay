@@ -34,6 +34,7 @@ export function PlayingCard({ card, faceDown, className }: PlayingCardProps) {
 
   const red = isRedSuit(card.suit);
   const colorClass = red ? "playing-card--red" : "playing-card--black";
+  const rankClassName = `playing-card__rank${card.rank === "10" ? " playing-card__rank--ten" : ""}`;
 
   return (
     <div
@@ -42,7 +43,7 @@ export function PlayingCard({ card, faceDown, className }: PlayingCardProps) {
       aria-label={cardName(card)}
     >
       <span className="playing-card__index playing-card__index--top" aria-hidden="true">
-        <span className="playing-card__rank">{card.rank}</span>
+        <span className={rankClassName}>{card.rank}</span>
         <SuitIcon suit={card.suit} className="playing-card__index-suit" />
       </span>
 
@@ -51,7 +52,7 @@ export function PlayingCard({ card, faceDown, className }: PlayingCardProps) {
       </div>
 
       <span className="playing-card__index playing-card__index--bottom" aria-hidden="true">
-        <span className="playing-card__rank">{card.rank}</span>
+        <span className={rankClassName}>{card.rank}</span>
         <SuitIcon suit={card.suit} className="playing-card__index-suit" />
       </span>
     </div>

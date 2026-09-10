@@ -41,12 +41,19 @@
   color: var(--card-ink);
 }
 
+/*
+ * Rank and suit are laid out as one corner-index unit (a centered flex
+ * column) rather than two independently positioned elements, so the suit's
+ * position is always derived from the rank actually rendered above it —
+ * including "10", whose two-character width the single-line shrink-to-fit
+ * box already accommodates without any rank-specific positioning math.
+ */
 .playing-card__index {
   position: absolute;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 1cqw;
+  gap: 4cqw;
   line-height: 1;
 }
 
@@ -65,6 +72,19 @@
   font-family: var(--font-display);
   font-weight: 700;
   font-size: 20cqw;
+}
+
+/*
+ * "10" is the only two-character rank. At the shared 20cqw size its glyph
+ * pair reads noticeably denser/wider than every other rank's single
+ * character, which is what made it crowd the suit glyph beneath it even
+ * once the gap above was fixed. Sized and tracked down just enough to
+ * bring its visual weight back in line with the rest of the index — not
+ * shrunk into a separate miniature label.
+ */
+.playing-card__rank--ten {
+  font-size: 15cqw;
+  letter-spacing: -0.04em;
 }
 
 .playing-card__index-suit {
