@@ -2,7 +2,7 @@ export const BOARD_SIZE = 18;
 export const INITIAL_LENGTH = 3;
 export const MAX_QUEUE_LENGTH = 2;
 
-export const BASE_TICK_MS = 140;
+export const BASE_TICK_MS = 190;
 export const MIN_TICK_MS = 75;
 export const SPEED_STEP_MS = 4;
 
