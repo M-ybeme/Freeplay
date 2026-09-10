@@ -16,6 +16,49 @@ When adding an entry for a new game or feature, copy the pattern below:
 
 ---
 
+## `56be361` — Visual personality pass: custom icons, arcade framing, radar board
+
+Pushed Freeplay's Y2K/laser-tag identity further via geometry and
+technical detailing rather than more glow, after manual review judged
+the app read as a polished launcher more than a distinct arcade
+interface. Background intensity is unchanged.
+
+- Replaced all four emoji game icons with hand-authored SVGs
+  (`src/components/GameIcons/`): opposing cyan/UV-purple chevrons for
+  Higher or Lower, a dashed angular polyline with a filled head+eye for
+  Snake (echoing its own in-game rendering), two overlapping corner-cut
+  card silhouettes with a diamond pip for Blackjack, and a hot-pink
+  diamond ring with orange ticks for Minesweeper (a radar contact, not a
+  cartoon bomb). All four share a 32×32 viewBox, consistent line weight,
+  and a stroke-linework-plus-one-filled-accent construction.
+  `GameDefinition.icon` (the emoji string) is removed entirely —
+  `GameCard` looks the icon up by game id instead.
+- Home: the grid gained a `// Select game` / `NN games online` header bar
+  over a divider, and the grid itself sits in a light frame with corner
+  marks — reads as a console selection area, not a bare card list.
+- `GameCard`: a small top-right corner tick, a background shift plus icon
+  brightness bump on hover, and a larger icon as the primary anchor.
+- Higher or Lower: a second panel corner bracket (bottom-right) and a
+  small `HL-01` identifier folded into the existing round-counter line —
+  no new rows, no change to the number's dominance.
+- Snake: stronger grid-line and new dot-matrix board texture, a small
+  "Grid 18×18" corner readout, and D-pad buttons that gained the angular
+  corner-cut language, a laser-blue static tint, and a more tactile
+  pressed state.
+- Shared (`patterns.css`): `.fp-corner-marks` (two-corner L-bracket
+  framing — Home's grid and Snake's board both use it) and a second
+  corner on `.fp-panel--brackets` (top-left + bottom-right, benefiting
+  every game's outer shell uniformly, not just Higher or Lower). Moved
+  the panel's top-sheen from `::before` onto the element's own
+  `background` so both pseudo-elements stay free for the two
+  brackets — a real conflict hit while implementing this (a surface only
+  has two pseudo-element slots), not a hypothetical one.
+- Deliberately not added: a four-corner bracket treatment (only two
+  pseudo-elements exist per surface — two opposite corners is the
+  honest ceiling without extra DOM nodes), any decorative motif beyond
+  corner marks and small labels, per-cell board coordinates, or any
+  change to Snake's rules/speed or Higher or Lower's logic.
+
 ## `f25a829` — Add project skills and hooks for the established Freeplay workflow
 
 Codifies patterns this project had already been following by hand,
