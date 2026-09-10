@@ -8,26 +8,38 @@
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  padding: 0.75rem 1rem;
+  padding: 0.5rem 1rem;
   background: var(--surface);
   border-bottom: 1px solid var(--surface-2);
 }
 
 .game-shell__back {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  min-height: 44px;
   background: none;
   border: 1px solid var(--surface-2);
   border-radius: 4px;
   color: var(--text);
   font-size: 1.1rem;
   line-height: 1;
-  padding: 0.5rem 0.75rem;
   cursor: pointer;
+  transition: border-color 120ms ease;
 }
 
-.game-shell__back:hover,
-.game-shell__back:focus-visible {
+.game-shell__back:hover {
   border-color: var(--laser-blue);
+}
+
+.game-shell__back:focus {
   outline: none;
+}
+
+.game-shell__back:focus-visible {
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 2px;
 }
 
 .game-shell__title {
@@ -40,6 +52,38 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  padding: 1rem;
+  padding: 1.25rem 1rem 2rem;
+  overflow-y: auto;
+}
+
+/*
+ * Fixed-floor, top-anchored panel: a game's leading content (e.g. its
+ * primary number/board) always renders at the same offset from the top,
+ * regardless of how much shorter/taller the content below it is (e.g.
+ * play controls vs. a game-over summary). This is what keeps a game's
+ * main surface visually stable across state changes.
+ */
+.game-shell__panel {
+  position: relative;
+  width: 100%;
+  max-width: 560px;
+  min-height: min(28rem, 55vh);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 2.5rem clamp(1rem, 5vw, 1.75rem) 2rem;
+  background: var(--surface);
+  border: 1px solid var(--surface-2);
+  border-radius: 6px;
+  clip-path: polygon(16px 0, 100% 0, 100% calc(100% - 16px), calc(100% - 16px) 100%, 0 100%, 0 16px);
+  box-shadow: 0 0 32px rgba(0, 0, 0, 0.4);
+  overflow: hidden;
+}
+
+.game-shell__panel::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(0, 217, 255, 0.06), transparent 45%);
+  pointer-events: none;
 }

@@ -5,12 +5,15 @@
 
   --laser-blue: #00d9ff;
   --uv-purple: #8b3dff;
+  --uv-purple-text: #a366ff;
   --toxic: #8cff00;
   --hot-pink: #ff2bd6;
   --orange: #ff8a00;
 
   --text: #f4f1ff;
   --muted: #9690ad;
+
+  --focus-ring: var(--laser-blue);
 }
 
 * {

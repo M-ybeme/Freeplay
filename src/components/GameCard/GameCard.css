@@ -15,11 +15,19 @@
     box-shadow 120ms ease;
 }
 
-.game-card:hover,
-.game-card:focus-visible {
+.game-card:hover {
   border-color: var(--laser-blue);
   box-shadow: 0 0 0 1px var(--laser-blue);
+}
+
+.game-card:focus {
   outline: none;
+}
+
+.game-card:focus-visible {
+  clip-path: none;
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 3px;
 }
 
 .game-card__icon {
@@ -40,5 +48,5 @@
   font-size: 0.7rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--uv-purple);
+  color: var(--uv-purple-text);
 }

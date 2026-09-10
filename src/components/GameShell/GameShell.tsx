@@ -23,7 +23,9 @@ export function GameShell({ title, children }: GameShellProps) {
         </button>
         <h1 className="game-shell__title">{title}</h1>
       </header>
-      <main className="game-shell__content">{children}</main>
+      <main className="game-shell__content">
+        <div className="game-shell__panel">{children}</div>
+      </main>
     </div>
   );
 }

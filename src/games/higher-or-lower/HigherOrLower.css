@@ -4,7 +4,6 @@
   align-items: center;
   width: 100%;
   max-width: 480px;
-  padding: 1rem 0;
 }
 
 .hol__round {
@@ -97,9 +96,14 @@
     box-shadow 120ms ease;
 }
 
-.hol__button:hover,
-.hol__button:focus-visible {
+.hol__button:focus {
   outline: none;
+}
+
+.hol__button:focus-visible {
+  clip-path: none;
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 3px;
 }
 
 .hol__button:active {
@@ -110,8 +114,7 @@
   border-color: var(--uv-purple);
 }
 
-.hol__button--lower:hover,
-.hol__button--lower:focus-visible {
+.hol__button--lower:hover {
   box-shadow:
     0 0 0 1px var(--uv-purple),
     0 0 16px rgba(139, 61, 255, 0.45);
@@ -121,8 +124,7 @@
   border-color: var(--laser-blue);
 }
 
-.hol__button--higher:hover,
-.hol__button--higher:focus-visible {
+.hol__button--higher:hover {
   box-shadow:
     0 0 0 1px var(--laser-blue),
     0 0 16px rgba(0, 217, 255, 0.45);
@@ -170,8 +172,7 @@
   border-color: var(--toxic);
 }
 
-.hol__button--restart:hover,
-.hol__button--restart:focus-visible {
+.hol__button--restart:hover {
   box-shadow:
     0 0 0 1px var(--toxic),
     0 0 16px rgba(140, 255, 0, 0.45);
