@@ -16,6 +16,56 @@ When adding an entry for a new game or feature, copy the pattern below:
 
 ---
 
+## `17a448f` — Implement Snake as Freeplay's second complete game
+
+Classic Snake on an 18×18 board (chosen over the brief's suggested ~20
+after actually testing cell/touch legibility at 320–390px widths).
+Rendered as absolutely-positioned DOM segments over a CSS grid-line
+background — no Canvas needed at this scale — inside its own
+radar/tactical-display board identity, visually distinct from Higher
+or Lower while still built from the shared `fp-*` primitives for chrome
+(HUD tiles, buttons, badges, accent backgrounds).
+
+- `logic.ts`: a pure state machine (`ready`/`playing`/`paused`/
+  `gameOver`/`won`). A bounded (length-2) direction queue lets a player
+  buffer "up then left" as two separate rapid inputs instead of losing
+  the first to a stale reversal check against an already-superseded
+  direction. `generateFood` enumerates free cells rather than
+  rejection-sampling, so it stays correct — and terminates — even on a
+  nearly-full board. 28 unit tests cover movement, every reversal/
+  buffering rule, growth, food placement (including a full board),
+  wall and self collision (including the legal case of moving into the
+  tail cell being vacated that same tick), and scoring.
+- `useSnake.ts`: a `useReducer`-driven game loop. A single effect keyed
+  on `[status, score]` owns the movement `setInterval` and always
+  cleans it up, so Strict Mode's mount-cleanup-mount can't double the
+  tick rate and leaving/returning to the route can't leak a second
+  loop — both verified in-browser by measuring actual elapsed
+  time-to-collision rather than trusting the code by inspection alone.
+  Keyboard (arrows + WASD + Space/P) and document-visibility auto-pause
+  (deliberately does not auto-resume) live in the hook; touch swipe
+  lives in the component, since it needs the board's DOM node directly.
+- All three input paths — keyboard, swipe, and an on-screen D-pad —
+  converge on the same `changeDirection()` call rather than each
+  driving game state independently.
+- Persists only the best score, through the existing
+  `useGameStorage(gameId, key, initial)` hook — no new persistence
+  mechanism.
+
+Fixed a real shared bug this game exposed: `GameShell`'s panel had a
+`min-height` floor but no `flex-shrink: 0`, so on a short viewport it
+could be compressed below what a game's content actually needed —
+and because the panel clips overflow, the excess (Snake's D-pad)
+simply vanished instead of the content area scrolling to reach it.
+Confirmed this fix does not reintroduce Higher or Lower's
+previously-fixed game-over layout shift (still measured at 0px).
+
+Deliberately not built: power-ups, enemies, multiple game modes,
+difficulty settings, a project-wide input manager, or a generic game
+loop/engine — input translation (keyboard/swipe/D-pad → direction)
+stays local to Snake, same as the direction-buffering logic, until a
+second game needs the identical pattern.
+
 ## `37beb9c` — Establish a reusable Freeplay visual language from the UI reference board
 
 Extracted recurring ideas from a visual reference board (`images/ui_elements.png`
