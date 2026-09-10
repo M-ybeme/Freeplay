@@ -16,6 +16,60 @@ When adding an entry for a new game or feature, copy the pattern below:
 
 ---
 
+## `cebbaf9` — Implement Minesweeper as Freeplay's fourth complete game
+
+Minesweeper as Freeplay's fourth complete game, styled as a hazard
+scanner / bomb-disposal terminal rather than a classic Windows-95
+board. Pure/testable logic, no shared abstractions extracted — nothing
+about this game generalized cleanly to the other three.
+
+- **Board logic** (`logic.ts`) — pure `createEmptyBoard`/`placeMines`/
+  `revealCell`/`toggleFlag`, an iterative (non-recursive, index-cursor
+  queue) flood fill, and first-click safety: the clicked cell plus its
+  full neighborhood is excluded from mine placement where the board
+  has room, degrading gracefully (clicked cell only, then no exclusion)
+  on boards too small or dense for a full exclusion zone. Mines are
+  placed lazily on the first reveal, merging in any flags set
+  beforehand rather than discarding them.
+- **Three difficulty presets** — Beginner (9×9/10) and Intermediate
+  (16×16/40) match the classic values. Expert is reshaped to **24×20
+  (480 cells) at 99 mines** rather than the classic 30×16 — identical
+  cell count and mine density, just a less extreme aspect ratio so it
+  stays usable on a phone instead of forcing a very short, very wide
+  board.
+- **Input** — mouse click/right-click for reveal/flag; touch uses
+  Pointer Events with a ~420ms long-press-to-flag, cancelled if the
+  pointer moves past a small tolerance (so a scroll or drag never also
+  fires a reveal), fully separate from the mouse handlers so neither
+  path can double-fire. A Reveal/Flag mode toggle covers touch devices
+  where long-press is impractical. The board also supports full
+  keyboard play: arrow-key roving-focus grid navigation, Enter/Space to
+  reveal, F to flag.
+- **Timer** — starts on first reveal, stops incrementing (without a
+  separate "paused" state) while `document.hidden`, via a plain
+  `setInterval` that just skips ticking rather than tearing down and
+  rebuilding around a visibility listener.
+- **Persistence** — best time per difficulty only (`useGameStorage`),
+  not full board/session state — a fresh page load always starts a new
+  game.
+- **Visual identity** — dot-matrix/grid-line board background, 2-corner
+  `fp-corner-marks` framing (reused from Snake/Home rather than
+  redefined), a small pennant-shaped flag and a compact core+ring mine
+  glyph (no cartoon bomb), and a distinct dark "hazard void" treatment
+  for the specific mine that ended the game vs. the merely-revealed
+  others. Reuses `fp-panel`, `fp-btn`, `fp-hud-tile`, and theme tokens
+  throughout — no new shared primitives were needed.
+- Responsive board sizing is CSS-only (`minmax()` grid tracks per
+  difficulty), with a horizontal-scroll fallback for Expert on narrow
+  viewports — fixed a real bug where `justify-content: center` on the
+  scroll wrapper made the left half of an overflowing board
+  unreachable, since `scrollLeft` can't go negative.
+
+No changes to Higher or Lower, Snake, or Blackjack, and no new shared
+abstraction beyond what `GameIcons` and `PlayingCard` already cover.
+
+---
+
 ## `5675792` — Implement Blackjack and a shared Freeplay playing-card system
 
 Blackjack as Freeplay's third complete game, and the first to establish
