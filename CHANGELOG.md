@@ -16,6 +16,28 @@ When adding an entry for a new game or feature, copy the pattern below:
 
 ---
 
+## `983bf6a` — Fix corner-index readability on the shared playing card
+
+The rank/suit corner index on `PlayingCard` was already a centered flex
+column, so horizontal alignment was never the actual problem. The real
+bug was the rank-to-suit gap: 1cqw, which rounds to well under a pixel
+at realistic hand sizes, so the suit glyph read as touching the rank on
+every card. Most visible on "10" specifically, since two digit glyphs
+sitting right above the icon read as more crowded than one character
+even with the identical gap.
+
+- Widened the gap to a proportionally meaningful 4cqw.
+- Gave the two-character "10" rank a dedicated, modestly reduced
+  size/tracking (`.playing-card__rank--ten`) so its footprint and
+  visual weight land close to a single-character rank instead of
+  dominating the corner.
+- Verified across all 52 rank/suit combinations, both indexes, five
+  card widths (42-96px), and a heavily overlapping Blackjack hand where
+  only a card's corner sliver is visible. No accessible-name or
+  hidden-card semantics changed.
+
+---
+
 ## `96fcb91` — Cross-game consistency pass and Netlify deploy config
 
 A polish pass across all four completed games (Higher or Lower, Snake,
