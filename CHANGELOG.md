@@ -16,6 +16,58 @@ When adding an entry for a new game or feature, copy the pattern below:
 
 ---
 
+## `5675792` — Implement Blackjack and a shared Freeplay playing-card system
+
+Blackjack as Freeplay's third complete game, and the first to establish
+shared infrastructure other card games can reuse without modification.
+
+- **Shared playing-card system** (`src/components/PlayingCard/`) — the
+  one abstraction explicitly justified here, since it's a visual/data
+  representation, not speculative game logic: `types.ts` (Suit/Rank/Card
+  + accessible-name helpers), `deck.ts` (pure, seedable `createDeck()` +
+  Fisher-Yates `shuffle()`), four hand-authored `SuitIcon` glyphs
+  (currentColor, matching the existing game-icon line language — no
+  emoji, no library), and `PlayingCard.tsx`/`.css`. A card renders from
+  `{rank, suit}` data, or face-down using the shared Freeplay back
+  (cyan/UV-purple crosshatch, angular inset frame, glowing "FP" mark)
+  when **no card data is passed at all** — the hidden dealer card's
+  rank/suit never reaches the DOM before reveal. Pip layouts for 2–10, a
+  large centered mark for Ace, stylized letter+icon+label composition
+  for J/Q/K (no illustrated court art). Every internal element sizes via
+  container-query (`cqw`) units against `--pc-width`, so one component
+  scales from a packed mobile hand to a full desktop card with no
+  separate variants.
+- New theme tokens `--card-face`/`-2`, `--card-ink`, `--card-red` —
+  cards are a pale surface, which inverts the rest of the app's
+  dark-on-light contrast direction. The existing neon `--hot-pink`
+  measured 2.55:1 against the pale card face; `--card-red` (#b3005c)
+  measures 5.46:1.
+- **Blackjack** (`src/games/blackjack/`) keeps rules local: pure hand
+  scoring (ace-as-11-then-demote-as-needed, soft/hard, natural blackjack
+  is specifically a 2-card 21), dealer stands on all 17s including soft,
+  and a reducer over explicit round states (player-turn / dealer-reveal
+  / dealer-turn / round-over). Dealer reveal and each draw are paced
+  with a short `setTimeout` (collapsed to ~0ms under
+  `prefers-reduced-motion`). Lifetime stats (wins/losses/pushes/
+  blackjacks) persist via the existing `useGameStorage`, counted exactly
+  once per round via a ref guarding by round-transition rather than by
+  outcome value (so two identical outcomes in a row both count — an
+  earlier, wrong version of this guard would have skipped the second).
+- Table surface is a dark holographic dealer/player layout (not felt),
+  with a responsive overlapping hand layout that scales card size and
+  overlap by hand length, built from the existing `fp-btn`/`fp-badge`/
+  `fp-bg-accent` language for controls and results.
+- 84 tests total (12 shared card-system + 39 Blackjack logic, on top of
+  the existing 33). Verified in-browser: every outcome type displays
+  correctly (sampled over 60+ real rounds plus a targeted run for dealer
+  blackjack specifically), hidden-card DOM inspection confirmed zero
+  rank/suit leakage before reveal, hand overlap verified at 2/3/5/7/9
+  cards with no horizontal overflow, stats persistence confirmed across
+  reload, reduced-motion confirmed (~40ms resolution vs 500ms+ normal).
+- Deliberately deferred: betting/chips/currency, insurance, surrender,
+  splitting, double-down, multiple simultaneous hands, and difficulty
+  modes — v1 is single-hand Blackjack against a dealer, nothing more.
+
 ## `56be361` — Visual personality pass: custom icons, arcade framing, radar board
 
 Pushed Freeplay's Y2K/laser-tag identity further via geometry and
