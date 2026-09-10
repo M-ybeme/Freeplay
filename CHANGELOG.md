@@ -16,6 +16,36 @@ When adding an entry for a new game or feature, copy the pattern below:
 
 ---
 
+## `f25a829` — Add project skills and hooks for the established Freeplay workflow
+
+Codifies patterns this project had already been following by hand,
+rather than introducing new process. Prompted directly by the gap the
+previous entry describes — a Snake speed tweak sat uncommitted and
+un-changelogged across a turn boundary until it was noticed and asked
+about.
+
+- **Hooks** (`.claude/settings.json`): a `PostToolUse` hook runs the
+  test suite after any `src/**/*.ts(x)` edit and blocks with the
+  failure output if it doesn't pass. A `Stop` hook prints a non-blocking
+  reminder when a turn ends with a dirty working tree.
+- Both hook scripts deliberately ignore the JSON payload's `cwd` field
+  and rely on their own inherited working directory — a bash-style
+  POSIX path (from `$(pwd)` under git-bash) isn't a valid `cwd` for
+  native Windows Node, and silently produces an error with empty
+  stdout/stderr rather than a useful failure. Also fixed a
+  `process.exit()`-truncates-pending-stdio-writes issue on the failure
+  path (use `process.exitCode` and let the script end naturally).
+- **Skills** (`.claude/skills/`): `new-freeplay-game` (the logic/hook/
+  component pattern and architecture guardrails from Higher or Lower
+  and Snake), `verify-freeplay-game` (the test/build/dev-server/
+  Playwright/live-playtest checklist actually used after each pass),
+  and `changelog-and-commit` (the format, the two-commit convention,
+  and an explicit pre-completion check for this exact kind of gap).
+- Loosened `.gitignore`'s blanket `.claude/` exclusion to just
+  `.claude/settings.local.json` and `.claude/scheduled_tasks.lock`, so
+  project-level settings/skills/hooks are shared via git rather than
+  hidden from it.
+
 ## `ad297e5` — Slow Snake's starting speed based on live playtesting feedback
 
 `BASE_TICK_MS` 140 → 190. Playing it live (via the Chrome extension,
