@@ -16,6 +16,42 @@ When adding an entry for a new game or feature, copy the pattern below:
 
 ---
 
+## `37beb9c` — Establish a reusable Freeplay visual language from the UI reference board
+
+Extracted recurring ideas from a visual reference board (`images/ui_elements.png`
+— a style guide, not an asset sheet) into a small shared CSS primitive layer
+(`src/styles/patterns.css`), then proved it on Home/`GameCard` and Higher or
+Lower before Snake inherits it. Higher or Lower's rules/scoring/persistence
+are unchanged — only its CSS classes changed to adopt the shared primitives.
+
+- `.fp-panel(--brackets)`: the arcade-console containment (inset surface,
+  clipped corners, thin border, top sheen, one restrained corner bracket).
+  `GameShell`'s panel now composes this instead of owning its own copy.
+- `.fp-btn` + `--primary/--secondary/--success/--danger`: a shared button
+  language (hover glow, disabled, shared high-contrast `:focus-visible`
+  ring) — replaces Higher or Lower's bespoke button CSS entirely.
+- `.fp-badge` + variants: outlined glowing status pills, replacing the old
+  solid-fill "New Best" badge.
+- `.fp-hud-tile`/`.fp-hud-label`/`.fp-hud-value`: inset digit-readout
+  styling for score/stat displays.
+- `.fp-label`, `.fp-divider`, `.fp-bg-accent--success/--danger`: a shared
+  technical-label style, a restrained divider line, and sparing
+  accent-background tints for special moments — used on Higher or Lower's
+  game-over panel (danger tint on a plain loss, success tint on a new best).
+- Self-hosted **Orbitron** (OFL-1.1, via `@fontsource`, bundled by Vite —
+  no runtime font CDN, offline/PWA-safe) applied to headings, the FREEPLAY
+  wordmark, and HUD numerals only; body/prompt/description text stays
+  system sans-serif.
+- Body background gained a faint fixed star/dot field and two low-opacity
+  corner glows behind content — restrained atmosphere, not a scene.
+- Deliberately not copied from the reference: the literal synthwave grid-
+  horizon background variant (contradicts the project's own anti-1980s-
+  retro direction), the full gradient/orbital logo treatment (a bespoke
+  logo-design task, not a font swap), and most of the decorative-motif
+  catalog (starbursts, barcode lines, hash marks, directional arrows) —
+  kept to corner brackets + a divider + the background texture to stay
+  restrained rather than visually dense.
+
 ## `41c57f5` — Refine shared GameShell/GameCard for touch target, contrast, and layout stability
 
 A shell/usability review of the running app (Home + Higher or Lower, mobile
