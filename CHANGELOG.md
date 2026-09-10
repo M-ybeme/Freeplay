@@ -16,6 +16,44 @@ When adding an entry for a new game or feature, copy the pattern below:
 
 ---
 
+## `96fcb91` — Cross-game consistency pass and Netlify deploy config
+
+A polish pass across all four completed games (Higher or Lower, Snake,
+Blackjack, Minesweeper) plus Home/GameShell, done by actually playing
+through every game at 320/390/768/1440px rather than reading CSS and
+guessing what "should" be shared. Deliberately conservative: most of
+what the audit checked (HUD tiles, buttons, panel widths, action
+terminology, decorative motifs, icon family, layout-shift, persistence,
+lifecycle, accessibility, reduced motion) held up and was left alone.
+
+- **Fixed:** a real 320px-only bug in Higher or Lower — the "Higher"
+  button's CSS grid track blew out past its content's intrinsic width
+  (grid items default to `min-width: auto`) and the overflow was
+  silently clipped by the panel's `overflow: hidden`, cutting off the
+  button's right border invisibly. A page-level horizontal-overflow
+  check didn't catch it, since the clipping panel absorbs it before it
+  reaches the document. Fixed with `min-width: 0` on the grid item plus
+  slightly tighter padding/letter-spacing so the label fits.
+- **Shared:** `.fp-result-title` (+ `--success`/`--danger`/`--info`)
+  and `.fp-result-detail` in `patterns.css`. All four games had
+  independently written the same font/size/weight/letter-spacing/color
+  treatment for their round-end heading and detail line — genuine
+  convergent duplication across all four, not a coincidence of a few
+  shared properties. Each game keeps its own result markup, layout,
+  and accent logic; only the text treatment moved.
+- **Left alone:** the shared shell/panel-width strategy (no game is
+  fighting it with overrides, so no `size="compact"/"wide"` API was
+  added); action-label wording (Play Again / Deal Again / New Game are
+  contextual, not inconsistent); the icon family, decorative motifs,
+  and HUD styling (already healthy); Blackjack's compact lifetime-stats
+  row (a different concept from a live score, correctly not forced
+  into a generic HUD tile).
+- Adds `netlify.toml` (build command, `dist` publish dir, SPA fallback
+  redirect to `index.html`) — deployment config only, no SDKs, plugins,
+  functions, or new dependencies.
+
+---
+
 ## `cebbaf9` — Implement Minesweeper as Freeplay's fourth complete game
 
 Minesweeper as Freeplay's fourth complete game, styled as a hazard
