@@ -16,6 +16,41 @@ When adding an entry for a new game or feature, copy the pattern below:
 
 ---
 
+## `41c57f5` — Refine shared GameShell/GameCard for touch target, contrast, and layout stability
+
+A shell/usability review of the running app (Home + Higher or Lower, mobile
+and desktop) surfaced four concrete issues living in shared code — meaning
+every future game would have inherited them unfixed. This pass addressed
+all four without touching Higher or Lower's rules, scoring, or persistence.
+
+- `GameShell`'s back button measured ~41×36px; now 44×44px.
+- Category label text used `--uv-purple` at 4.03:1 contrast (below WCAG
+  AA's 4.5:1 for small text). Added `--uv-purple-text`, a lighter tint of
+  the same hue, for text use — `--uv-purple` is kept for borders/glows.
+  Measured result: 5.26:1.
+- `GameShell`'s content area centered vertically, so Higher or Lower's
+  number jumped ~28px when the game-over panel (taller than the playing
+  controls) replaced it. Content now renders inside a fixed-floor,
+  top-anchored panel — a game's leading content sits at a constant offset
+  regardless of what renders below it. Measured shift after the fix: 0px,
+  across playing/correct/game-over/new-best.
+- Hover and keyboard focus were visually identical (same faint box-shadow
+  on both). Split into a restrained hover glow plus a distinct
+  high-contrast `:focus-visible` outline (new `--focus-ring` token),
+  extended to `GameCard` for consistency. Mouse clicks confirmed not to
+  trigger the outline (`:focus-visible`, not `:focus`).
+- The same panel introduces a restrained arcade-panel containment (inset
+  surface, clipped corners, thin border, subtle top sheen) that games
+  render inside via `GameShell` rather than floating on bare background —
+  the shared surface Snake's board can sit inside too.
+- Deliberately deferred: display typography for the FREEPLAY wordmark
+  (still plain system sans-serif). Judged to be a branding decision
+  needing its own pass — font choice, weight, and offline/self-hosting
+  implications — not a small drop-in for a shell-stability pass. Desktop
+  home-page whitespace was also left alone, as instructed — expected to
+  shrink naturally as the game library grows rather than being padded out
+  with filler content now.
+
 ## `5cb22c6` — Implement Higher or Lower as the first complete game
 
 The first fully playable game in Freeplay, replacing its placeholder.
