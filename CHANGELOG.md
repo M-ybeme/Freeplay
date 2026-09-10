@@ -16,6 +16,59 @@ When adding an entry for a new game or feature, copy the pattern below:
 
 ---
 
+## `6e47fc6` — Expand README and add MIT license
+
+README now explains what Freeplay is, lists the four games, and
+documents the available npm scripts and shared-code structure instead
+of just the structure section. Adds an MIT `LICENSE` and a `license`
+field in `package.json`.
+
+---
+
+## `8522d89` — Add PWA support: installable, offline-capable via vite-plugin-pwa
+
+Freeplay is now installable and works offline after one online visit,
+using the standard Vite PWA route (`vite-plugin-pwa`'s `generateSW`
+mode) rather than a hand-authored service worker — one of the rare
+cases where a new dependency is justified, since precaching, manifest
+integration, and update behavior are real repeated PWA concerns, not
+Freeplay-specific logic.
+
+- Precaches the JS/CSS bundle, self-hosted Orbitron font files, and
+  all icons at build time. No runtime caching rules, no API/data
+  layer — the app has no backend to account for.
+- `registerType: 'autoUpdate'` (skipWaiting + clientsClaim): a
+  redeploy reaches an already-open tab automatically on its next load
+  — no update prompt, no manual cache clearing. Verified by simulating
+  a redeploy against a live preview server and confirming an open tab
+  picked up the new build within about a second.
+- New manifest (name/short_name/description, `display: standalone`,
+  theme/background color matching the app's void background, no
+  forced orientation) and a new icon set (192/512/maskable PNGs +
+  apple-touch-icon), derived from one new SVG mark — a geometric
+  laser-blue "F" on the void background. The prior `favicon.svg` was
+  an unrelated purple abstract shape that didn't reference Freeplay or
+  its established palette, so it was replaced rather than adapted.
+- `index.html` gains theme-color/description meta tags and an
+  apple-touch-icon link; no other markup changes.
+- No safe-area (`env(safe-area-inset-*)`) handling was added — the
+  viewport meta doesn't set `viewport-fit=cover`, so iOS already
+  reserves notch/home-indicator space by default and there was nothing
+  to fix.
+
+Verified: offline reload and direct-URL refresh work for Home and all
+four games (client-side routing intact); Orbitron loads offline with
+no fallback; gameplay and localStorage persistence work fully offline;
+zero console/network errors across a full mixed online+offline session
+at 320/390/768/1440px. Netlify's existing SPA-fallback redirect is
+untouched and unaffected, since `sw.js`/manifest/icons are real files
+Netlify serves before the wildcard rule applies.
+
+No install-prompt UI, no update modal, no IndexedDB, no push
+notifications, no forced portrait orientation.
+
+---
+
 ## `983bf6a` — Fix corner-index readability on the shared playing card
 
 The rank/suit corner index on `PlayingCard` was already a centered flex
