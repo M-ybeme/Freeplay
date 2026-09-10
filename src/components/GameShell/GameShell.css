@@ -70,6 +70,14 @@
   width: 100%;
   max-width: 560px;
   min-height: min(28rem, 55vh);
+  /*
+   * Never flex-shrink below the content's natural size. Without this, a
+   * game with taller content than Higher or Lower's (e.g. Snake's HUD +
+   * board + D-pad) could be compressed shorter than it needs on a short
+   * viewport — and since the panel clips overflow, that silently cuts off
+   * whatever didn't fit instead of the content area scrolling to reach it.
+   */
+  flex-shrink: 0;
   display: flex;
   flex-direction: column;
   align-items: center;

@@ -1,4 +1,5 @@
 import type { GameDefinition } from "../../types/game";
+import { Snake } from "./Snake";
 
 export const definition: GameDefinition = {
   id: "snake",
@@ -11,6 +12,4 @@ export const definition: GameDefinition = {
   supportsKeyboard: true,
 };
 
-export default function Snake() {
-  return <p>Snake is coming soon.</p>;
-}
+export default Snake;
