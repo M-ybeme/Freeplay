@@ -16,6 +16,16 @@ When adding an entry for a new game or feature, copy the pattern below:
 
 ---
 
+## `ad297e5` — Slow Snake's starting speed based on live playtesting feedback
+
+`BASE_TICK_MS` 140 → 190. Playing it live (via the Chrome extension,
+with the user driving directly) showed the starting speed already felt
+brisk before the score-based ramp-up even began. Progression (4ms
+faster per food, 75ms floor) is unchanged — the run-up to max speed is
+simply longer now. A reminder of why a hands-on pass matters even after
+thorough automated verification: nothing in the test suite or the
+Playwright timing checks could have surfaced "this feels too fast."
+
 ## `17a448f` — Implement Snake as Freeplay's second complete game
 
 Classic Snake on an 18×18 board (chosen over the brief's suggested ~20
