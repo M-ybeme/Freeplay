@@ -9,16 +9,22 @@
 
 .home__logo {
   margin: 0;
+  font-family: var(--font-display);
+  font-weight: 900;
   font-size: 2rem;
-  letter-spacing: 0.15em;
+  letter-spacing: 0.1em;
   color: var(--laser-blue);
+  text-shadow: 0 0 20px rgba(0, 217, 255, 0.35);
 }
 
 .home__tagline {
-  margin: 0.25rem 0 0;
-  font-family: monospace;
-  font-size: 0.8rem;
+  margin: 0.35rem 0 0;
   color: var(--muted);
+}
+
+.home__divider {
+  margin: 1rem 0 0;
+  max-width: 320px;
 }
 
 .home__grid {

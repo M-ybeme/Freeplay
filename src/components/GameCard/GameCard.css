@@ -45,8 +45,5 @@
 
 .game-card__category {
   margin-top: auto;
-  font-size: 0.7rem;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
   color: var(--uv-purple-text);
 }

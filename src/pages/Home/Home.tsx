@@ -7,7 +7,8 @@ export function Home() {
     <div className="home">
       <header className="home__header">
         <h1 className="home__logo">FREEPLAY</h1>
-        <p className="home__tagline">// SYSTEM STATUS: FREE PLAY</p>
+        <p className="fp-label home__tagline">// SYSTEM STATUS: FREE PLAY</p>
+        <hr className="fp-divider home__divider" />
       </header>
       <div className="home__grid">
         {games.map((game) => (

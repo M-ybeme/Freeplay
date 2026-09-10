@@ -14,6 +14,9 @@
   --muted: #9690ad;
 
   --focus-ring: var(--laser-blue);
+  --line: rgba(0, 217, 255, 0.35);
+
+  --font-display: "Orbitron", "Segoe UI", sans-serif;
 }
 
 * {
@@ -28,13 +31,29 @@ body,
 
 body {
   margin: 0;
-  background: var(--void);
   color: var(--text);
   font-family:
     system-ui,
     -apple-system,
     "Segoe UI",
     sans-serif;
+
+  /*
+   * Primary background: very dark with a faint fixed star/dot field and two
+   * soft ambient glows anchored near the top corners. Kept low-opacity and
+   * static (no motion) so it reads as atmosphere, not decoration competing
+   * with foreground UI.
+   */
+  background-color: var(--void);
+  background-image:
+    radial-gradient(ellipse 900px 500px at 15% -10%, rgba(0, 217, 255, 0.07), transparent 60%),
+    radial-gradient(ellipse 700px 500px at 100% 0%, rgba(139, 61, 255, 0.06), transparent 60%),
+    radial-gradient(rgba(255, 255, 255, 0.07) 1px, transparent 1.2px);
+  background-size:
+    auto,
+    auto,
+    46px 46px;
+  background-repeat: no-repeat, no-repeat, repeat;
 }
 
 button {

@@ -22,10 +22,12 @@ export function HigherOrLower() {
       ? "hol__value--correct"
       : "hol__value--incorrect"
     : "";
+  const accentClass =
+    status === "gameOver" ? (isNewBest ? " fp-bg-accent--success" : " fp-bg-accent--danger") : "";
 
   return (
-    <div className="hol">
-      <p className="hol__round">// ROUND {String(round).padStart(2, "0")}</p>
+    <div className={`hol${accentClass}`}>
+      <p className="fp-label hol__round">// ROUND {String(round).padStart(2, "0")}</p>
 
       <div
         key={status === "gameOver" ? "final" : round}
@@ -48,14 +50,14 @@ export function HigherOrLower() {
           <div className="hol__controls">
             <button
               type="button"
-              className="hol__button hol__button--lower"
+              className="fp-btn fp-btn--secondary hol__button"
               onClick={() => guess("lower")}
             >
               <span aria-hidden="true">▼</span> Lower
             </button>
             <button
               type="button"
-              className="hol__button hol__button--higher"
+              className="fp-btn fp-btn--primary hol__button"
               onClick={() => guess("higher")}
             >
               Higher <span aria-hidden="true">▲</span>
@@ -70,10 +72,10 @@ export function HigherOrLower() {
           <p className="hol__gameover-detail">
             The signal was {feedback.revealed} — you called {feedback.guess}.
           </p>
-          {isNewBest && <p className="hol__badge">New best</p>}
+          {isNewBest && <p className="fp-badge fp-badge--success">New best</p>}
           <button
             type="button"
-            className="hol__button hol__button--restart"
+            className="fp-btn fp-btn--success hol__button hol__button--restart"
             onClick={restart}
           >
             Play again
@@ -82,13 +84,13 @@ export function HigherOrLower() {
       )}
 
       <div className="hol__scoreboard">
-        <div className="hol__score">
-          <span className="hol__score-label">Score</span>
-          <span className="hol__score-value">{String(score).padStart(3, "0")}</span>
+        <div className="fp-hud-tile">
+          <span className="fp-hud-label">Score</span>
+          <span className="fp-hud-value">{String(score).padStart(3, "0")}</span>
         </div>
-        <div className="hol__score">
-          <span className="hol__score-label">Best</span>
-          <span className="hol__score-value">{String(best).padStart(3, "0")}</span>
+        <div className="fp-hud-tile">
+          <span className="fp-hud-label">Best</span>
+          <span className="fp-hud-value">{String(best).padStart(3, "0")}</span>
         </div>
       </div>
     </div>

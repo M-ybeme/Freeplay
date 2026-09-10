@@ -1,0 +1,225 @@
+/*
+ * Freeplay shared visual language.
+ *
+ * Small, composable primitives used across games so each one doesn't
+ * reinvent panels/buttons/badges/labels from scratch. Purely presentational
+ * (no JS behavior lives here) — apply these classes alongside a component's
+ * own layout-specific class.
+ */
+
+/* ---------- Panels ---------- */
+
+/*
+ * Visual treatment only (no layout/sizing) so it can be composed onto any
+ * sized container. Corner brackets + top sheen are the "arcade console"
+ * detailing; kept to a single thin accent rather than a full glowing frame.
+ */
+.fp-panel {
+  position: relative;
+  background: var(--surface);
+  border: 1px solid var(--surface-2);
+  border-radius: 6px;
+  clip-path: polygon(16px 0, 100% 0, 100% calc(100% - 16px), calc(100% - 16px) 100%, 0 100%, 0 16px);
+  box-shadow: 0 0 32px rgba(0, 0, 0, 0.4);
+  overflow: hidden;
+}
+
+.fp-panel::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(0, 217, 255, 0.06), transparent 45%);
+  pointer-events: none;
+}
+
+/* Optional corner-bracket detailing for larger panels; skip on small cards. */
+.fp-panel--brackets::after {
+  content: "";
+  position: absolute;
+  inset: 10px;
+  border-top: 1px solid rgba(0, 217, 255, 0.3);
+  border-left: 1px solid rgba(0, 217, 255, 0.3);
+  width: 18px;
+  height: 18px;
+  pointer-events: none;
+}
+
+/* Sparingly-used accent tints for special moments (game-over, new-best, etc). */
+.fp-bg-accent--success {
+  background-image: radial-gradient(ellipse 420px 260px at 50% -10%, rgba(140, 255, 0, 0.14), transparent 65%);
+  background-repeat: no-repeat;
+}
+
+.fp-bg-accent--danger {
+  background-image: radial-gradient(ellipse 420px 260px at 50% -10%, rgba(255, 43, 214, 0.12), transparent 65%);
+  background-repeat: no-repeat;
+}
+
+/* ---------- Technical labels ---------- */
+
+/* Small uppercase monospace label — round counters, HUD labels, category tags. */
+.fp-label {
+  font-family: monospace;
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+/* ---------- Dividers ---------- */
+
+.fp-divider {
+  height: 1px;
+  width: 100%;
+  border: none;
+  background: linear-gradient(90deg, var(--line) 0%, transparent 70%);
+}
+
+/* ---------- HUD ---------- */
+
+.fp-hud-tile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
+  padding: 0.4rem 0.85rem;
+  background: var(--void);
+  border: 1px solid var(--surface-2);
+  border-radius: 4px;
+  clip-path: polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px);
+}
+
+.fp-hud-label {
+  font-size: 0.65rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.fp-hud-value {
+  font-family: var(--font-display);
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+/* ---------- Status badges ---------- */
+
+.fp-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.3rem 0.9rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  background: transparent;
+  border: 1.5px solid currentColor;
+  border-radius: 999px;
+}
+
+.fp-badge--success {
+  color: var(--toxic);
+  box-shadow: 0 0 12px rgba(140, 255, 0, 0.35);
+}
+
+.fp-badge--danger {
+  color: var(--hot-pink);
+  box-shadow: 0 0 12px rgba(255, 43, 214, 0.35);
+}
+
+.fp-badge--info {
+  color: var(--laser-blue);
+  box-shadow: 0 0 12px rgba(0, 217, 255, 0.35);
+}
+
+/* ---------- Buttons ---------- */
+
+/*
+ * Base interactive behavior (hover/active/disabled/focus) plus angular
+ * shaping. Color comes from a variant class. Compose with a local class
+ * for game-specific sizing (e.g. a bigger min-height for a primary action).
+ */
+.fp-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: 44px;
+  padding: 0.75rem 1.25rem;
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text);
+  background: var(--surface);
+  border: 2px solid var(--surface-2);
+  border-radius: 4px;
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 10px 100%, 0 calc(100% - 10px));
+  cursor: pointer;
+  transition:
+    transform 80ms ease,
+    border-color 120ms ease,
+    box-shadow 120ms ease;
+}
+
+.fp-btn:active {
+  transform: scale(0.96);
+}
+
+.fp-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+  box-shadow: none;
+  transform: none;
+}
+
+.fp-btn:focus {
+  outline: none;
+}
+
+.fp-btn:focus-visible {
+  clip-path: none;
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 3px;
+}
+
+.fp-btn--primary {
+  border-color: var(--laser-blue);
+}
+
+.fp-btn--primary:hover:not(:disabled) {
+  box-shadow:
+    0 0 0 1px var(--laser-blue),
+    0 0 16px rgba(0, 217, 255, 0.45);
+}
+
+.fp-btn--secondary {
+  border-color: var(--uv-purple);
+}
+
+.fp-btn--secondary:hover:not(:disabled) {
+  box-shadow:
+    0 0 0 1px var(--uv-purple),
+    0 0 16px rgba(139, 61, 255, 0.45);
+}
+
+.fp-btn--success {
+  border-color: var(--toxic);
+}
+
+.fp-btn--success:hover:not(:disabled) {
+  box-shadow:
+    0 0 0 1px var(--toxic),
+    0 0 16px rgba(140, 255, 0, 0.45);
+}
+
+.fp-btn--danger {
+  border-color: var(--hot-pink);
+}
+
+.fp-btn--danger:hover:not(:disabled) {
+  box-shadow:
+    0 0 0 1px var(--hot-pink),
+    0 0 16px rgba(255, 43, 214, 0.45);
+}

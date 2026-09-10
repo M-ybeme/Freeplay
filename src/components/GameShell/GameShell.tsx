@@ -24,7 +24,7 @@ export function GameShell({ title, children }: GameShellProps) {
         <h1 className="game-shell__title">{title}</h1>
       </header>
       <main className="game-shell__content">
-        <div className="game-shell__panel">{children}</div>
+        <div className="game-shell__panel fp-panel fp-panel--brackets">{children}</div>
       </main>
     </div>
   );

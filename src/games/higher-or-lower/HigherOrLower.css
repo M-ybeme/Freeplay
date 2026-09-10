@@ -8,15 +8,11 @@
 
 .hol__round {
   margin: 0 0 0.5rem;
-  font-family: monospace;
-  font-size: 0.75rem;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
   color: var(--muted);
 }
 
 .hol__value {
-  font-family: monospace;
+  font-family: var(--font-display);
   font-size: clamp(4rem, 22vw, 7rem);
   font-weight: 700;
   line-height: 1;
@@ -74,60 +70,7 @@
 }
 
 .hol__button {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
   min-height: 64px;
-  padding: 1rem;
-  font-size: 1rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--text);
-  background: var(--surface);
-  border: 2px solid var(--surface-2);
-  border-radius: 4px;
-  clip-path: polygon(0 0, 100% 0, 100% 100%, 10px 100%, 0 calc(100% - 10px));
-  cursor: pointer;
-  transition:
-    transform 80ms ease,
-    border-color 120ms ease,
-    box-shadow 120ms ease;
-}
-
-.hol__button:focus {
-  outline: none;
-}
-
-.hol__button:focus-visible {
-  clip-path: none;
-  outline: 3px solid var(--focus-ring);
-  outline-offset: 3px;
-}
-
-.hol__button:active {
-  transform: scale(0.96);
-}
-
-.hol__button--lower {
-  border-color: var(--uv-purple);
-}
-
-.hol__button--lower:hover {
-  box-shadow:
-    0 0 0 1px var(--uv-purple),
-    0 0 16px rgba(139, 61, 255, 0.45);
-}
-
-.hol__button--higher {
-  border-color: var(--laser-blue);
-}
-
-.hol__button--higher:hover {
-  box-shadow:
-    0 0 0 1px var(--laser-blue),
-    0 0 16px rgba(0, 217, 255, 0.45);
 }
 
 .hol__gameover {
@@ -141,9 +84,10 @@
 
 .hol__gameover-title {
   margin: 0;
+  font-family: var(--font-display);
   font-size: 1.1rem;
   font-weight: 700;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--hot-pink);
 }
@@ -154,53 +98,13 @@
   color: var(--muted);
 }
 
-.hol__badge {
-  margin: 0;
-  padding: 0.25rem 0.75rem;
-  font-size: 0.75rem;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--void);
-  background: var(--toxic);
-  border-radius: 999px;
-}
-
 .hol__button--restart {
   width: 100%;
   max-width: 280px;
-  border-color: var(--toxic);
-}
-
-.hol__button--restart:hover {
-  box-shadow:
-    0 0 0 1px var(--toxic),
-    0 0 16px rgba(140, 255, 0, 0.45);
 }
 
 .hol__scoreboard {
   display: flex;
   gap: 2rem;
   margin-top: 2rem;
-  font-family: monospace;
-}
-
-.hol__score {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.15rem;
-}
-
-.hol__score-label {
-  font-size: 0.7rem;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--muted);
-}
-
-.hol__score-value {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: var(--text);
 }

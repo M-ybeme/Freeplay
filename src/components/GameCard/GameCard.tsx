@@ -14,7 +14,7 @@ export function GameCard({ game }: GameCardProps) {
       </span>
       <span className="game-card__name">{game.name}</span>
       <span className="game-card__description">{game.description}</span>
-      <span className="game-card__category">{game.category}</span>
+      <span className="fp-label game-card__category">{game.category}</span>
     </Link>
   );
 }
