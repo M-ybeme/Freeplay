@@ -1,32 +1,22 @@
-# React + TypeScript + Vite
+# Freeplay
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+A personal, ad-free collection of small games. See
+[Freeplay_Project_Planning.md](./Freeplay_Project_Planning.md) for the
+full vision, principles, and roadmap.
 
-Currently, two official plugins are available:
+## Development
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
-
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the Oxlint configuration
-
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
-
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
+```bash
+npm install
+npm run dev
 ```
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+## Structure
+
+- `src/games/<id>/` — one folder per game, exporting a `GameDefinition`
+  and a default component.
+- `src/games/index.ts` — the game registry every game is added to.
+- `src/components/GameShell` — the shared chrome every game renders inside.
+- `src/pages/Home` — the game grid / landing screen.
+- `src/services/storage`, `src/hooks/useGameStorage` — localStorage-backed
+  persistence, namespaced per game.
