@@ -70,8 +70,8 @@ export function HigherOrLower() {
 
       {status === "gameOver" && feedback && (
         <div className="hol__gameover" role="alert">
-          <p className="hol__gameover-title">Run over</p>
-          <p className="hol__gameover-detail">
+          <p className="fp-result-title fp-result-title--danger">Run over</p>
+          <p className="fp-result-detail">
             The signal was {feedback.revealed} — you called {feedback.guess}.
           </p>
           {isNewBest && <p className="fp-badge fp-badge--success">New best</p>}

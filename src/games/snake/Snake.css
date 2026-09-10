@@ -189,30 +189,6 @@
   background: rgba(8, 6, 18, 0.85);
 }
 
-.snake__overlay-title {
-  margin: 0;
-  font-family: var(--font-display);
-  font-size: 1.1rem;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--laser-blue);
-}
-
-.fp-bg-accent--danger .snake__overlay-title {
-  color: var(--hot-pink);
-}
-
-.fp-bg-accent--success .snake__overlay-title {
-  color: var(--toxic);
-}
-
-.snake__overlay-detail {
-  margin: 0;
-  font-size: 0.85rem;
-  color: var(--muted);
-}
-
 .snake__restart {
   margin-top: 0.25rem;
 }

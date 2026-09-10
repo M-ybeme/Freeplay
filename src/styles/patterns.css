@@ -148,6 +148,44 @@
   color: var(--text);
 }
 
+/* ---------- Result headings ---------- */
+
+/*
+ * Every game ends a round with a title + short detail line (HOL's "Run
+ * over", Snake's "Game over"/"Board cleared", Blackjack's "Win"/"Loss"/
+ * "Push", Minesweeper's "Detonated"/"Board cleared"). All four had
+ * independently arrived at the same font/size/weight/letter-spacing and the
+ * same three accent colors — genuine convergent duplication, not a
+ * coincidence of a few shared properties. Layout and wrapper markup stay
+ * local to each game; this only shares the text treatment.
+ */
+.fp-result-title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.1rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.fp-result-title--success {
+  color: var(--toxic);
+}
+
+.fp-result-title--danger {
+  color: var(--hot-pink);
+}
+
+.fp-result-title--info {
+  color: var(--laser-blue);
+}
+
+.fp-result-detail {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
 /* ---------- Status badges ---------- */
 
 .fp-badge {

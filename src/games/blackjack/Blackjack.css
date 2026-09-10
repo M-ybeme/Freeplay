@@ -79,33 +79,6 @@
   padding-top: 0.35rem;
 }
 
-.blackjack-result__title {
-  margin: 0;
-  font-family: var(--font-display);
-  font-size: 1.1rem;
-  font-weight: 700;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-}
-
-.blackjack-result__title--success {
-  color: var(--toxic);
-}
-
-.blackjack-result__title--danger {
-  color: var(--hot-pink);
-}
-
-.blackjack-result__title--info {
-  color: var(--laser-blue);
-}
-
-.blackjack-result__detail {
-  margin: 0;
-  font-size: 0.8rem;
-  color: var(--muted);
-}
-
 /* ---------- Controls ---------- */
 
 .blackjack-controls {

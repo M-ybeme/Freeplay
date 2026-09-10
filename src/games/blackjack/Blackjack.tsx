@@ -93,10 +93,8 @@ export function Blackjack() {
 
         {result && (
           <div className="blackjack-result" role="alert">
-            <p className={`blackjack-result__title blackjack-result__title--${result.accent}`}>
-              {result.title}
-            </p>
-            <p className="blackjack-result__detail">
+            <p className={`fp-result-title fp-result-title--${result.accent}`}>{result.title}</p>
+            <p className="fp-result-detail">
               {playerScore.total} — {dealerScore.total}
             </p>
           </div>

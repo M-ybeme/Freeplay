@@ -245,25 +245,3 @@
   border-radius: 4px;
 }
 
-.minesweeper__result-title {
-  margin: 0;
-  font-family: var(--font-display);
-  font-weight: 700;
-  font-size: 1.1rem;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-}
-
-.minesweeper__result-title--success {
-  color: var(--toxic);
-}
-
-.minesweeper__result-title--danger {
-  color: var(--hot-pink);
-}
-
-.minesweeper__result-detail {
-  margin: 0;
-  font-size: 0.85rem;
-  color: var(--muted);
-}

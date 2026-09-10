@@ -257,12 +257,10 @@ export function Minesweeper() {
           className={`minesweeper__result ${board.status === "won" ? "fp-bg-accent--success" : "fp-bg-accent--danger"}`}
           role="alert"
         >
-          <p
-            className={`minesweeper__result-title minesweeper__result-title--${board.status === "won" ? "success" : "danger"}`}
-          >
+          <p className={`fp-result-title fp-result-title--${board.status === "won" ? "success" : "danger"}`}>
             {board.status === "won" ? "Board cleared" : "Detonated"}
           </p>
-          <p className="minesweeper__result-detail">
+          <p className="fp-result-detail">
             {board.status === "won" ? `Time ${formatTime(elapsed)}` : "Game over"}
             {bestTime !== null && ` — Best ${formatTime(bestTime)}`}
           </p>

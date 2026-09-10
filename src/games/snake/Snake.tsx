@@ -99,22 +99,24 @@ export function Snake() {
 
         {status === "ready" && (
           <div className="snake__overlay" role="status" aria-live="polite">
-            <p className="snake__overlay-title">Ready</p>
-            <p className="snake__overlay-detail">Swipe or press a direction to start</p>
+            <p className="fp-result-title fp-result-title--info">Ready</p>
+            <p className="fp-result-detail">Swipe or press a direction to start</p>
           </div>
         )}
 
         {status === "paused" && (
           <div className="snake__overlay" role="status" aria-live="polite">
-            <p className="snake__overlay-title">Paused</p>
-            <p className="snake__overlay-detail">Resume when you're ready</p>
+            <p className="fp-result-title fp-result-title--info">Paused</p>
+            <p className="fp-result-detail">Resume when you're ready</p>
           </div>
         )}
 
         {isGameEnd && (
           <div className={`snake__overlay ${status === "won" ? "fp-bg-accent--success" : "fp-bg-accent--danger"}`} role="alert">
-            <p className="snake__overlay-title">{status === "won" ? "Board cleared" : "Game over"}</p>
-            <p className="snake__overlay-detail">
+            <p className={`fp-result-title fp-result-title--${status === "won" ? "success" : "danger"}`}>
+              {status === "won" ? "Board cleared" : "Game over"}
+            </p>
+            <p className="fp-result-detail">
               Score {score} — Best {Math.max(score, best)}
             </p>
             {isNewBest && <p className="fp-badge fp-badge--success">New best</p>}
