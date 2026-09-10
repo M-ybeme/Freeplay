@@ -1,0 +1,134 @@
+.blackjack {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  max-width: 480px;
+  gap: 0.85rem;
+}
+
+/* ---------- Table surface ---------- */
+
+.blackjack-table {
+  position: relative;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  padding: 1rem 0.85rem;
+  background:
+    radial-gradient(ellipse 160% 70% at 50% 0%, rgba(0, 217, 255, 0.07), transparent 65%),
+    radial-gradient(ellipse 160% 70% at 50% 100%, rgba(139, 61, 255, 0.06), transparent 65%),
+    var(--void);
+  border: 1px solid rgba(0, 217, 255, 0.3);
+  border-radius: 6px;
+  box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.5);
+}
+
+.blackjack-table__divider {
+  margin: 0.1rem 0;
+}
+
+/* ---------- Zones ---------- */
+
+.blackjack-zone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.blackjack-zone__label {
+  align-self: flex-start;
+  color: var(--muted);
+}
+
+.blackjack-zone__value {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+/* ---------- Hand layout ---------- */
+
+.blackjack-hand {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  min-height: calc(var(--pc-width, 64px) * 1.4);
+  padding: 0.25rem 0;
+}
+
+.blackjack-hand__card {
+  margin-left: var(--pc-overlap, -24px);
+}
+
+.blackjack-hand__card:first-child {
+  margin-left: 0;
+}
+
+/* ---------- Result ---------- */
+
+.blackjack-result {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.15rem;
+  padding-top: 0.35rem;
+}
+
+.blackjack-result__title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.blackjack-result__title--success {
+  color: var(--toxic);
+}
+
+.blackjack-result__title--danger {
+  color: var(--hot-pink);
+}
+
+.blackjack-result__title--info {
+  color: var(--laser-blue);
+}
+
+.blackjack-result__detail {
+  margin: 0;
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+/* ---------- Controls ---------- */
+
+.blackjack-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  min-height: 44px;
+  width: 100%;
+}
+
+.blackjack-controls .fp-btn {
+  flex: 1;
+  max-width: 160px;
+}
+
+.blackjack-controls__waiting {
+  color: var(--muted);
+}
+
+/* ---------- Lifetime stats ---------- */
+
+.blackjack-stats {
+  flex-direction: row;
+  padding: 0.5rem 1rem;
+}

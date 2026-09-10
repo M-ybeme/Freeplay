@@ -1,0 +1,170 @@
+/*
+ * Shared Freeplay playing card. Sized entirely via the --pc-width custom
+ * property set by whatever hand/layout renders it; every internal element
+ * uses container-query units (cqw) so the same markup scales cleanly from
+ * a tiny mobile hand to a full-size desktop card with no separate
+ * mobile/desktop variants.
+ */
+.playing-card {
+  position: relative;
+  width: var(--pc-width, 64px);
+  aspect-ratio: 5 / 7;
+  flex-shrink: 0;
+  container-type: inline-size;
+  background-color: var(--card-face);
+  border: 1px solid var(--card-face-2);
+  border-radius: 4px;
+  clip-path: polygon(10% 0, 100% 0, 100% 90%, 90% 100%, 0 100%, 0 10%);
+  box-shadow:
+    0 2px 6px rgba(0, 0, 0, 0.45),
+    inset 0 0 0 1px rgba(20, 16, 31, 0.25);
+  overflow: hidden;
+  animation: playing-card-deal 180ms ease-out;
+}
+
+@keyframes playing-card-deal {
+  from {
+    opacity: 0;
+    transform: translateY(-6px) scale(0.92);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.playing-card--red {
+  color: var(--card-red);
+}
+
+.playing-card--black {
+  color: var(--card-ink);
+}
+
+.playing-card__index {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1cqw;
+  line-height: 1;
+}
+
+.playing-card__index--top {
+  top: 6%;
+  left: 9%;
+}
+
+.playing-card__index--bottom {
+  bottom: 6%;
+  right: 9%;
+  transform: rotate(180deg);
+}
+
+.playing-card__rank {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 20cqw;
+}
+
+.playing-card__index-suit {
+  width: 14cqw;
+  height: 14cqw;
+}
+
+.playing-card__center {
+  position: absolute;
+  inset: 16% 12%;
+}
+
+/* ---------- Number cards (pips) ---------- */
+
+.playing-card__pips {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.playing-card__pip {
+  position: absolute;
+  width: 18cqw;
+  height: 18cqw;
+  transform: translate(-50%, -50%);
+}
+
+/* ---------- Ace ---------- */
+
+.playing-card__ace {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+}
+
+.playing-card__ace-icon {
+  width: 40cqw;
+  height: 40cqw;
+  filter: drop-shadow(0 0 6px rgba(0, 0, 0, 0.15));
+}
+
+/* ---------- Face cards (J/Q/K) ---------- */
+
+.playing-card__face {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2cqw;
+  width: 100%;
+  height: 100%;
+}
+
+.playing-card__face-letter {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 30cqw;
+  line-height: 1;
+}
+
+.playing-card__face-suit {
+  width: 16cqw;
+  height: 16cqw;
+}
+
+.playing-card__face-label {
+  font-family: monospace;
+  font-size: 8cqw;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  opacity: 0.7;
+}
+
+/* ---------- Card back ---------- */
+
+.playing-card--back {
+  background-color: var(--void);
+  background-image:
+    repeating-linear-gradient(45deg, rgba(0, 217, 255, 0.09) 0 2px, transparent 2px 10px),
+    repeating-linear-gradient(-45deg, rgba(139, 61, 255, 0.09) 0 2px, transparent 2px 10px);
+  border: 1px solid rgba(0, 217, 255, 0.4);
+}
+
+.playing-card__back-frame {
+  position: absolute;
+  inset: 12%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(0, 217, 255, 0.35);
+  clip-path: polygon(14% 0, 100% 0, 100% 86%, 86% 100%, 0 100%, 0 14%);
+}
+
+.playing-card__back-mark {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 22cqw;
+  letter-spacing: 0.05em;
+  color: var(--laser-blue);
+  text-shadow: 0 0 8px rgba(0, 217, 255, 0.6);
+}

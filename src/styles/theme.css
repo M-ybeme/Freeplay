@@ -17,6 +17,17 @@
   --line: rgba(0, 217, 255, 0.35);
 
   --font-display: "Orbitron", "Segoe UI", sans-serif;
+
+  /*
+   * Playing-card face tokens: cards are a pale surface, which inverts the
+   * rest of Freeplay's dark-on-light contrast direction. --hot-pink reads
+   * fine on dark surfaces but fails contrast on a pale card face (~2.6:1),
+   * so red suits get their own darker tone tuned for that surface.
+   */
+  --card-face: #e7e4f2;
+  --card-face-2: #d3cfe6;
+  --card-ink: #14101f;
+  --card-red: #b3005c;
 }
 
 * {
