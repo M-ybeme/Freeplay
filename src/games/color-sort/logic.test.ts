@@ -9,7 +9,6 @@ import {
   pour,
   pourAmount,
   solve,
-  tubeCount,
   type Board,
 } from "./logic";
 
@@ -132,7 +131,7 @@ describe("generatePuzzle", () => {
     for (const difficulty of DIFFICULTIES) {
       const rng = mulberry32(42);
       const board = generatePuzzle(difficulty, rng);
-      expect(board.length).toBe(tubeCount(difficulty));
+      expect(board.length).toBe(difficulty.colorCount + difficulty.helperTubes);
 
       const counts = new Map<number, number>();
       for (const tube of board) {

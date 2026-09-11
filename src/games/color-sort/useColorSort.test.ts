@@ -165,6 +165,34 @@ describe("reducer - select/pour and history", () => {
     expect(afterUndo.moveCount).toBe(0);
   });
 
+  it("caps history at 200 entries, dropping the oldest (not the newest) once exceeded", () => {
+    // Tubes 0/1 oscillate forever between full/empty under alternating
+    // 0->1 / 1->0 pours - a simple way to rack up 200+ real, legal,
+    // state-changing moves without a large or realistic board. Tube 2 (only
+    // 2 of a *different* color, never touched) exists purely so the board
+    // never satisfies isBoardSolved - with just tubes 0/1 and one color,
+    // consolidating it after move 1 would trivially "win" and the reducer
+    // would correctly refuse every move after that.
+    let state = fixedState([[0, 0], [0, 0], [1, 1]]);
+    for (let i = 0; i < 201; i++) {
+      const [from, to] = i % 2 === 0 ? [0, 1] : [1, 0];
+      state = reducer(reducer(state, { type: "select", index: from }), { type: "select", index: to });
+    }
+    expect(state.moveCount).toBe(201);
+    expect(state.history).toHaveLength(200);
+    // The entry recorded before move 1 (moveCount snapshot 0) is the oldest
+    // and should have been evicted; the oldest surviving entry is the one
+    // recorded before move 2.
+    expect(state.history[0].moveCount).toBe(1);
+    expect(state.history[state.history.length - 1].moveCount).toBe(200);
+
+    // Undo still behaves normally against the capped history: it steps back
+    // exactly one move, consistent with the surviving entries.
+    const afterUndo = reducer(state, { type: "undo" });
+    expect(afterUndo.moveCount).toBe(200);
+    expect(afterUndo.history).toHaveLength(199);
+  });
+
   // Best-move persistence lives in useColorSort's own useGameStorage-backed
   // effect, entirely outside this reducer - the "undo" action has no way to
   // reach or reset it (it isn't part of GameState at all), so a recorded

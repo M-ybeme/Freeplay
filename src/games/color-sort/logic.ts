@@ -30,10 +30,6 @@ export interface Move {
   to: number;
 }
 
-export function tubeCount(difficulty: Difficulty): number {
-  return difficulty.colorCount + difficulty.helperTubes;
-}
-
 function topColor(tube: Tube): number | null {
   return tube.length === 0 ? null : tube[tube.length - 1];
 }

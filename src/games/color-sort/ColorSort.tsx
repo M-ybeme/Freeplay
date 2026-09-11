@@ -90,7 +90,7 @@ export function ColorSort() {
             index={i}
             selected={selectedTube === i}
             legalTarget={selectedTube !== null && selectedTube !== i && isLegalPour(board, selectedTube, i)}
-            disabled={won}
+            disabled={won || pendingDifficulty !== null}
             onSelect={selectTube}
           />
         ))}
@@ -101,7 +101,7 @@ export function ColorSort() {
           type="button"
           className="fp-btn fp-btn--secondary color-sort__control-btn"
           onClick={undo}
-          disabled={!canUndo}
+          disabled={!canUndo || pendingDifficulty !== null}
         >
           Undo
         </button>
@@ -109,7 +109,7 @@ export function ColorSort() {
           type="button"
           className="fp-btn fp-btn--secondary color-sort__control-btn"
           onClick={restartPuzzle}
-          disabled={won}
+          disabled={won || pendingDifficulty !== null}
         >
           Restart puzzle
         </button>

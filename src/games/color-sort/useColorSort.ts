@@ -12,11 +12,23 @@ import {
 
 type Status = "playing" | "won";
 
-/** A snapshot of everything Undo needs to restore - taken right before a pour is applied. */
+// Far beyond realistic recovery needs - this exists only to give history a
+// deterministic memory bound, not because players are expected to undo this
+// deep. Oldest entries are dropped first so undo always steps back from
+// wherever play currently is.
+const MAX_HISTORY = 200;
+
+/**
+ * A snapshot of everything Undo needs to restore - taken right before a pour
+ * is applied. No `status` field: a history entry can only ever be created
+ * from the "select" action's pour branch, which is only reachable when
+ * state.status === "playing" (the reducer returns early otherwise), so the
+ * status being restored is always "playing" - storing it would just be
+ * recording a constant.
+ */
 interface HistoryEntry {
   board: Board;
   moveCount: number;
-  status: Status;
 }
 
 export interface GameState {
@@ -73,7 +85,7 @@ export function reducer(state: GameState, action: Action): GameState {
         ...state,
         board: previous.board,
         moveCount: previous.moveCount,
-        status: previous.status,
+        status: "playing",
         selectedTube: null,
         history: state.history.slice(0, -1),
       };
@@ -94,14 +106,18 @@ export function reducer(state: GameState, action: Action): GameState {
 
       if (isLegalPour(state.board, state.selectedTube, index)) {
         const board = pour(state.board, state.selectedTube, index);
-        const entry: HistoryEntry = { board: state.board, moveCount: state.moveCount, status: state.status };
+        const entry: HistoryEntry = { board: state.board, moveCount: state.moveCount };
+        // Oldest first: dropping from the front (not the back) is what makes
+        // this "keep the most recent 200 moves" rather than "keep the first
+        // 200 moves ever made".
+        const history = [...state.history, entry].slice(-MAX_HISTORY);
         return {
           ...state,
           board,
           selectedTube: null,
           moveCount: state.moveCount + 1,
           status: isBoardSolved(board) ? "won" : "playing",
-          history: [...state.history, entry],
+          history,
         };
       }
 
