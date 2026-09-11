@@ -16,6 +16,51 @@ When adding an entry for a new game or feature, copy the pattern below:
 
 ---
 
+## `9a17128` — Implement Color Sort as Freeplay's fifth complete game
+
+Pour tubes to gather each color into one place, styled as a chromatic
+containment / sample-processing terminal - the first of the four
+organic-growth games, and the first to need guaranteed-solvable
+procedural generation.
+
+- Generation randomly distributes color units into tubes, then
+  verifies solvability with a solver, rather than reverse-scrambling
+  from a solved state. That's a deliberate, structural choice, not a
+  shortcut: a Color Sort pour is only ever legal onto an empty tube or
+  a matching top color, so every tube stays single-color for as long
+  as it's only been touched by legal pours - reversing a sequence of
+  legal pours can permute which tube holds how much of a color, but
+  can never produce the jumbled, multi-color tubes a real puzzle
+  needs. Legal-pour reversal is structurally incapable of generating
+  this game's puzzles.
+- The solver itself went through a real redesign: an initial BFS
+  implementation exhausted a 200,000-state cap and multiple GB of
+  memory trying to verify 7-8 color boards, because BFS holds the
+  entire search frontier in memory and this puzzle's branching factor
+  makes that frontier explode before reaching a solution. Replaced
+  with an iterative DFS using a move-ordering heuristic and a
+  visited-state set - memory proportional to one path, not the whole
+  frontier - solving every difficulty tier in well under half a
+  second across a wide seed sweep.
+- Hard is tuned to 7 colors + 3 helpers, not 8 - measured directly
+  that 8-color boards routinely took 5+ seconds or timed out
+  regardless of helper-tube count, while 7 colors solved reliably in
+  under 400ms. A real difficulty knob, chosen from measurement rather
+  than a round number.
+- Each color has both a name and a distinct geometric mark (circle,
+  ring, triangle, diamond, pentagon, plus, hexagon) on its segments,
+  so play never depends on hue alone.
+- Tap-source/tap-destination interaction using real `<button>`
+  elements, so keyboard play (Tab + Enter) needed no extra code.
+  Legal destinations highlight live while a tube is selected, which
+  doubles as the "illegal move" indication - proactive guidance
+  instead of a reactive error.
+- Persists selected difficulty and best move count per difficulty; the
+  active puzzle does not persist, matching the other arcade-style
+  games rather than Blackjack/Minesweeper's longer-session model.
+
+---
+
 ## `6e84af3` — Document the organic-growth roadmap: next four games
 
 Planning/documentation only — no implementation. Freeplay has entered
