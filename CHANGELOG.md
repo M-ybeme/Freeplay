@@ -16,6 +16,31 @@ When adding an entry for a new game or feature, copy the pattern below:
 
 ---
 
+## `6e84af3` — Document the organic-growth roadmap: next four games
+
+Planning/documentation only — no implementation. Freeplay has entered
+Phase 7 ("Grow Organically"), and this records the concrete plan for
+it rather than leaving that phase undocumented.
+
+- `Freeplay_Project_Planning.md`'s milestones section now marks
+  Phases 1-6 (foundation through PWA) complete.
+- New Section 29 documents the next four games — **Color Sort, 2048,
+  Flow, Solitaire**, in that order — with the reasoning behind the
+  order and the design/technical constraints already known for each:
+  guaranteed-solvable procedural generation for Color Sort and Flow
+  (construct from a known-solvable state, don't random-then-verify),
+  2048's rules and its explicit exemption from any solvability
+  guarantee, and Solitaire's two deliberate choices — traditional
+  (not-always-winnable) Klondike deals for v1, and reusing the
+  existing `PlayingCard` system rather than building a second card
+  system.
+- Documents explicit architecture guardrails against premature
+  abstraction across the four (no shared `PuzzleEngine`/`GridGame`/
+  `SolverFramework`/etc.) — two games needing solvable generation, or
+  two using a grid, is not evidence they share structure.
+
+---
+
 ## `1fd03fc` — Fix Minesweeper flags not sticking on real touchscreens
 
 Reported from real-phone testing: tapping a cell in Flag mode (or
