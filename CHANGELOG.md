@@ -16,6 +16,37 @@ When adding an entry for a new game or feature, copy the pattern below:
 
 ---
 
+## `1fd03fc` — Fix Minesweeper flags not sticking on real touchscreens
+
+Reported from real-phone testing: tapping a cell in Flag mode (or
+releasing a long-press) briefly flagged it and then immediately
+unflagged it again — flags never visibly stuck.
+
+- **Root cause**: a touch tap fires the full Pointer Events sequence
+  Minesweeper uses (down/move/up) *and* a trailing synthetic `click`
+  a moment later (standard touch/mouse compatibility behavior), which
+  also ran through `onClick`'s `interact()` call. In Flag mode that's
+  `toggleFlag` firing twice per tap. Never caught before because prior
+  testing used either mouse `.click()` or manually dispatched pointer
+  events — neither triggers a browser's real synthetic click; only
+  actual hardware touch (or CDP-injected touch) does.
+- `preventDefault()` in the pointer handlers did not reliably suppress
+  the trailing click (confirmed via diagnostic — Chromium still fired
+  it for a CDP-synthesized touch). Fixed instead with an explicit
+  guard: a ref set on every touch `pointerdown`, cleared by `onClick`,
+  so `onClick` ignores exactly the one synthetic click that follows a
+  touch interaction the pointer-event path already handled — correct
+  regardless of engine-specific click-suppression behavior.
+- Added `-webkit-touch-callout: none` so iOS's press-and-hold callout
+  can't hijack a long-press before the timer fires.
+- Verified with real touch simulation (CDP touch events): tap-to-flag
+  sticks, a second tap unflags cleanly, long-press flags without also
+  revealing, a quick reveal-mode tap still reveals, a move-past-
+  threshold drag still cancels cleanly, and the Expert board's
+  horizontal touch-scroll is unaffected.
+
+---
+
 ## `6e47fc6` — Expand README and add MIT license
 
 README now explains what Freeplay is, lists the four games, and
