@@ -16,6 +16,37 @@ When adding an entry for a new game or feature, copy the pattern below:
 
 ---
 
+## `5b8a204` — Fix Color Sort review findings: pending-difficulty gating, undo cap, dead state, unused export
+
+Four findings from an external multi-agent review of the Color Sort +
+Undo work, addressed as a focused follow-up.
+
+- **Fixed a real bug**: `TubeButton.disabled` only checked `won`, so a
+  pending difficulty-change confirmation didn't stop the player from
+  continuing to pour in the existing puzzle underneath it - including
+  solving it while the confirmation sat unresolved. Tubes (and, by the
+  same "no board manipulation while a decision is unresolved"
+  principle, Undo and Restart puzzle) are now also disabled while a
+  difficulty change is pending. Keyboard interaction is gated the same
+  way for free, since these are native disabled `<button>`s.
+- Bounded undo history at 200 entries, dropping the oldest on
+  overflow - a deterministic memory bound, not a response to an
+  observed problem.
+- Removed the dead `status` field from `HistoryEntry`: a history entry
+  can only ever be created while `state.status === "playing"` (the
+  reducer returns early otherwise), so the stored value could never
+  vary. Undo now restores `"playing"` directly.
+- Removed the unused `tubeCount` export from `logic.ts` - its only
+  caller was its own test; production generation never used it.
+
+Left unchanged, per review triage: synchronous puzzle generation
+(measured 156-371ms for Hard - a theoretical worst case, not a
+demonstrated problem) and localStorage shape validation (pre-existing
+pattern shared with Blackjack and Minesweeper, not a Color-Sort-only
+fix).
+
+---
+
 ## `3b14bd2` — Add Undo to Color Sort
 
 A local history stack of immutable board snapshots, taken right before
