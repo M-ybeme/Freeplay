@@ -23,6 +23,7 @@ export function ColorSort() {
     selectedTube,
     moveCount,
     status,
+    canUndo,
     bestMoves,
     pendingDifficulty,
     selectTube,
@@ -31,6 +32,7 @@ export function ColorSort() {
     cancelDifficultyChange,
     newPuzzle,
     restartPuzzle,
+    undo,
   } = useColorSort();
 
   const won = status === "won";
@@ -95,7 +97,20 @@ export function ColorSort() {
       </div>
 
       <div className="color-sort__controls">
-        <button type="button" className="fp-btn fp-btn--secondary" onClick={restartPuzzle} disabled={won}>
+        <button
+          type="button"
+          className="fp-btn fp-btn--secondary color-sort__control-btn"
+          onClick={undo}
+          disabled={!canUndo}
+        >
+          Undo
+        </button>
+        <button
+          type="button"
+          className="fp-btn fp-btn--secondary color-sort__control-btn"
+          onClick={restartPuzzle}
+          disabled={won}
+        >
           Restart puzzle
         </button>
       </div>

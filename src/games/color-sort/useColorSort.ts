@@ -12,26 +12,46 @@ import {
 
 type Status = "playing" | "won";
 
-interface GameState {
+/** A snapshot of everything Undo needs to restore - taken right before a pour is applied. */
+interface HistoryEntry {
+  board: Board;
+  moveCount: number;
+  status: Status;
+}
+
+export interface GameState {
   difficulty: Difficulty;
   initialBoard: Board;
   board: Board;
   selectedTube: number | null;
   moveCount: number;
   status: Status;
+  // A plain stack, not a tree: undo only ever pops, never pushes a "redo"
+  // entry, so making a new move after undoing naturally discards whatever
+  // was ahead - there's nothing left to discard it from.
+  history: HistoryEntry[];
 }
 
-type Action =
+export type Action =
   | { type: "select"; index: number }
   | { type: "new-puzzle"; difficulty: Difficulty; rng?: () => number }
-  | { type: "restart" };
+  | { type: "restart" }
+  | { type: "undo" };
 
 function newPuzzleState(difficulty: Difficulty, rng?: () => number): GameState {
   const board = generatePuzzle(difficulty, rng);
-  return { difficulty, initialBoard: board, board, selectedTube: null, moveCount: 0, status: "playing" };
+  return {
+    difficulty,
+    initialBoard: board,
+    board,
+    selectedTube: null,
+    moveCount: 0,
+    status: "playing",
+    history: [],
+  };
 }
 
-function reducer(state: GameState, action: Action): GameState {
+export function reducer(state: GameState, action: Action): GameState {
   switch (action.type) {
     case "new-puzzle":
       return newPuzzleState(action.difficulty, action.rng);
@@ -43,7 +63,21 @@ function reducer(state: GameState, action: Action): GameState {
         selectedTube: null,
         moveCount: 0,
         status: "playing",
+        history: [],
       };
+
+    case "undo": {
+      if (state.history.length === 0) return state;
+      const previous = state.history[state.history.length - 1];
+      return {
+        ...state,
+        board: previous.board,
+        moveCount: previous.moveCount,
+        status: previous.status,
+        selectedTube: null,
+        history: state.history.slice(0, -1),
+      };
+    }
 
     case "select": {
       if (state.status !== "playing") return state;
@@ -60,19 +94,22 @@ function reducer(state: GameState, action: Action): GameState {
 
       if (isLegalPour(state.board, state.selectedTube, index)) {
         const board = pour(state.board, state.selectedTube, index);
+        const entry: HistoryEntry = { board: state.board, moveCount: state.moveCount, status: state.status };
         return {
           ...state,
           board,
           selectedTube: null,
           moveCount: state.moveCount + 1,
           status: isBoardSolved(board) ? "won" : "playing",
+          history: [...state.history, entry],
         };
       }
 
       // Not a legal destination - if it's a real candidate source (has
       // something in it), just switch the selection to it rather than
       // requiring the player to first deselect. Tapping around to compare
-      // tubes is normal play, not an error.
+      // tubes is normal play, not an error. Neither this nor a plain
+      // select/deselect above touches history - only a completed pour does.
       if (state.board[index].length > 0) {
         return { ...state, selectedTube: index };
       }
@@ -155,6 +192,10 @@ export function useColorSort() {
     dispatch({ type: "restart" });
   }
 
+  function undo() {
+    dispatch({ type: "undo" });
+  }
+
   return {
     difficulty: state.difficulty,
     difficulties: DIFFICULTIES,
@@ -162,6 +203,7 @@ export function useColorSort() {
     selectedTube: state.selectedTube,
     moveCount: state.moveCount,
     status: state.status,
+    canUndo: state.history.length > 0,
     bestMoves,
     pendingDifficulty,
     selectTube,
@@ -170,5 +212,6 @@ export function useColorSort() {
     cancelDifficultyChange,
     newPuzzle,
     restartPuzzle,
+    undo,
   };
 }
