@@ -16,6 +16,37 @@ When adding an entry for a new game or feature, copy the pattern below:
 
 ---
 
+## `519f492` — Add 2048 as Game 6 with single-step undo and Fusion Matrix visuals
+
+- Standard 2048 rules (4x4 board, compress→merge→compress, no chain
+  merges per move, exact spawn/scoring/game-over semantics) as pure,
+  fully-tested logic (`logic.ts`) with injectable randomness, matching
+  Snake/Color Sort/Blackjack's `rng: () => number = Math.random`
+  convention rather than a bespoke PRNG.
+- Single-slot Undo (not a stack): restores the exact previous
+  board/score/milestone state. Deliberately does not preserve RNG state
+  across the undo point, so redoing the same move can spawn a different
+  tile — chosen over building a seeded/serialized PRNG solely to make
+  Undo cheat-proof, per the same simplicity-first reasoning already
+  applied elsewhere in this project.
+- New Game confirmation gating is centralized at the hook's `move()`/
+  `undo()` entry points (a single choke point for every input path)
+  rather than checked separately in each handler — an explicit
+  architectural fix for the exact bug class just found and fixed twice
+  in Color Sort and Minesweeper, where a pending confirmation didn't
+  actually block every interaction path.
+- Unlike Freeplay's other arcade-style games, 2048 persists the active
+  run (board/score/milestone), not just the best score. Persisted state
+  is validated locally in `logic.ts` (board shape, cell values, score,
+  flag types) before being trusted; malformed data falls back to a
+  fresh game instead of crashing.
+- Visual identity ("Fusion Matrix") uses escalating energy-tier colors
+  through the existing theme palette rather than a per-value rainbow,
+  reuses Snake's board-sizing formula (`min(420px, 80vh, 80vw)`) to stay
+  clear of the overflow-centering bug class found in Minesweeper, and
+  uses `touch-action: none` for swipe scroll-prevention per the lesson
+  from the earlier Minesweeper touch-flag investigation.
+
 ## `4376c9f` — Fix Minesweeper difficulty confirmation not gating board interaction
 
 The same bug Color Sort's review found in its `pendingDifficulty` flow
