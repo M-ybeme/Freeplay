@@ -16,6 +16,42 @@ When adding an entry for a new game or feature, copy the pattern below:
 
 ---
 
+## `55a4259` — Add Flow as Game 7: signal-routing puzzle with guaranteed-solvable generation
+
+- Puzzles are generated solved-first: a randomized full-board Hamiltonian
+  path (Warnsdorff-guided backtracking, with a guaranteed boustrophedon
+  fallback so generation always terminates) is cut into per-pair
+  contiguous segments, so every puzzle handed to the player already has
+  a known valid solution by construction rather than scattering
+  endpoints and hoping a solver can close the gap. A lightweight quality
+  gate rejects a dominant single path, too many trivially-adjacent
+  pairs, or a mostly-straight-line layout before a segmentation is
+  accepted.
+- Completion requires full-board coverage, not just matching every pair
+  - three unused cells with all pairs connected is not a solved puzzle.
+  The player-path model is deliberately unaware of the hidden solution:
+  it only ever sees the puzzle's endpoints and the player's own drawn
+  routes.
+- Dragging into a cell already owned by another pair claims it and
+  truncates that pair's route from that cell onward (chosen over a
+  reject-on-touch model after implementing and playtesting both); same-
+  drag backtracking and starting a new drag on an existing path cell
+  both truncate to that point, so correcting a route never requires
+  clearing it first.
+- Fast pointer movement is resolved to a sequence of legal single-step
+  extensions before it reaches the reducer, so a sparse pointermove
+  stream can't skip cells or jump past an illegal one - the same
+  primitives back a full keyboard model (roving tabindex, Enter/Space to
+  edit a pair, arrows to extend/backtrack), verified by completing an
+  entire generated puzzle keyboard-only.
+- Every pair gets a distinct geometric endpoint marker in addition to
+  its color, following the precedent Color Sort established for color-
+  independent identity.
+- The active puzzle (full definition + player routes) persists across
+  reload and is validated locally against malformed shapes, out-of-
+  bounds coordinates, cross-pair occupancy overlaps, and discontinuous
+  routes before being trusted.
+
 ## `519f492` — Add 2048 as Game 6 with single-step undo and Fusion Matrix visuals
 
 - Standard 2048 rules (4x4 board, compress→merge→compress, no chain
