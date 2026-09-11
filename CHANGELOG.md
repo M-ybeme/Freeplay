@@ -16,6 +16,35 @@ When adding an entry for a new game or feature, copy the pattern below:
 
 ---
 
+## `3b14bd2` — Add Undo to Color Sort
+
+A local history stack of immutable board snapshots, taken right before
+each successful pour — a plain stack, not a tree, so making a new move
+after undoing just pushes a fresh entry with no special branching
+logic needed to discard whatever was abandoned.
+
+- Only a completed, state-changing pour creates a history entry;
+  selecting/deselecting a tube and tapping an illegal destination
+  never touch it.
+- Undo reverses the move count too, and is never itself counted as a
+  move. It also works from a solved puzzle - it restores the
+  immediately previous unsolved state and the win banner disappears.
+- Best-move persistence lives entirely in the hook's own effect, which
+  the undo action can't reach, so a recorded best cannot be erased by
+  undoing afterward (verified live: won at 63 moves, undid once, best
+  still 63 in storage).
+- Restart, New Puzzle, and difficulty switching all clear history and
+  reset moves, matching their existing behavior.
+- No pour animation was touched or added - state changes stay instant,
+  preserving the game's deliberate no-animation feel.
+- UI is a plain "Undo" button next to "Restart puzzle", same `fp-btn`
+  language as the rest of the app; at 320/390px the two buttons wrap
+  to a stacked layout rather than compressing side by side.
+- 11 new tests, exporting the hook's reducer as a pure function to
+  test directly rather than adding a React hook-testing dependency.
+
+---
+
 ## `9a17128` — Implement Color Sort as Freeplay's fifth complete game
 
 Pour tubes to gather each color into one place, styled as a chromatic
