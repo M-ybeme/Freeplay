@@ -16,6 +16,49 @@ When adding an entry for a new game or feature, copy the pattern below:
 
 ---
 
+## `4376c9f` — Fix Minesweeper difficulty confirmation not gating board interaction
+
+The same bug Color Sort's review found in its `pendingDifficulty` flow
+already existed in Minesweeper: cell interaction was only ever gated
+by `gameOver`, never by a pending difficulty confirmation, so a player
+could keep revealing/flagging cells - including solving or losing the
+board - while the confirmation sat unresolved.
+
+- Root cause differs slightly from Color Sort's: `gameOver` protection
+  here is partly enforced at the pure logic layer (`revealCell`/
+  `toggleFlag` already refuse to mutate once `board.status` leaves
+  "playing"), which is why `onClick` had no `gameOver` check at all
+  and still worked. `pendingDifficulty` is a UI-only concept the logic
+  layer has no notion of, and `board.status` stays "playing" the whole
+  time a confirmation is open - so all five interaction paths (pointer
+  tap, long-press, mouse click, right-click flag, keyboard
+  Enter/Space/F) needed an explicit check, not just one.
+- Fixed with one derived `boardLocked = gameOver || pendingDifficulty
+  !== null`, used everywhere `gameOver` was already checked plus the
+  two places (`onPointerUp`, `onClick`) that had no explicit gate
+  before. Also passed it into `MineCell` (renaming its `gameOver` prop
+  to `locked`) so unrevealed cells get the same inert/pointer-events
+  treatment as real game-over, as defense in depth alongside the
+  handler-level checks.
+- Arrow-key focus movement is intentionally untouched and still works
+  while a confirmation is pending - only state-mutating actions are
+  gated.
+- Verified live: the exact reported reproduction (reveal a cell,
+  select another difficulty, then try click/right-click/a real 550ms
+  touch long-press/Enter+F) now registers zero board changes while
+  pending; the timer keeps advancing normally throughout; canceling
+  restores full interaction exactly as it was; confirming starts the
+  requested difficulty normally.
+
+Separately discovered, **not fixed here**: at exactly 320px, the
+Beginner board renders wider than its wrap container, and centering
+the overflow silently swallows clicks on cell 0 - the same overflow-
+centering bug class fixed for Expert months ago, this time on a
+non-scrolling tier. Confirmed pre-existing and unrelated to this
+change; left for a dedicated follow-up.
+
+---
+
 ## `5b8a204` — Fix Color Sort review findings: pending-difficulty gating, undo cap, dead state, unused export
 
 Four findings from an external multi-agent review of the Color Sort +
