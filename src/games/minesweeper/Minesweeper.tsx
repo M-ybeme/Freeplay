@@ -55,6 +55,12 @@ export function Minesweeper() {
     movedTooFar: boolean;
   } | null>(null);
   const longPressTimer = useRef<number | null>(null);
+  // Set on every touch pointerdown, cleared by onClick. A touch tap fires
+  // the full pointer sequence below *and* a trailing synthetic click a
+  // moment later (standard touch/mouse compatibility behavior) - relying on
+  // preventDefault() to suppress that click is not reliable across engines,
+  // so onClick explicitly ignores itself once per touch interaction instead.
+  const suppressNextClick = useRef(false);
 
   const gameOver = board.status === "won" || board.status === "lost";
   const minesLeft = difficulty.mines - board.cells.filter((c) => c.flagged).length;
@@ -69,6 +75,7 @@ export function Minesweeper() {
 
   function onPointerDown(e: React.PointerEvent, index: number) {
     if (e.pointerType === "mouse" || gameOver) return;
+    suppressNextClick.current = true;
     pressState.current = { x: e.clientX, y: e.clientY, index, firedLongPress: false, movedTooFar: false };
     longPressTimer.current = window.setTimeout(() => {
       if (pressState.current) pressState.current.firedLongPress = true;
@@ -108,6 +115,10 @@ export function Minesweeper() {
   }
 
   function onClick(index: number) {
+    if (suppressNextClick.current) {
+      suppressNextClick.current = false;
+      return;
+    }
     interact(index);
   }
 

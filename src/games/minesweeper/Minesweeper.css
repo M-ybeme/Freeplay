@@ -149,6 +149,10 @@
   touch-action: manipulation;
   user-select: none;
   -webkit-user-select: none;
+  /* Without this, a long-press on iOS can trigger the system's own
+     press-and-hold callout (copy/look up/etc) instead of our long-press-to-flag
+     timer, especially on a cell that's really just plain text/background. */
+  -webkit-touch-callout: none;
   font-family: var(--font-display);
   font-weight: 700;
   transition:
