@@ -3,6 +3,7 @@ import { HigherOrLowerIcon } from "./HigherOrLowerIcon";
 import { SnakeIcon } from "./SnakeIcon";
 import { BlackjackIcon } from "./BlackjackIcon";
 import { MinesweeperIcon } from "./MinesweeperIcon";
+import { ColorSortIcon } from "./ColorSortIcon";
 
 interface IconProps {
   className?: string;
@@ -13,6 +14,7 @@ const icons: Record<string, ComponentType<IconProps>> = {
   snake: SnakeIcon,
   blackjack: BlackjackIcon,
   minesweeper: MinesweeperIcon,
+  "color-sort": ColorSortIcon,
 };
 
 interface GameIconProps extends IconProps {

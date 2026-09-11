@@ -4,6 +4,7 @@ import { definition as higherOrLowerDefinition, default as HigherOrLower } from 
 import { definition as snakeDefinition, default as Snake } from "./snake";
 import { definition as blackjackDefinition, default as Blackjack } from "./blackjack";
 import { definition as minesweeperDefinition, default as Minesweeper } from "./minesweeper";
+import { definition as colorSortDefinition, default as ColorSort } from "./color-sort";
 
 export interface GameEntry {
   definition: GameDefinition;
@@ -15,6 +16,7 @@ export const games: GameEntry[] = [
   { definition: snakeDefinition, Component: Snake },
   { definition: blackjackDefinition, Component: Blackjack },
   { definition: minesweeperDefinition, Component: Minesweeper },
+  { definition: colorSortDefinition, Component: ColorSort },
 ];
 
 export function getGameById(id: string): GameEntry | undefined {
