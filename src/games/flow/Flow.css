@@ -1,0 +1,277 @@
+/*
+ * Signal Routing / Circuit Terminal - a dark routing substrate with thin
+ * cyan structural grid lines, luminous endpoint nodes, and solid illuminated
+ * conduits. Game-specific palette (not the global cyan/purple/pink trio) so
+ * up to six simultaneous signals stay distinguishable from each other, not
+ * just from the Freeplay chrome around them.
+ */
+
+.flow {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  align-items: center;
+}
+
+.flow,
+.flow-board {
+  --flow-signal-0: #00e5ff; /* cyan */
+  --flow-signal-1: #c6ff3d; /* lime */
+  --flow-signal-2: #ff9d1f; /* orange */
+  --flow-signal-3: #ff3fd8; /* magenta */
+  --flow-signal-4: #b98bff; /* violet */
+  --flow-signal-5: #ffe066; /* yellow */
+}
+
+.flow__hud {
+  width: 100%;
+  max-width: 420px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.flow__level {
+  color: var(--muted);
+}
+
+.flow__stats {
+  display: flex;
+  gap: 0.6rem;
+}
+
+.flow__difficulty {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.flow__difficulty-btn {
+  min-width: 84px;
+  padding: 0.6rem 0.9rem;
+}
+
+.flow__confirm {
+  width: 100%;
+  max-width: 420px;
+  padding: 0.85rem 1rem;
+  background: var(--surface);
+  border: 1px solid var(--hot-pink);
+  border-radius: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.flow__confirm-actions {
+  display: flex;
+  gap: 0.6rem;
+}
+
+.flow__status {
+  margin: 0;
+  min-height: 1.1em;
+  font-size: 0.75rem;
+  color: var(--muted);
+  /* Visually present but unobtrusive - the live region's real job is
+     screen-reader announcement, not another HUD line competing for attention. */
+}
+
+/* ---------- Board ---------- */
+
+.flow-board {
+  --size: 5;
+  display: grid;
+  grid-template-columns: repeat(var(--size), 1fr);
+  grid-template-rows: repeat(var(--size), 1fr);
+  width: 100%;
+  max-width: min(420px, 80vh, 80vw);
+  aspect-ratio: 1;
+  margin: 0 auto;
+  background: var(--void);
+  border: 1px solid var(--surface-2);
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.flow-cell {
+  position: relative;
+  border: 1px solid var(--line);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  outline: none;
+}
+
+.flow-cell:focus-visible {
+  z-index: 2;
+  outline: 2px solid var(--focus-ring);
+  outline-offset: -2px;
+}
+
+/* ---------- Conduits ---------- */
+
+.flow-cell__node {
+  position: absolute;
+  width: 44%;
+  height: 44%;
+  border-radius: 50%;
+  background: var(--signal, var(--muted));
+  opacity: 0.55;
+  transition: opacity 100ms ease;
+}
+
+.flow-cell--connected .flow-cell__node {
+  opacity: 0.95;
+  box-shadow: 0 0 6px var(--signal, transparent);
+}
+
+.flow-cell--active .flow-cell__node {
+  opacity: 1;
+  filter: brightness(1.3);
+}
+
+.flow-cell__pipe {
+  position: absolute;
+  background: var(--signal, var(--muted));
+  opacity: 0.55;
+  transition: opacity 100ms ease;
+}
+
+.flow-cell--connected .flow-cell__pipe {
+  opacity: 0.95;
+}
+
+.flow-cell--active .flow-cell__pipe {
+  opacity: 1;
+  filter: brightness(1.3);
+}
+
+.flow-cell__pipe--up {
+  left: 27%;
+  right: 27%;
+  top: 0;
+  height: 54%;
+}
+
+.flow-cell__pipe--down {
+  left: 27%;
+  right: 27%;
+  bottom: 0;
+  height: 54%;
+}
+
+.flow-cell__pipe--left {
+  top: 27%;
+  bottom: 27%;
+  left: 0;
+  width: 54%;
+}
+
+.flow-cell__pipe--right {
+  top: 27%;
+  bottom: 27%;
+  right: 0;
+  width: 54%;
+}
+
+@keyframes flow-connect-pulse {
+  0% {
+    transform: scale(1);
+  }
+  40% {
+    transform: scale(1.35);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.flow-cell--pulse .flow-cell__node {
+  animation: flow-connect-pulse 550ms ease;
+}
+
+/* ---------- Endpoints ---------- */
+
+/*
+ * A distinct geometric marker per pair (not just color) layered above the
+ * conduit node/pipes - stays visible before, during, and after the pair
+ * connects, per the color-independence requirement.
+ */
+.flow-cell__endpoint {
+  position: absolute;
+  z-index: 1;
+  inset: 30%;
+  /* Solid fill, no border - a clip-path polygon fights a CSS border (most
+     engines draw the border on the pre-clip box, so it survives only in
+     fragments once clipped), so every non-circular shape below relies on a
+     plain filled silhouette instead, exactly like Color Sort's own marks. */
+  background: var(--signal, var(--text));
+  box-shadow: 0 0 8px var(--signal, transparent);
+  /* A dark rim so the marker's silhouette reads clearly even once the
+     conduit reaching into this cell is the same bright hue as the marker
+     itself - box-shadow alone (glow outward) doesn't give that contrast. */
+  filter: drop-shadow(0 0 1.5px var(--void)) drop-shadow(0 0 1px var(--void));
+}
+
+.flow-cell__endpoint--0 {
+  border-radius: 50%; /* circle */
+}
+
+.flow-cell__endpoint--1 {
+  /* ring, not a filled circle - a filled circle reads too much like the
+     conduit node sitting directly behind it to work as a distinct mark.
+     A plain circular border has no clip-path to fight, so it's safe here. */
+  border-radius: 50%;
+  background: transparent;
+  border: 3px solid var(--signal, var(--text));
+  inset: 28%;
+}
+
+.flow-cell__endpoint--2 {
+  clip-path: polygon(50% 0, 100% 100%, 0 100%); /* triangle */
+}
+
+.flow-cell__endpoint--3 {
+  clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%); /* diamond */
+}
+
+.flow-cell__endpoint--4 {
+  clip-path: polygon(50% 0, 100% 38%, 82% 100%, 18% 100%, 0 38%); /* pentagon */
+}
+
+.flow-cell__endpoint--5 {
+  clip-path: polygon(25% 0, 75% 0, 100% 50%, 75% 100%, 25% 100%, 0 50%); /* hexagon */
+}
+
+/* ---------- Controls / result ---------- */
+
+.flow__controls {
+  width: 100%;
+  max-width: 420px;
+  display: flex;
+  gap: 0.6rem;
+}
+
+.flow__control-btn {
+  flex: 1;
+}
+
+.flow__result {
+  width: 100%;
+  max-width: 420px;
+  padding: 0.9rem 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.5rem;
+  border-radius: 4px;
+}
+
+@media (max-width: 360px) {
+  .flow__difficulty-btn {
+    min-width: 0;
+    flex: 1;
+    padding: 0.6rem 0.5rem;
+  }
+}

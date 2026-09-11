@@ -6,6 +6,7 @@ import { definition as blackjackDefinition, default as Blackjack } from "./black
 import { definition as minesweeperDefinition, default as Minesweeper } from "./minesweeper";
 import { definition as colorSortDefinition, default as ColorSort } from "./color-sort";
 import { definition as game2048Definition, default as Game2048 } from "./2048";
+import { definition as flowDefinition, default as Flow } from "./flow";
 
 export interface GameEntry {
   definition: GameDefinition;
@@ -19,6 +20,7 @@ export const games: GameEntry[] = [
   { definition: minesweeperDefinition, Component: Minesweeper },
   { definition: colorSortDefinition, Component: ColorSort },
   { definition: game2048Definition, Component: Game2048 },
+  { definition: flowDefinition, Component: Flow },
 ];
 
 export function getGameById(id: string): GameEntry | undefined {
