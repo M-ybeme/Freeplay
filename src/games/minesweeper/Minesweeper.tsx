@@ -63,6 +63,14 @@ export function Minesweeper() {
   const suppressNextClick = useRef(false);
 
   const gameOver = board.status === "won" || board.status === "lost";
+  // A pending difficulty confirmation must be just as modal as game-over is:
+  // no reveal, flag, or long-press should be able to mutate the board while
+  // it's unresolved. Unlike gameOver, pendingDifficulty is a UI-only concept
+  // the pure logic layer (revealCell/toggleFlag) has no notion of - those
+  // only guard on board.status, which stays "playing" the whole time a
+  // confirmation is pending - so every interaction path below has to check
+  // this explicitly rather than being able to rely on the logic layer.
+  const boardLocked = gameOver || pendingDifficulty !== null;
   const minesLeft = difficulty.mines - board.cells.filter((c) => c.flagged).length;
   const bestTime = bestTimes[difficulty.id];
 
@@ -74,7 +82,7 @@ export function Minesweeper() {
   }
 
   function onPointerDown(e: React.PointerEvent, index: number) {
-    if (e.pointerType === "mouse" || gameOver) return;
+    if (e.pointerType === "mouse" || boardLocked) return;
     suppressNextClick.current = true;
     pressState.current = { x: e.clientX, y: e.clientY, index, firedLongPress: false, movedTooFar: false };
     longPressTimer.current = window.setTimeout(() => {
@@ -106,6 +114,11 @@ export function Minesweeper() {
     // tolerance was a scroll/drag rather than a tap — neither should also
     // reveal the cell the pointer happens to lift over.
     if (state?.firedLongPress || state?.movedTooFar) return;
+    // boardLocked alone (without a corresponding onPointerDown) would still
+    // reach here: onPointerDown bails out early while locked and never sets
+    // pressState, so `state` is null here too, same as after a completed
+    // long-press - this check can't be folded into the one above.
+    if (boardLocked) return;
     interact(index);
   }
 
@@ -119,12 +132,17 @@ export function Minesweeper() {
       suppressNextClick.current = false;
       return;
     }
+    // Mouse clicks have no other gate: revealCell/toggleFlag already refuse
+    // to mutate once board.status leaves "playing" (covering gameOver), but
+    // they have no notion of pendingDifficulty, so this is the only place
+    // that protects a mouse click while a confirmation is pending.
+    if (boardLocked) return;
     interact(index);
   }
 
   function onContextMenu(e: React.MouseEvent, index: number) {
     e.preventDefault();
-    if (!gameOver) flag(index);
+    if (!boardLocked) flag(index);
   }
 
   function focusCell(index: number) {
@@ -158,12 +176,12 @@ export function Minesweeper() {
     }
     if (e.key === "Enter" || e.key === " ") {
       e.preventDefault();
-      if (!gameOver) interact(index);
+      if (!boardLocked) interact(index);
       return;
     }
     if (e.key === "f" || e.key === "F") {
       e.preventDefault();
-      if (!gameOver) flag(index);
+      if (!boardLocked) flag(index);
     }
   }
 
@@ -250,7 +268,7 @@ export function Minesweeper() {
               row={Math.floor(i / difficulty.cols)}
               col={i % difficulty.cols}
               isTriggered={board.triggeredIndex === i}
-              gameOver={gameOver}
+              locked={boardLocked}
               tabIndex={i === 0 ? 0 : -1}
               onPointerDown={onPointerDown}
               onPointerMove={onPointerMove}
@@ -290,7 +308,8 @@ interface MineCellProps {
   row: number;
   col: number;
   isTriggered: boolean;
-  gameOver: boolean;
+  /** True for a genuine game-over *or* a pending difficulty confirmation - either way, the board must stop accepting input. */
+  locked: boolean;
   tabIndex: number;
   onPointerDown: (e: React.PointerEvent, index: number) => void;
   onPointerMove: (e: React.PointerEvent) => void;
@@ -306,7 +325,7 @@ function MineCell({
   row,
   col,
   isTriggered,
-  gameOver,
+  locked,
   tabIndex,
   onPointerDown,
   onPointerMove,
@@ -320,7 +339,7 @@ function MineCell({
   if (cell.revealed && cell.hasMine) classNames.push("minesweeper-cell--mine");
   if (isTriggered) classNames.push("minesweeper-cell--triggered");
   if (cell.flagged) classNames.push("minesweeper-cell--flagged");
-  if (gameOver && !cell.revealed) classNames.push("minesweeper-cell--inert");
+  if (locked && !cell.revealed) classNames.push("minesweeper-cell--inert");
 
   return (
     <div
