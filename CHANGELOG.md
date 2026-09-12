@@ -16,6 +16,37 @@ When adding an entry for a new game or feature, copy the pattern below:
 
 ---
 
+## `c52a58b` — Add Solitaire as Game 8: Klondike Draw 1 with tap, drag, and keyboard play
+
+- Reuses the shared Card/deck/PlayingCard system from Blackjack (types,
+  createDeck/shuffle, the card face and back components) rather than
+  duplicating card definitions - rules and zone state (stock, waste,
+  four suit-indexed foundations, seven tableau piles) stay entirely
+  game-local, per the established "shared card representation without
+  a shared game engine" boundary.
+- Every move is a pure function that returns the exact same run
+  reference when illegal, matching the reference-equality no-op
+  convention already used in Flow/2048. Moving a sequence away that
+  exposes a face-down tableau card auto-flips it; single-slot Undo
+  restores the entire prior run wholesale, which reverses that auto-
+  flip for free rather than needing dedicated flip-back logic.
+- Input is one Pointer Events state machine per card/zone, not separate
+  mouse/touch/drag code paths: movement under a 6px threshold resolves
+  as a tap (select-or-move, or a double-tap within 350ms triggering the
+  standard auto-foundation shortcut), movement past it becomes a drag
+  with a floating ghost and live legal-drop highlighting. The same
+  primitives back full keyboard play (13 real tab stops for the zones,
+  arrow keys move an in-pile cursor, Enter/Space select-or-activate) -
+  verified by completing every move class keyboard-only.
+- Persisted state is validated locally: exactly 52 unique card
+  identities across every zone, each foundation ascending same-suit
+  from Ace, and every tableau pile's face-down cards forming a bottom-
+  anchored prefix with a valid alternating-descending face-up suffix -
+  malformed data discards to a fresh deal rather than crashing.
+- A fix during implementation removed CSS Grid's default row-stretch on
+  the tableau, which had been making every pile's click/focus target as
+  tall as the longest pile instead of just its own cards.
+
 ## `55a4259` — Add Flow as Game 7: signal-routing puzzle with guaranteed-solvable generation
 
 - Puzzles are generated solved-first: a randomized full-board Hamiltonian
