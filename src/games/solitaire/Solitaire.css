@@ -1,0 +1,277 @@
+/*
+ * Card Terminal / Tactical Desk - an ordered card-workspace, not felt-table
+ * nostalgia. Shares Blackjack's card visual language (the shared
+ * PlayingCard/back) but reads as a distinct, more structural surface: a
+ * dark void substrate with restrained slot geometry instead of a
+ * holographic confrontation table.
+ */
+
+.solitaire {
+  --pc-width: 36px;
+  --overlap-down: 14px;
+  --overlap-up: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  align-items: center;
+}
+
+@media (min-width: 400px) {
+  .solitaire {
+    --pc-width: 46px;
+    --overlap-down: 17px;
+    --overlap-up: 25px;
+  }
+}
+
+@media (min-width: 700px) {
+  .solitaire {
+    --pc-width: 58px;
+    --overlap-down: 21px;
+    --overlap-up: 31px;
+  }
+}
+
+@media (min-width: 1100px) {
+  .solitaire {
+    --pc-width: 70px;
+    --overlap-down: 25px;
+    --overlap-up: 36px;
+  }
+}
+
+.solitaire__hud {
+  width: 100%;
+  max-width: 560px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.solitaire__level {
+  color: var(--muted);
+}
+
+.solitaire__stats {
+  display: flex;
+  gap: 0.6rem;
+}
+
+.solitaire__confirm {
+  width: 100%;
+  max-width: 560px;
+  padding: 0.85rem 1rem;
+  background: var(--surface);
+  border: 1px solid var(--hot-pink);
+  border-radius: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.solitaire__confirm-actions {
+  display: flex;
+  gap: 0.6rem;
+}
+
+/* ---------- Board ---------- */
+
+.solitaire-board {
+  width: 100%;
+  max-width: 560px;
+  padding: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  background: var(--void);
+  border: 1px solid var(--surface-2);
+}
+
+.solitaire-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.solitaire-stock,
+.solitaire-waste,
+.solitaire-foundation {
+  padding: 0;
+  background: none;
+  border: none;
+  cursor: pointer;
+  outline: none;
+}
+
+.solitaire-stock:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.solitaire-waste,
+.solitaire-foundation {
+  display: block;
+}
+
+.solitaire-waste:focus-visible,
+.solitaire-foundation:focus-visible,
+.solitaire-stock:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+.solitaire-foundations {
+  display: flex;
+  gap: 0.4rem;
+}
+
+/* ---------- Empty slots ---------- */
+
+.solitaire-slot {
+  width: var(--pc-width);
+  aspect-ratio: 5 / 7;
+  border: 1.5px dashed var(--surface-2);
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.solitaire-slot--recycle {
+  border-color: var(--laser-blue);
+}
+
+.solitaire-slot__recycle-icon {
+  font-size: calc(var(--pc-width) * 0.4);
+  color: var(--laser-blue);
+  line-height: 1;
+}
+
+.solitaire-slot--foundation {
+  color: var(--surface-2);
+}
+
+.solitaire-slot__suit {
+  width: 45%;
+  height: 45%;
+  opacity: 0.5;
+}
+
+.solitaire-slot--tableau {
+  position: absolute;
+  inset: 0;
+}
+
+/* ---------- Selection / drag-over feedback ---------- */
+
+.solitaire-zone--selected {
+  outline: 2px solid var(--laser-blue);
+  outline-offset: 2px;
+  border-radius: 4px;
+  filter: brightness(1.15);
+  transform: translateY(-3px);
+}
+
+.solitaire-zone--drag-over {
+  outline: 2px dashed var(--toxic);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* ---------- Tableau ---------- */
+
+.solitaire-tableau {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  /* Without this, grid's default stretch makes every pile container as
+     tall as the longest one - the cards still render at the top (normal
+     flex flow), but the container (and its click/focus/pointer target)
+     would extend far past them into dead space for every shorter pile. */
+  align-items: start;
+  gap: 0.3rem;
+  width: 100%;
+}
+
+.solitaire-pile {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: var(--pc-width);
+  min-height: calc(var(--pc-width) * 7 / 5);
+  outline: none;
+  border-radius: 4px;
+}
+
+.solitaire-pile:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 3px;
+}
+
+.solitaire-pile__card {
+  margin-top: var(--card-overlap, 0px);
+  touch-action: none;
+}
+
+.solitaire-pile__card--cursor {
+  outline: 2px dotted var(--focus-ring);
+  outline-offset: 1px;
+  border-radius: 4px;
+}
+
+.solitaire-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ---------- Drag ghost ---------- */
+
+.solitaire-drag-ghost {
+  position: fixed;
+  z-index: 50;
+  pointer-events: none;
+  transform: translate(-50%, -50%) scale(1.05);
+  filter: drop-shadow(0 6px 14px rgba(0, 0, 0, 0.5));
+}
+
+.solitaire-drag-ghost__card {
+  position: absolute;
+  left: 0;
+  width: var(--pc-width);
+  opacity: 0.95;
+}
+
+.solitaire-drag-ghost__card .playing-card {
+  width: var(--pc-width);
+}
+
+/* ---------- Controls / result ---------- */
+
+.solitaire__controls {
+  width: 100%;
+  max-width: 560px;
+  display: flex;
+  gap: 0.6rem;
+}
+
+.solitaire__control-btn {
+  flex: 1;
+}
+
+.solitaire__result {
+  width: 100%;
+  max-width: 560px;
+  padding: 0.9rem 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.5rem;
+  border-radius: 4px;
+}

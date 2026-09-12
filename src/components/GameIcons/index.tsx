@@ -6,6 +6,7 @@ import { MinesweeperIcon } from "./MinesweeperIcon";
 import { ColorSortIcon } from "./ColorSortIcon";
 import { Game2048Icon } from "./Game2048Icon";
 import { FlowIcon } from "./FlowIcon";
+import { SolitaireIcon } from "./SolitaireIcon";
 
 interface IconProps {
   className?: string;
@@ -19,6 +20,7 @@ const icons: Record<string, ComponentType<IconProps>> = {
   "color-sort": ColorSortIcon,
   "2048": Game2048Icon,
   flow: FlowIcon,
+  solitaire: SolitaireIcon,
 };
 
 interface GameIconProps extends IconProps {
