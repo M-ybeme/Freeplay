@@ -1,44 +1,179 @@
+/*
+ * Home-floor cabinet. --accent (set per category in GameCard.tsx) colours
+ * the marquee and the screen's glow. Sized for two-up on a 320px phone:
+ * names wrap to at most two lines inside a fixed-height marquee so every
+ * cabinet in a row lines up.
+ */
 .game-card {
+  --accent: var(--laser-blue);
   position: relative;
   display: flex;
   flex-direction: column;
-  gap: 0.35rem;
-  padding: 1.25rem;
-  min-height: 120px;
-  background: var(--surface);
-  border: 1px solid var(--surface-2);
-  border-radius: 4px;
+  min-width: 0;
   color: var(--text);
   text-decoration: none;
-  clip-path: polygon(0 0, 100% 0, 100% 100%, 12px 100%, 0 calc(100% - 12px));
+  /* Cabinet body: dark side panels with a hint of the accent. */
+  background: linear-gradient(180deg, #17142a, #0c0a18);
+  border: 1px solid #2a2440;
+  border-radius: 10px 10px 4px 4px;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    0 10px 24px rgba(0, 0, 0, 0.55),
+    0 0 0 0 transparent;
+  overflow: hidden;
+  animation: fp-enter 380ms cubic-bezier(0.22, 1, 0.36, 1) backwards;
+  animation-delay: calc(var(--i, 0) * 45ms);
   transition:
-    border-color 120ms ease,
-    box-shadow 120ms ease,
-    background 120ms ease,
-    transform 160ms ease-out;
+    transform 160ms ease-out,
+    box-shadow 160ms ease,
+    border-color 160ms ease;
 }
 
-.game-card::before {
+/* ---------- Marquee ---------- */
+
+.game-card__marquee {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.9rem;
+  padding: 0.35rem 0.4rem;
+  text-align: center;
+  background:
+    radial-gradient(ellipse 70% 110% at 50% 50%, color-mix(in srgb, var(--accent) 22%, transparent), transparent 75%),
+    linear-gradient(180deg, #1d1533, #110d20);
+  border-bottom: 2px solid var(--accent);
+  box-shadow: 0 2px 10px color-mix(in srgb, var(--accent) 35%, transparent);
+}
+
+.game-card__name {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: clamp(0.62rem, 2.7vw, 0.8rem);
+  letter-spacing: 0.06em;
+  line-height: 1.2;
+  text-transform: uppercase;
+  text-wrap: balance;
+  color: color-mix(in srgb, var(--accent) 25%, #ffffff);
+  text-shadow:
+    0 0 3px color-mix(in srgb, var(--accent) 90%, transparent),
+    0 0 10px color-mix(in srgb, var(--accent) 60%, transparent);
+}
+
+/* ---------- Screen ---------- */
+
+.game-card__screen {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  aspect-ratio: 4 / 3;
+  margin: 0.55rem 0.55rem 0;
+  background:
+    radial-gradient(ellipse 60% 55% at 50% 50%, color-mix(in srgb, var(--accent) 16%, transparent), transparent 80%),
+    #07060f;
+  border: 3px solid #04030a;
+  border-radius: 10px;
+  box-shadow:
+    0 0 0 1px #2a2440,
+    inset 0 0 14px rgba(0, 0, 0, 0.8);
+  overflow: hidden;
+}
+
+/* Scanlines over the screen. */
+.game-card__screen::after {
   content: "";
   position: absolute;
-  top: 8px;
-  right: 8px;
-  width: 8px;
-  height: 8px;
-  border-top: 1px solid var(--line);
-  border-right: 1px solid var(--line);
+  inset: 0;
+  background: repeating-linear-gradient(180deg, rgba(0, 0, 0, 0.18) 0 1px, transparent 1px 3px);
   pointer-events: none;
 }
 
-.game-card:hover {
-  background: var(--surface-2);
-  border-color: var(--laser-blue);
-  box-shadow: 0 0 0 1px var(--laser-blue);
+.game-card__icon {
+  width: 42%;
+  height: auto;
+  aspect-ratio: 1;
+  filter: drop-shadow(0 0 6px color-mix(in srgb, var(--accent) 45%, transparent));
+  transition:
+    filter 160ms ease,
+    transform 220ms cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-.game-card:hover .game-card__icon {
-  filter: brightness(1.3);
-  transform: scale(1.08) rotate(-4deg);
+/* ---------- Deck ---------- */
+
+.game-card__deck {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.15rem 0.4rem;
+  margin-top: 0.5rem;
+  padding: 0.45rem 0.55rem 0.55rem;
+  background: linear-gradient(180deg, #221d38, #120f22);
+  border-top: 1px solid #332c4d;
+  font-family: var(--font-display);
+  font-size: 0.55rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.game-card__category {
+  color: var(--muted);
+}
+
+.game-card__start {
+  color: var(--toxic);
+  opacity: 0.55;
+}
+
+.game-card__sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* ---------- Interaction ---------- */
+
+/* Walking up to a machine: it lifts, glows, and the attract text blinks. */
+.game-card:hover,
+.game-card:focus-visible {
+  transform: translateY(-3px);
+  border-color: color-mix(in srgb, var(--accent) 60%, #2a2440);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    0 14px 28px rgba(0, 0, 0, 0.6),
+    0 0 22px color-mix(in srgb, var(--accent) 30%, transparent);
+}
+
+.game-card:hover .game-card__icon,
+.game-card:focus-visible .game-card__icon {
+  filter: drop-shadow(0 0 10px var(--accent)) brightness(1.2);
+  transform: scale(1.1);
+}
+
+.game-card:hover .game-card__start,
+.game-card:focus-visible .game-card__start {
+  opacity: 1;
+  text-shadow: 0 0 8px rgba(140, 255, 0, 0.6);
+  animation: game-card-blink 900ms steps(1) infinite;
+}
+
+@keyframes game-card-blink {
+  50% {
+    opacity: 0.25;
+  }
+}
+
+/* Choosing it: the screen flashes as it powers into the game. */
+.game-card:active {
+  transform: translateY(0) scale(0.98);
+}
+
+.game-card:active .game-card__screen {
+  filter: brightness(1.8);
 }
 
 .game-card:focus {
@@ -46,47 +181,16 @@
 }
 
 .game-card:focus-visible {
-  clip-path: none;
   outline: 3px solid var(--focus-ring);
   outline-offset: 3px;
 }
 
-.game-card__icon {
-  width: 2.5rem;
-  height: 2.5rem;
-  margin-bottom: 0.15rem;
-  transition:
-    filter 120ms ease,
-    transform 200ms cubic-bezier(0.34, 1.56, 0.64, 1);
-}
+@media (min-width: 480px) {
+  .game-card__marquee {
+    min-height: 3.2rem;
+  }
 
-.game-card__name {
-  font-weight: 600;
-}
-
-.game-card__description {
-  font-size: 0.85rem;
-  color: var(--muted);
-}
-
-.game-card__category {
-  margin-top: auto;
-  color: var(--uv-purple-text);
-}
-
-/*
- * Home grid: cards rise in one after another (--i is set per card), and
- * lift slightly on hover so the grid feels like it responds to the pointer.
- */
-.game-card {
-  animation: fp-enter 380ms cubic-bezier(0.22, 1, 0.36, 1) backwards;
-  animation-delay: calc(var(--i, 0) * 45ms);
-}
-
-.game-card:hover {
-  transform: translateY(-2px);
-}
-
-.game-card:active {
-  transform: translateY(0) scale(0.98);
+  .game-card__deck {
+    font-size: 0.6rem;
+  }
 }
