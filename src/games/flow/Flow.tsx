@@ -153,6 +153,27 @@ export function Flow() {
     for (const [r, c] of routes[p]) owners[r][c] = p;
   }
 
+  // Pipe joins come from route *order*: each cell links only to the cells
+  // just before and after it in its own path. Deriving them from "the
+  // neighbour has the same colour" joined every touching cell of a route
+  // that doubled back alongside itself, drawing a grid instead of a line.
+  const links = Array.from({ length: puzzle.size }, () =>
+    Array.from({ length: puzzle.size }, () => ({ up: false, down: false, left: false, right: false })),
+  );
+  for (const path of routes) {
+    for (let i = 0; i < path.length; i++) {
+      const [r, c] = path[i];
+      for (const other of [path[i - 1], path[i + 1]]) {
+        if (!other) continue;
+        const [orow, ocol] = other;
+        if (orow === r - 1 && ocol === c) links[r][c].up = true;
+        if (orow === r + 1 && ocol === c) links[r][c].down = true;
+        if (orow === r && ocol === c - 1) links[r][c].left = true;
+        if (orow === r && ocol === c + 1) links[r][c].right = true;
+      }
+    }
+  }
+
   function editingStatus(): string {
     if (activePair === null) return "";
     const path = routes[activePair];
@@ -246,10 +267,7 @@ export function Flow() {
             if (connected) classNames.push("flow-cell--connected");
             if (owner !== null && owner === justConnectedPair) classNames.push("flow-cell--pulse");
 
-            const connectsUp = owner !== null && row > 0 && owners[row - 1][col] === owner;
-            const connectsDown = owner !== null && row < puzzle.size - 1 && owners[row + 1][col] === owner;
-            const connectsLeft = owner !== null && col > 0 && owners[row][col - 1] === owner;
-            const connectsRight = owner !== null && col < puzzle.size - 1 && owners[row][col + 1] === owner;
+            const { up: connectsUp, down: connectsDown, left: connectsLeft, right: connectsRight } = links[row][col];
 
             const isFocusable = focusedCell[0] === row && focusedCell[1] === col;
 

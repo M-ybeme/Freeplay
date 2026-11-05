@@ -395,6 +395,10 @@ export function extendRoute(puzzle: Puzzle, routes: Routes, pairIndex: number, c
 
   if (!isOrthogonallyAdjacent(tip, cell)) return routes;
 
+  // A route that has reached its partner endpoint is finished: it can be
+  // backtracked (handled above) but never extended past the end.
+  if (isPairConnected(puzzle, routes, pairIndex)) return routes;
+
   const endpointOwner = resolveEndpointOwner(puzzle, cell);
   if (endpointOwner !== null && endpointOwner !== pairIndex) return routes;
 

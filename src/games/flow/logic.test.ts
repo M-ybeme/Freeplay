@@ -337,6 +337,34 @@ describe("beginRoute", () => {
 });
 
 describe("extendRoute", () => {
+  it("stops a route at its partner endpoint - no extending past the end", () => {
+    const puzzle = simplePuzzle();
+    const [a, b] = puzzle.endpoints[0];
+    let routes = beginRoute(puzzle, createEmptyRoutes(puzzle.pairCount), 0, a);
+    routes = extendRouteThroughPath(puzzle, routes, 0, b);
+    expect(isPairConnected(puzzle, routes, 0)).toBe(true);
+    const tip = routes[0][routes[0].length - 1];
+    for (const [dr, dc] of [
+      [1, 0],
+      [-1, 0],
+      [0, 1],
+      [0, -1],
+    ]) {
+      const beyond: [number, number] = [tip[0] + dr, tip[1] + dc];
+      if (routes[0].some((c) => c[0] === beyond[0] && c[1] === beyond[1])) continue;
+      expect(extendRoute(puzzle, routes, 0, beyond)).toBe(routes);
+    }
+  });
+
+  it("still lets a finished route be backtracked", () => {
+    const puzzle = simplePuzzle();
+    const [a, b] = puzzle.endpoints[0];
+    let routes = beginRoute(puzzle, createEmptyRoutes(puzzle.pairCount), 0, a);
+    routes = extendRouteThroughPath(puzzle, routes, 0, b);
+    const shorter = extendRoute(puzzle, routes, 0, routes[0][routes[0].length - 2]);
+    expect(shorter[0]).toHaveLength(routes[0].length - 1);
+  });
+
   it("extends orthogonally from the tip", () => {
     const puzzle = simplePuzzle();
     let routes = createEmptyRoutes(2);
