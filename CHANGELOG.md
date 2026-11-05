@@ -16,6 +16,37 @@ When adding an entry for a new game or feature, copy the pattern below:
 
 ---
 
+## `08b2bfc` — Add Brick Breaker: neon wall-breaking arcade game
+
+- Game 9, and the second real-time game after Snake. Drag anywhere on
+  the field to steer (a mouse just hovers; keyboard players hold arrows
+  or A/D), and release the drag, press Space or press Launch to serve.
+  Space or P pauses, and the game pauses itself when the tab is hidden.
+- Rules in `logic.ts` run in field units (100 x 130) with time passed in.
+  The paddle bounce angle comes from where the ball hits, capped at 60
+  degrees from vertical so it can never skim sideways forever. Speed
+  rises slightly with each paddle hit and with each level, up to a cap.
+  Movement is split into sub-steps of half the ball's radius, and frames
+  are clamped to 50ms, so the ball can't tunnel through a brick. The
+  trade-off: below 20fps the game slows rather than skipping ahead.
+- Five original wall layouts cycle with a faster ball. Armoured bricks
+  take two hits and are marked by shape (a solid inner plate, then crack
+  stripes), not by colour alone. Scoring: 10 per brick, 30 per armoured
+  brick, 50 per cleared wall. 3 balls; the best score is persisted.
+- The hook adds view-only state around the rules: a 7-point light
+  trail, brick bursts that last 320ms, and a live-region message that
+  changes only on events (lost ball, cleared wall, game over), never per
+  frame. The rAF loop runs only while serving or playing.
+- The field caps its width by the height left after the cabinet chrome,
+  `(100svh - 380px) * 100/130`, so the whole field fits on screen: 256px
+  wide at 320x700, and 400x520 at 1440x900 with no scroll. The
+  balls-left pips sit inside the field so the HUD stays one row on
+  phones.
+- 30 logic tests, including no tunnelling at max speed and a
+  ball-tracking paddle clearing wall 1 without losing a ball. Not yet
+  playtested at a real frame rate: the browser pane was hidden during
+  verification, which throttles rendering to about 4fps.
+
 ## `02e4041` — Arcade-floor home: neon sign, cabinet game cards, grid floor
 
 - Game cards are now small cabinets. Each has a marquee in its
