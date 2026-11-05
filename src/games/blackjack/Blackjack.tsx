@@ -145,8 +145,24 @@ export function Blackjack() {
         )}
       </div>
 
-      <div className="blackjack-stats fp-hud-tile">
-        <span className="fp-hud-label fp-pop" key={stats.wins + stats.losses + stats.pushes}>W {stats.wins} · L {stats.losses} · P {stats.pushes} · BJ {stats.blackjacks}</span>
+      {/* Lifetime record as four HUD tiles, matching the other games'
+          stat treatment instead of one cramped label line. */}
+      <div className="blackjack-stats" role="group" aria-label={`Record: ${stats.wins} wins, ${stats.losses} losses, ${stats.pushes} pushes, ${stats.blackjacks} blackjacks`}>
+        {(
+          [
+            ["Wins", stats.wins],
+            ["Losses", stats.losses],
+            ["Pushes", stats.pushes],
+            ["BJ", stats.blackjacks],
+          ] as const
+        ).map(([label, value]) => (
+          <div key={label} className="fp-hud-tile blackjack-stats__tile" aria-hidden="true">
+            <span className="fp-hud-label">{label}</span>
+            <span className={`fp-hud-value${value > 0 ? " fp-pop" : ""}`} key={value}>
+              {value}
+            </span>
+          </div>
+        ))}
       </div>
     </div>
   );

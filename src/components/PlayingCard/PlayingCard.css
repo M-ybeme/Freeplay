@@ -148,34 +148,116 @@
 
 /* ---------- Face cards (J/Q/K) ---------- */
 
+/*
+ * Court cards: a framed inner panel tinted with the suit colour, chamfered
+ * like the card itself, holding rank chevrons, the letter, a rule, the
+ * suit and the name. Inset horizontally so the frame clears the corner
+ * index strip.
+ */
+.playing-card__center--face {
+  inset: 13% 22%;
+}
+
 .playing-card__face {
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 2cqw;
+  gap: 2.5cqw;
   width: 100%;
   height: 100%;
+  border: 1px solid color-mix(in srgb, currentColor 40%, transparent);
+  background:
+    linear-gradient(180deg, color-mix(in srgb, currentColor 14%, transparent), color-mix(in srgb, currentColor 4%, transparent));
+  clip-path: polygon(14% 0, 100% 0, 100% 90%, 86% 100%, 0 100%, 0 10%);
+}
+
+.playing-card__face-chevrons {
+  width: 22cqw;
+  height: 16cqw;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.2;
+  stroke-linecap: square;
+  opacity: 0.85;
+}
+
+.playing-card__face-rule {
+  width: 60%;
+  height: 1px;
+  background: color-mix(in srgb, currentColor 45%, transparent);
 }
 
 .playing-card__face-letter {
   font-family: var(--font-display);
   font-weight: 700;
-  font-size: 30cqw;
+  font-size: 28cqw;
   line-height: 1;
 }
 
 .playing-card__face-suit {
-  width: 16cqw;
-  height: 16cqw;
+  width: 13cqw;
+  height: 13cqw;
 }
 
 .playing-card__face-label {
   font-family: monospace;
-  font-size: 8cqw;
-  letter-spacing: 0.15em;
+  font-size: 7cqw;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
-  opacity: 0.7;
+  opacity: 0.75;
+}
+
+/* ---------- Compact (very small cards) ---------- */
+
+.playing-card__compact-suit {
+  display: none;
+}
+
+/*
+ * Below ~48px wide (phone Solitaire, long Blackjack hands) pips and court
+ * panels are just noise - six-pixel suit shapes. The card switches to a
+ * big corner index (rank + suit side by side, readable when stacked under
+ * other cards) and one large suit in the middle.
+ */
+@container (max-width: 48px) {
+  .playing-card__center,
+  .playing-card__index--bottom {
+    display: none;
+  }
+
+  .playing-card__index--top {
+    top: 4%;
+    left: 7%;
+    flex-direction: row;
+    align-items: center;
+    gap: 3cqw;
+  }
+
+  .playing-card__rank {
+    font-size: 34cqw;
+  }
+
+  .playing-card__rank--ten {
+    font-size: 27cqw;
+    letter-spacing: -0.08em;
+  }
+
+  .playing-card__index-suit {
+    width: 24cqw;
+    height: 24cqw;
+  }
+
+  .playing-card__compact-suit {
+    display: block;
+    position: absolute;
+    left: 50%;
+    top: 62%;
+    width: 52cqw;
+    height: 52cqw;
+    transform: translate(-50%, -50%);
+  }
 }
 
 /* ---------- Card back ---------- */
@@ -183,9 +265,9 @@
 .playing-card--back {
   background-color: var(--void);
   background-image:
-    repeating-linear-gradient(45deg, rgba(0, 217, 255, 0.09) 0 2px, transparent 2px 10px),
-    repeating-linear-gradient(-45deg, rgba(139, 61, 255, 0.09) 0 2px, transparent 2px 10px);
-  border: 1px solid rgba(0, 217, 255, 0.4);
+    repeating-linear-gradient(45deg, rgba(0, 217, 255, 0.07) 0 2px, transparent 2px 10px),
+    repeating-linear-gradient(-45deg, rgba(139, 61, 255, 0.07) 0 2px, transparent 2px 10px);
+  border: 1px solid rgba(0, 217, 255, 0.3);
 }
 
 .playing-card__back-frame {
@@ -194,15 +276,29 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid rgba(0, 217, 255, 0.35);
+  border: 1px solid rgba(0, 217, 255, 0.22);
   clip-path: polygon(14% 0, 100% 0, 100% 86%, 86% 100%, 0 100%, 0 14%);
 }
 
+/*
+ * Card backs recede by default: a table can show 20+ of them, and a
+ * glowing mark on each pulled the eye away from the cards that matter.
+ * A layout can light one up (e.g. Solitaire's stock) with
+ * .playing-card--back-lit.
+ */
 .playing-card__back-mark {
   font-family: var(--font-display);
   font-weight: 700;
   font-size: 22cqw;
   letter-spacing: 0.05em;
+  color: rgba(0, 217, 255, 0.4);
+}
+
+.playing-card--back-lit .playing-card__back-mark {
   color: var(--laser-blue);
   text-shadow: 0 0 8px rgba(0, 217, 255, 0.6);
+}
+
+.playing-card--back-lit {
+  border-color: rgba(0, 217, 255, 0.65);
 }

@@ -72,6 +72,9 @@ export function Solitaire() {
   const [focusedPile, setFocusedPile] = useState<number | null>(null);
 
   const foundationCount = foundations.reduce((sum, p) => sum + p.length, 0);
+  // Derived straight from the run (never a separate counter), so they stay
+  // right across reloads and undo.
+  const hiddenCount = tableau.reduce((sum, pile) => sum + pile.filter((tc) => !tc.faceUp).length, 0);
 
   const boardRef = useRef<HTMLDivElement>(null);
   const { settleFrom } = useCardMotion(boardRef, [stock, waste, foundations, tableau], {
@@ -215,6 +218,16 @@ export function Solitaire() {
               {foundationCount} / 52
             </span>
           </div>
+          <div className="fp-hud-tile">
+            <span className="fp-hud-label">Stock</span>
+            <span className="fp-hud-value">{stock.length}</span>
+          </div>
+          <div className="fp-hud-tile">
+            <span className="fp-hud-label">Hidden</span>
+            <span className={`fp-hud-value${hiddenCount < 21 ? " fp-pop" : ""}`} key={hiddenCount}>
+              {hiddenCount}
+            </span>
+          </div>
         </div>
       </div>
 
@@ -236,14 +249,19 @@ export function Solitaire() {
         <div className="solitaire-row">
           <button
             type="button"
-            className="solitaire-stock"
+            className={`solitaire-stock${stock.length > 2 ? " solitaire-stock--deep" : stock.length === 2 ? " solitaire-stock--shallow" : ""}`}
             data-motion-origin="stock"
             onClick={stockActivate}
             disabled={locked}
             aria-label={stock.length > 0 ? `Stock, ${stock.length} cards, draw one` : "Stock empty, tap to recycle waste"}
           >
             {stock.length > 0 ? (
-              <PlayingCard faceDown />
+              <>
+                <PlayingCard faceDown className="playing-card--back-lit" />
+                <span className="solitaire-stock__count" aria-hidden="true">
+                  {stock.length}
+                </span>
+              </>
             ) : (
               <div className="solitaire-slot solitaire-slot--recycle" aria-hidden="true">
                 <span className="solitaire-slot__recycle-icon">&#8635;</span>
@@ -252,7 +270,7 @@ export function Solitaire() {
           </button>
 
           <div
-            className={`solitaire-waste ${isSelected({ zone: "waste" }) ? "solitaire-zone--selected" : ""} ${dragOverKey === "waste" ? "solitaire-zone--drag-over" : ""}`}
+            className={`solitaire-waste${waste.length > 2 ? " solitaire-waste--deep" : ""} ${isSelected({ zone: "waste" }) ? "solitaire-zone--selected" : ""} ${dragOverKey === "waste" ? "solitaire-zone--drag-over" : ""}`}
             data-zone="waste"
             data-zone-key="waste"
             role="button"
@@ -326,6 +344,7 @@ export function Solitaire() {
                     </div>
                   ) : (
                     <div className="solitaire-slot solitaire-slot--foundation" aria-hidden="true">
+                      <span className="solitaire-slot__hint">A</span>
                       <SuitIcon suit={suit} className="solitaire-slot__suit" />
                     </div>
                   )}
@@ -364,7 +383,9 @@ export function Solitaire() {
                   <div
                     className={`solitaire-slot solitaire-slot--tableau ${isSelected(target) ? "solitaire-zone--selected" : ""} ${dragOverKey === `tableau-${p}` ? "solitaire-zone--drag-over" : ""}`}
                     aria-hidden="true"
-                  />
+                  >
+                    <span className="solitaire-slot__hint">K</span>
+                  </div>
                 )}
                 {pile.map((tc: TableauCardModel, i) => {
                   const cardTarget: Selection = { zone: "tableau", pile: p, index: i };
@@ -423,7 +444,7 @@ export function Solitaire() {
       {drag && (
         <div className="solitaire-drag-ghost" style={{ left: drag.x, top: drag.y }} aria-hidden="true">
           {drag.cards.map((card, i) => (
-            <div key={cardId(card)} className="solitaire-drag-ghost__card" data-ghost-id={cardId(card)} style={{ top: i * 22 }}>
+            <div key={cardId(card)} className="solitaire-drag-ghost__card" data-ghost-id={cardId(card)} style={{ top: `calc(${i} * var(--overlap-up))` }}>
               <PlayingCard card={card} />
             </div>
           ))}

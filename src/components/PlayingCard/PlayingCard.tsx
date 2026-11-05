@@ -4,6 +4,9 @@ import { cardName, isRedSuit, type Card } from "./types";
 import "./PlayingCard.css";
 
 const FACE_LABELS: Record<string, string> = { J: "Jack", Q: "Queen", K: "King" };
+// Rank insignia for court cards: one, two or three chevrons stacked above
+// the letter, so J/Q/K read as a hierarchy at a glance, not just a letter.
+const FACE_CHEVRONS: Record<string, number> = { J: 1, Q: 2, K: 3 };
 
 interface PlayingCardProps {
   card?: Card;
@@ -48,11 +51,15 @@ export function PlayingCard({ card, faceDown, className }: PlayingCardProps) {
       </span>
 
       <div
-        className={`playing-card__center${PIP_LAYOUTS[card.rank] ? " playing-card__center--pips" : ""}`}
+        className={`playing-card__center${PIP_LAYOUTS[card.rank] ? " playing-card__center--pips" : ""}${FACE_LABELS[card.rank] ? " playing-card__center--face" : ""}`}
         aria-hidden="true"
       >
         <CardCenter rank={card.rank} suit={card.suit} />
       </div>
+
+      {/* Shown instead of the detailed centre on very small cards (see the
+          container query in PlayingCard.css). */}
+      <SuitIcon suit={card.suit} className="playing-card__compact-suit" />
 
       <span className="playing-card__index playing-card__index--bottom" aria-hidden="true">
         <span className={rankClassName}>{card.rank}</span>
@@ -75,7 +82,13 @@ function CardCenter({ rank, suit }: Card) {
   if (faceLabel) {
     return (
       <div className="playing-card__face">
+        <svg className="playing-card__face-chevrons" viewBox="0 0 24 18" aria-hidden="true" focusable="false">
+          {Array.from({ length: FACE_CHEVRONS[rank] }, (_, i) => (
+            <polyline key={i} points={`3,${8 + i * 4.5} 12,${3 + i * 4.5} 21,${8 + i * 4.5}`} />
+          ))}
+        </svg>
         <span className="playing-card__face-letter">{rank}</span>
+        <span className="playing-card__face-rule" />
         <SuitIcon suit={suit} className="playing-card__face-suit" />
         <span className="playing-card__face-label">{faceLabel}</span>
       </div>

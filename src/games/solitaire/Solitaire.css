@@ -6,43 +6,45 @@
  * holographic confrontation table.
  */
 
+/*
+ * Sizing flows from the card, not the other way round: the card width is
+ * derived from the viewport so seven columns always fit the panel (the
+ * old fixed steps overflowed at 320px and at 1100px+, where 70px cards
+ * were wider than their 1fr columns), and the board, HUD and controls all
+ * take their width from the seven columns.
+ *
+ * 90vw - 84px approximates the panel's inner width minus board padding
+ * and the six column gaps; clamped to 28-76px.
+ */
 .solitaire {
-  --pc-width: 36px;
-  --overlap-down: 14px;
-  --overlap-up: 20px;
+  --pc-width: clamp(28px, calc((90vw - 84px) / 7), 76px);
+  --col-gap: 4px;
+  /* Fan steps scale with the card: enough of a face-down card to count
+     them, enough of a face-up card to read its corner index. */
+  --overlap-down: calc(var(--pc-width) * 0.3);
+  --overlap-up: calc(var(--pc-width) * 0.52);
   display: flex;
   flex-direction: column;
   gap: 0.85rem;
-  align-items: center;
+  align-items: stretch;
+  width: max-content;
+  max-width: 100%;
 }
 
-@media (min-width: 400px) {
+@media (min-width: 480px) {
   .solitaire {
-    --pc-width: 46px;
-    --overlap-down: 17px;
-    --overlap-up: 25px;
+    --col-gap: 7px;
   }
 }
 
-@media (min-width: 700px) {
-  .solitaire {
-    --pc-width: 58px;
-    --overlap-down: 21px;
-    --overlap-up: 31px;
-  }
-}
-
-@media (min-width: 1100px) {
-  .solitaire {
-    --pc-width: 70px;
-    --overlap-down: 25px;
-    --overlap-up: 36px;
-  }
+/* Solitaire needs more room than the shared 560px panel for seven
+   full-size columns on desktop. */
+.game-shell__panel:has(.solitaire) {
+  max-width: 700px;
 }
 
 .solitaire__hud {
   width: 100%;
-  max-width: 560px;
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
@@ -54,12 +56,24 @@
 
 .solitaire__stats {
   display: flex;
-  gap: 0.6rem;
+  gap: 0.5rem;
+}
+
+/* Three equal tiles spanning the board's width, on one row even at 320px. */
+.solitaire__stats .fp-hud-tile {
+  flex: 1 1 0;
+  min-width: 0;
+  padding-left: 0.4rem;
+  padding-right: 0.4rem;
+}
+
+.solitaire__stats .fp-hud-value {
+  font-size: clamp(1rem, 4.5vw, 1.35rem);
+  white-space: nowrap;
 }
 
 .solitaire__confirm {
   width: 100%;
-  max-width: 560px;
   padding: 0.85rem 1rem;
   background: var(--surface);
   border: 1px solid var(--hot-pink);
@@ -79,21 +93,23 @@
 .solitaire-board {
   /* Positioning context for useCardMotion's board-relative measurements. */
   position: relative;
-  width: 100%;
-  max-width: 560px;
   padding: 0.75rem;
   display: flex;
   flex-direction: column;
   gap: 0.9rem;
-  background: var(--void);
+  background:
+    radial-gradient(ellipse 120% 60% at 50% 0%, rgba(0, 217, 255, 0.05), transparent 70%),
+    var(--void);
   border: 1px solid var(--surface-2);
 }
 
+/* The top row shares the tableau's seven columns: stock over pile 1,
+   waste over pile 2, foundations over piles 4-7. */
 .solitaire-row {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 0.5rem;
+  display: grid;
+  grid-template-columns: repeat(7, var(--pc-width));
+  column-gap: var(--col-gap);
+  align-items: start;
 }
 
 .solitaire-stock,
@@ -123,21 +139,93 @@
   outline-offset: 2px;
 }
 
+.solitaire-stock {
+  position: relative;
+  grid-column: 1;
+}
+
+/* Stock depth: offset edges behind the top card so it reads as a pile
+   (on the button, since the card itself is clip-pathed and would clip it),
+   thinning to one edge and then none as it runs out. */
+.solitaire-stock--deep {
+  border-radius: 4px;
+  box-shadow:
+    3px 3px 0 0 var(--void),
+    3px 3px 0 1px rgba(0, 217, 255, 0.55),
+    6px 6px 0 0 var(--void),
+    6px 6px 0 1px rgba(0, 217, 255, 0.35);
+}
+
+.solitaire-stock--shallow {
+  border-radius: 4px;
+  box-shadow:
+    3px 3px 0 0 var(--void),
+    3px 3px 0 1px rgba(0, 217, 255, 0.5);
+}
+
+.solitaire-stock__count {
+  position: absolute;
+  right: -4px;
+  bottom: -6px;
+  z-index: 1;
+  min-width: 1.5em;
+  padding: 1px 4px;
+  font-family: var(--font-display);
+  font-size: max(9px, calc(var(--pc-width) * 0.17));
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--void);
+  background: var(--laser-blue);
+  border-radius: 3px;
+}
+
+.solitaire-waste {
+  grid-column: 2;
+}
+
+/* Waste depth: one edge once there are cards under the visible two. */
+.solitaire-waste--deep .solitaire-stack {
+  border-radius: 4px;
+  box-shadow:
+    3px 3px 0 0 var(--void),
+    3px 3px 0 1px rgba(231, 228, 242, 0.5);
+}
+
 .solitaire-foundations {
-  display: flex;
-  gap: 0.4rem;
+  grid-column: 4 / span 4;
+  display: grid;
+  grid-template-columns: repeat(4, var(--pc-width));
+  column-gap: var(--col-gap);
 }
 
 /* ---------- Empty slots ---------- */
 
+/*
+ * Empty slots read as sockets you can drop into: a visible cyan outline,
+ * a faint fill and an inset shadow, plus a hint of what goes there
+ * (an A on foundations, a K on empty tableau piles).
+ */
 .solitaire-slot {
+  position: relative;
   width: var(--pc-width);
   aspect-ratio: 5 / 7;
-  border: 1.5px dashed var(--surface-2);
+  border: 1.5px dashed rgba(0, 217, 255, 0.3);
   border-radius: 4px;
+  background: rgba(0, 217, 255, 0.03);
+  box-shadow: inset 0 0 14px rgba(0, 0, 0, 0.6);
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
+  gap: 6%;
+  color: rgba(0, 217, 255, 0.4);
+}
+
+.solitaire-slot__hint {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: calc(var(--pc-width) * 0.26);
+  line-height: 1;
 }
 
 .solitaire-slot--recycle {
@@ -150,14 +238,9 @@
   line-height: 1;
 }
 
-.solitaire-slot--foundation {
-  color: var(--surface-2);
-}
-
 .solitaire-slot__suit {
-  width: 45%;
-  height: 45%;
-  opacity: 0.5;
+  width: 40%;
+  height: 40%;
 }
 
 .solitaire-slot--tableau {
@@ -185,14 +268,13 @@
 
 .solitaire-tableau {
   display: grid;
-  grid-template-columns: repeat(7, 1fr);
+  grid-template-columns: repeat(7, var(--pc-width));
   /* Without this, grid's default stretch makes every pile container as
      tall as the longest one - the cards still render at the top (normal
      flex flow), but the container (and its click/focus/pointer target)
      would extend far past them into dead space for every shorter pile. */
   align-items: start;
-  gap: 0.3rem;
-  width: 100%;
+  column-gap: var(--col-gap);
 }
 
 .solitaire-pile {
@@ -268,7 +350,6 @@
 
 .solitaire__controls {
   width: 100%;
-  max-width: 560px;
   display: flex;
   gap: 0.6rem;
 }
@@ -279,7 +360,6 @@
 
 .solitaire__result {
   width: 100%;
-  max-width: 560px;
   padding: 0.9rem 1rem;
   display: flex;
   flex-direction: column;
