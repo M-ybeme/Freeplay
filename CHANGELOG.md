@@ -16,6 +16,46 @@ When adding an entry for a new game or feature, copy the pattern below:
 
 ---
 
+## `eabfe84` — Add Reversi: 1-player vs three computer levels, or 2-player on one device
+
+- Game 11 and the first game with a 2-player mode. The rules in
+  `logic.ts` are player-neutral: a move is a move. `controllerFor(mode,
+  side)` in the hook is the only place 1-player and 2-player differ
+  (solo: you are cyan, the computer is pink; duo: two people sharing the
+  device). This is the pattern Chess is meant to reuse. It is
+  deliberately local to Reversi until that second game exists, per the
+  "share only after a second game needs it" guardrail.
+- Named Reversi with its own look (not the trademarked black/white on
+  green). Cyan discs are lit rings and pink discs are solid cores, so
+  the sides differ by shape. Captured discs flip in a ripple outward
+  from the placed disc (70ms per ring of distance). Legal-move markers
+  can be turned off. Passes are automatic and announced. Undo in solo
+  returns to your previous turn, skipping the computer's reply; in
+  duo it steps back one move.
+- Computer levels:
+  - Easy: greedy for discs, but random about a third of the time.
+  - Normal: one ply on a corner/edge square-value table.
+  - Hard: negamax alpha-beta at depth 5 on square values plus mobility,
+    solving exactly once 10 or fewer squares are empty.
+
+  Hard measured 32ms median and 162ms max per move on the dev machine.
+  Depth was raised from 4 after the first measurement showed 90ms max.
+  There is a 550ms pause before each computer move so it reads as a
+  turn. Solo results go into a per-level W/L/D record.
+- Tests (23):
+  - Flips in every direction, with no wrapping at the board edge.
+  - Passing and game end.
+  - Undo, with no nested history.
+  - Every level picks only legal moves.
+  - Normal takes a free corner.
+  - Hard's endgame choice matches a brute-force search.
+  - Each level beats the one below it in most games.
+
+  They take about 13s, mostly the full Hard games.
+- Known rough edges: on a 320x700 phone the Undo/New row sits about
+  80px below the fold, and undoing a finished solo game then finishing
+  it again counts the result twice.
+
 ## `614bf3d` — Add Mahjong: neon tile-matching solitaire with winnable deals
 
 - Game 10. Tap two free tiles that match to clear them. A tile is free
