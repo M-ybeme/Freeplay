@@ -16,6 +16,31 @@ When adding an entry for a new game or feature, copy the pattern below:
 
 ---
 
+## `b199f5e` — Cabinet shell: neon marquee, CRT screen and control deck
+
+- The game shell is now an arcade cabinet, top to bottom. A backlit
+  marquee shows the game's name in pink neon and flickers on when the game
+  opens. The game panel is a CRT: rounded glass in a dark bezel, faint
+  scanlines (8% black, 1px in 3), darker edges and a cyan glow, with a
+  power-on effect where a bright line opens out. A control deck holds an
+  EXIT arcade button and a CREDITS: FREE PLAY readout.
+- Everything is chrome around the panel, so no game changed. The
+  scanline and vignette layers sit at z-index 4: above the games' own
+  layered pieces (z 1-3), below Solitaire's drag ghost and overlays
+  (z 20+). Both take no pointer input.
+- Built mobile first. The marquee is 56px tall and the deck 62px. The
+  bezel is 6px on phones and 10px from 480px up, and the panel's
+  horizontal padding shrinks by the same amount, so games keep their
+  inner width. This matters for Solitaire, which sizes its cards from it.
+  The deck pads for safe areas, and on wide screens it keeps its controls
+  lined up under the cabinet (720px).
+- Measured all 8 games at 320, 390 and 1440px with no horizontal page
+  overflow. Minesweeper's beginner board (322px minimum) still scrolls
+  inside its wrapper at 320, the same as before this change.
+- Known costs: about 57px less vertical room than the old header, and
+  EXIT now comes after the game in tab order because it sits at the
+  bottom. The flicker, power-on and blink are off under reduced motion.
+
 ## `564e779` — Fix Flow pipes joining non-consecutive cells and routes extending past their end
 
 - Pipe connectors are now derived from route order (each cell links only
