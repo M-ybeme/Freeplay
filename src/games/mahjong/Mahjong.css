@@ -1,0 +1,310 @@
+.mahjong {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  gap: 0.65rem;
+}
+
+.mahjong__hud {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.mahjong__hud .fp-hud-tile {
+  min-width: 4.6rem;
+}
+
+/* ---------- Layout picker ---------- */
+
+.mahjong__layouts {
+  display: flex;
+  gap: 0.35rem;
+  padding: 3px;
+  background: var(--void);
+  border: 1px solid var(--surface-2);
+  border-radius: 999px;
+}
+
+.mahjong__layout {
+  min-height: 36px;
+  padding: 0 0.8rem;
+  font-family: var(--font-display);
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+  background: none;
+  border: 0;
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.mahjong__layout--on {
+  color: var(--void);
+  background: var(--laser-blue);
+  box-shadow: 0 0 10px rgba(0, 217, 255, 0.45);
+}
+
+.mahjong__layout:focus {
+  outline: none;
+}
+
+.mahjong__layout:focus-visible {
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+.mahjong__confirm,
+.mahjong__stuck {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem 0.75rem;
+  width: 100%;
+  padding: 0.6rem 0.75rem;
+  text-align: center;
+  background: var(--void);
+  border: 1px solid var(--surface-2);
+  border-radius: 6px;
+}
+
+.mahjong__stuck {
+  border-color: rgba(255, 138, 0, 0.6);
+}
+
+.mahjong__confirm-text,
+.mahjong__stuck-text {
+  margin: 0;
+  font-size: 0.85rem;
+}
+
+.mahjong__confirm-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+/* ---------- Board ---------- */
+
+/*
+ * The stage sizes the board: as wide as the panel allows, but on tall
+ * layouts on a desktop no taller than the viewport left after the
+ * cabinet and controls. Phones always get the full width (tiles that
+ * are big enough to tap matter more than avoiding a little scroll).
+ * Tiles are sized from the stage via container units.
+ */
+.mahjong-stage {
+  --tile-ratio: 1.25;
+  position: relative;
+  width: min(100%, max(260px, calc((100svh - 490px) * var(--cols) / (var(--rows) * var(--tile-ratio)))));
+  container-type: inline-size;
+}
+
+/*
+ * Each layer shifts up-left by --depth (14% of a tile), which is what
+ * makes stacks read as height. Solved together so the board still fits:
+ * cols * tw + layers * 0.14 * tw = 100cqw.
+ */
+.mahjong-board {
+  --tw: calc(100cqw / (var(--cols) + 0.14 * var(--layers)));
+  --depth: calc(var(--tw) * 0.14);
+  --th: calc(var(--tw) * var(--tile-ratio));
+  position: relative;
+  width: 100%;
+  height: calc(var(--rows) * var(--th) + var(--layers) * var(--depth));
+}
+
+/*
+ * A tile: dark glass face with a lit top edge, sitting on a visible body
+ * (the offset shadow) so the stacks read as height. Higher layers shift
+ * up and left, so every layer's edge shows on the bottom-right.
+ */
+.mahjong-tile {
+  position: absolute;
+  left: calc(var(--x) * var(--tw) + (var(--layers) - var(--z)) * var(--depth));
+  top: calc(var(--y) * var(--th) + (var(--layers) - var(--z)) * var(--depth));
+  width: var(--tw);
+  height: var(--th);
+  padding: 0;
+  background: linear-gradient(160deg, #221d3d, #120f24 70%);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: calc(var(--tw) * 0.14);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.12),
+    calc(var(--depth) * 0.5) calc(var(--depth) * 0.5) 0 0 #3a3260,
+    var(--depth) var(--depth) 0 0 #231d40,
+    calc(var(--depth) + 2px) calc(var(--depth) + 3px) 8px rgba(0, 0, 0, 0.7);
+  cursor: pointer;
+  transition:
+    transform 120ms ease-out,
+    filter 160ms ease,
+    border-color 120ms ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Lower layers sit slightly in shadow, so the top of a stack is the
+   brightest thing on it. */
+.mahjong-tile::after {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  background: #000;
+  opacity: calc((var(--layers) - var(--z)) * 0.09);
+  pointer-events: none;
+}
+
+.mahjong-face {
+  display: block;
+  width: 100%;
+  height: 100%;
+  filter: drop-shadow(0 0 2px currentColor);
+}
+
+.mahjong-face__index {
+  font-family: var(--font-display);
+  font-weight: 700;
+  fill: rgba(244, 241, 255, 0.7);
+}
+
+/* Optional assist: blocked tiles recede so the playable ones stand out. */
+.mahjong-stage--show-free .mahjong-tile--blocked {
+  filter: brightness(0.5) saturate(0.6);
+}
+
+.mahjong-tile--free:hover {
+  border-color: rgba(0, 217, 255, 0.5);
+}
+
+/* Selected: lifted, with a bright green rim. */
+.mahjong-tile--selected {
+  transform: translate(-2px, -3px);
+  border-color: var(--toxic);
+  box-shadow:
+    inset 0 0 0 1px var(--toxic),
+    0 0 14px rgba(140, 255, 0, 0.55),
+    calc(var(--depth) * 0.5 + 2px) calc(var(--depth) * 0.5 + 3px) 0 0 #2a2447,
+    calc(var(--depth) + 2px) calc(var(--depth) + 3px) 0 0 #1b1731;
+}
+
+.mahjong-tile--hint {
+  animation: mahjong-hint 900ms ease-in-out 2;
+  border-color: var(--laser-blue);
+}
+
+@keyframes mahjong-hint {
+  50% {
+    transform: translate(-1px, -2px);
+    box-shadow: 0 0 16px rgba(0, 217, 255, 0.8);
+    filter: brightness(1.4);
+  }
+}
+
+.mahjong-tile:focus {
+  outline: none;
+}
+
+.mahjong-tile:focus-visible {
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 1px;
+}
+
+/* A matched pair flares and lifts away. */
+.mahjong-tile--leaving {
+  pointer-events: none;
+  animation: mahjong-leave 280ms ease-in forwards;
+}
+
+@keyframes mahjong-leave {
+  0% {
+    filter: brightness(1.8);
+    border-color: var(--toxic);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-14%) scale(1.12);
+  }
+}
+
+.mahjong__overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 10000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 1rem;
+  text-align: center;
+  background: rgba(8, 6, 18, 0.85);
+}
+
+/* ---------- Controls ---------- */
+
+.mahjong__controls {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.4rem;
+  width: 100%;
+  max-width: 420px;
+}
+
+.mahjong__btn {
+  min-height: 44px;
+  padding: 0.4rem 0.6rem;
+  font-size: 0.8rem;
+}
+
+.mahjong__toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 44px;
+  padding: 0 0.5rem;
+  font: inherit;
+  font-size: 0.8rem;
+  color: var(--muted);
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+
+.mahjong__toggle-box {
+  width: 16px;
+  height: 16px;
+  border: 1.5px solid var(--muted);
+  border-radius: 3px;
+}
+
+.mahjong__toggle--on {
+  color: var(--text);
+}
+
+.mahjong__toggle--on .mahjong__toggle-box {
+  background: var(--laser-blue);
+  border-color: var(--laser-blue);
+  box-shadow: inset 0 0 0 2px var(--void);
+}
+
+.mahjong__toggle:focus {
+  outline: none;
+}
+
+.mahjong__toggle:focus-visible {
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+.mahjong__sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
