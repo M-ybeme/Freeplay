@@ -8,16 +8,24 @@
 
 /*
  * Sizing flows from the card, not the other way round: the card width is
- * derived from the viewport so seven columns always fit the panel (the
- * old fixed steps overflowed at 320px and at 1100px+, where 70px cards
- * were wider than their 1fr columns), and the board, HUD and controls all
- * take their width from the seven columns.
+ * derived from the space the cabinet gives the game, and the board, HUD
+ * and controls all take their width from the seven columns.
  *
- * 90vw - 84px approximates the panel's inner width minus board padding
- * and the six column gaps; clamped to 28-76px.
+ *   width:  seven cards, six gaps and the board's padding/border (26px)
+ *           fit the panel's inner width (--play-w).
+ *   height: the deal plus a few more fanned cards (about 6.2 card
+ *           widths) fits the screen height left after the HUD and
+ *           controls (--play-h minus 221px). Never below 76px, so short
+ *           laptop screens keep today's size and long columns scroll.
+ *
+ * Clamped to 28-104px.
  */
 .solitaire {
-  --pc-width: clamp(28px, calc((90vw - 84px) / 7), 76px);
+  --pc-width: clamp(
+    28px,
+    min((var(--play-w) - 26px - 6 * var(--col-gap)) / 7, max(76px, (var(--play-h) - 221px) / 6.2)),
+    104px
+  );
   --col-gap: 4px;
   /* Fan steps scale with the card: enough of a face-down card to count
      them, enough of a face-up card to read its corner index. */
@@ -37,10 +45,13 @@
   }
 }
 
-/* Solitaire needs more room than the shared 560px panel for seven
-   full-size columns on desktop. */
-.game-shell__panel:has(.solitaire) {
-  max-width: 700px;
+/*
+ * The screen narrows to fit the board instead of leaving empty space on
+ * either side: the same card size as above, estimated from the window
+ * height (the cabinet takes about 250px), plus gaps and padding.
+ */
+.game-shell[data-size]:has(.solitaire) {
+  --panel-max: clamp(560px, calc(7 * max(76px, (100svh - 471px) / 6.2) + 132px), 1040px);
 }
 
 .solitaire__hud {

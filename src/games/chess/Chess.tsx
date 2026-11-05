@@ -138,35 +138,36 @@ export function Chess() {
 
   return (
     <div className="chess">
-      <div className="chess__setup">
-        <div className="chess__seg" role="group" aria-label="Players">
-          {(["solo", "duo"] as Mode[]).map((m) => (
-            <button
-              key={m}
-              type="button"
-              className={`chess__seg-btn${mode === m ? " chess__seg-btn--on" : ""}`}
-              aria-pressed={mode === m}
-              onClick={() => mode !== m && request({ mode: m })}
-            >
-              {m === "solo" ? "1 Player" : "2 Players"}
-            </button>
-          ))}
-        </div>
-        {mode === "solo" && (
-          <div className="chess__seg" role="group" aria-label="Computer level">
-            {LEVELS.map((l) => (
+      <div className="chess__top">
+        <div className="chess__setup">
+          <div className="chess__seg" role="group" aria-label="Players">
+            {(["solo", "duo"] as Mode[]).map((m) => (
               <button
-                key={l}
+                key={m}
                 type="button"
-                className={`chess__seg-btn${level === l ? " chess__seg-btn--on" : ""}`}
-                aria-pressed={level === l}
-                onClick={() => level !== l && request({ level: l })}
+                className={`chess__seg-btn${mode === m ? " chess__seg-btn--on" : ""}`}
+                aria-pressed={mode === m}
+                onClick={() => mode !== m && request({ mode: m })}
               >
-                {l}
+                {m === "solo" ? "1 Player" : "2 Players"}
               </button>
             ))}
           </div>
-        )}
+          {mode === "solo" && (
+            <div className="chess__seg" role="group" aria-label="Computer level">
+              {LEVELS.map((l) => (
+                <button
+                  key={l}
+                  type="button"
+                  className={`chess__seg-btn${level === l ? " chess__seg-btn--on" : ""}`}
+                  aria-pressed={level === l}
+                  onClick={() => level !== l && request({ level: l })}
+                >
+                  {l}
+                </button>
+              ))}
+            </div>
+          )}
       </div>
 
       {pending && (
@@ -215,6 +216,8 @@ export function Chess() {
         {statusText}
         {status === "playing" && checked !== null && <span className="chess__check"> — Check</span>}
       </p>
+
+      </div>
 
       <div className="chess-board-wrap">
         <div className="chess-board" role="grid" aria-label="Board" onKeyDown={onBoardKey}>
@@ -305,27 +308,35 @@ export function Chess() {
           </div>
         )}
       </div>
+      <div className="chess__bottom">
 
-      <p className="chess__moves" aria-label="Recent moves">
-        {pairs.length ? pairs.slice(-3).join("   ") : " "}
-      </p>
+        {/* Newest moves stay in view: the last few on one line when stacked, a scrolling list beside the board. */}
+        <div className="chess__moves">
+          <ol className="chess__moves-list" aria-label="Moves">
+            {pairs.map((pair) => (
+              <li key={pair} className="chess__move">
+                {pair}
+              </li>
+            ))}
+          </ol>
+        </div>
 
-      <div className="chess__controls">
-        <button type="button" className="fp-btn fp-btn--secondary chess__btn" onClick={undo} disabled={!canUndo}>
-          Undo
-        </button>
-        <button type="button" className="fp-btn fp-btn--secondary chess__btn" onClick={() => request({})}>
-          New game
-        </button>
-        <button
-          type="button"
-          className={`chess__toggle${showMoves ? " chess__toggle--on" : ""}`}
-          aria-pressed={showMoves}
-          onClick={() => setShowMoves(!showMoves)}
-        >
-          <span className="chess__toggle-box" aria-hidden="true" />
-          Show moves
-        </button>
+        <div className="chess__controls">
+          <button type="button" className="fp-btn fp-btn--secondary chess__btn" onClick={undo} disabled={!canUndo}>
+            Undo
+          </button>
+          <button type="button" className="fp-btn fp-btn--secondary chess__btn" onClick={() => request({})}>
+            New game
+          </button>
+          <button
+            type="button"
+            className={`chess__toggle${showMoves ? " chess__toggle--on" : ""}`}
+            aria-pressed={showMoves}
+            onClick={() => setShowMoves(!showMoves)}
+          >
+            <span className="chess__toggle-box" aria-hidden="true" />
+            Show moves
+          </button>
       </div>
 
       {mode === "solo" && (
@@ -334,6 +345,7 @@ export function Chess() {
         </p>
       )}
 
+      </div>
       <p className="chess__sr" role="status" aria-live="polite">
         {message}
       </p>

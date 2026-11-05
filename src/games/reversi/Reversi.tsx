@@ -80,77 +80,79 @@ export function Reversi() {
 
   return (
     <div className="reversi">
-      <div className="reversi__setup">
-        <div className="reversi__seg" role="group" aria-label="Players">
-          {(["solo", "duo"] as Mode[]).map((m) => (
-            <button
-              key={m}
-              type="button"
-              className={`reversi__seg-btn${mode === m ? " reversi__seg-btn--on" : ""}`}
-              aria-pressed={mode === m}
-              onClick={() => mode !== m && request({ mode: m })}
-            >
-              {m === "solo" ? "1 Player" : "2 Players"}
-            </button>
-          ))}
-        </div>
-        {mode === "solo" && (
-          <div className="reversi__seg" role="group" aria-label="Computer level">
-            {LEVELS.map((l) => (
+      <div className="reversi__top">
+        <div className="reversi__setup">
+          <div className="reversi__seg" role="group" aria-label="Players">
+            {(["solo", "duo"] as Mode[]).map((m) => (
               <button
-                key={l}
+                key={m}
                 type="button"
-                className={`reversi__seg-btn${level === l ? " reversi__seg-btn--on" : ""}`}
-                aria-pressed={level === l}
-                onClick={() => level !== l && request({ level: l })}
+                className={`reversi__seg-btn${mode === m ? " reversi__seg-btn--on" : ""}`}
+                aria-pressed={mode === m}
+                onClick={() => mode !== m && request({ mode: m })}
               >
-                {l}
+                {m === "solo" ? "1 Player" : "2 Players"}
               </button>
             ))}
           </div>
-        )}
-      </div>
-
-      {pending && (
-        <div className="reversi__confirm fp-enter" role="alertdialog" aria-label="Abandon this game?">
-          <p className="reversi__confirm-text">Abandon this game and start a new one?</p>
-          <div className="reversi__confirm-actions">
-            <button
-              type="button"
-              className="fp-btn fp-btn--danger reversi__btn"
-              onClick={() => {
-                newGame(pending);
-                setPending(null);
-              }}
-            >
-              New game
-            </button>
-            <button type="button" className="fp-btn fp-btn--secondary reversi__btn" onClick={() => setPending(null)}>
-              Keep playing
-            </button>
-          </div>
+          {mode === "solo" && (
+            <div className="reversi__seg" role="group" aria-label="Computer level">
+              {LEVELS.map((l) => (
+                <button
+                  key={l}
+                  type="button"
+                  className={`reversi__seg-btn${level === l ? " reversi__seg-btn--on" : ""}`}
+                  aria-pressed={level === l}
+                  onClick={() => level !== l && request({ level: l })}
+                >
+                  {l}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
-      )}
 
-      <div className="reversi__players">
-        {(["cyan", "pink"] as Player[]).map((side) => (
-          <div
-            key={side}
-            className={`reversi__player reversi__player--${side}${status === "playing" && current === side ? " reversi__player--active" : ""}`}
-          >
-            <Disc side={side} className="reversi__player-disc" />
-            <span className="reversi__player-name">{sideName(mode, side)}</span>
-            <span className="reversi__player-count fp-hud-value" key={counts[side]}>
-              {counts[side]}
-            </span>
+        {pending && (
+          <div className="reversi__confirm fp-enter" role="alertdialog" aria-label="Abandon this game?">
+            <p className="reversi__confirm-text">Abandon this game and start a new one?</p>
+            <div className="reversi__confirm-actions">
+              <button
+                type="button"
+                className="fp-btn fp-btn--danger reversi__btn"
+                onClick={() => {
+                  newGame(pending);
+                  setPending(null);
+                }}
+              >
+                New game
+              </button>
+              <button type="button" className="fp-btn fp-btn--secondary reversi__btn" onClick={() => setPending(null)}>
+                Keep playing
+              </button>
+            </div>
           </div>
-        ))}
-      </div>
+        )}
 
-      <p className={`reversi__status${computerThinking ? " reversi__status--thinking" : ""}`}>
-        {statusText}
-        {status === "playing" && passed && <span className="reversi__pass"> — {sideName(mode, passed)} had no move</span>}
-      </p>
+        <div className="reversi__players">
+          {(["cyan", "pink"] as Player[]).map((side) => (
+            <div
+              key={side}
+              className={`reversi__player reversi__player--${side}${status === "playing" && current === side ? " reversi__player--active" : ""}`}
+            >
+              <Disc side={side} className="reversi__player-disc" />
+              <span className="reversi__player-name">{sideName(mode, side)}</span>
+              <span className="reversi__player-count fp-hud-value" key={counts[side]}>
+                {counts[side]}
+              </span>
+            </div>
+          ))}
+        </div>
+
+        <p className={`reversi__status${computerThinking ? " reversi__status--thinking" : ""}`}>
+          {statusText}
+          {status === "playing" && passed && <span className="reversi__pass"> — {sideName(mode, passed)} had no move</span>}
+        </p>
+      </div>
 
       <div className="reversi-board-wrap">
         <div className={`reversi-board${personTurn ? " reversi-board--live" : ""}`} role="grid" aria-label="Board" onKeyDown={onBoardKey}>
@@ -218,29 +220,31 @@ export function Reversi() {
         )}
       </div>
 
-      <div className="reversi__controls">
-        <button type="button" className="fp-btn fp-btn--secondary reversi__btn" onClick={undo} disabled={!canUndo}>
-          Undo
-        </button>
-        <button type="button" className="fp-btn fp-btn--secondary reversi__btn" onClick={() => request({})}>
-          New game
-        </button>
-        <button
-          type="button"
-          className={`reversi__toggle${showMoves ? " reversi__toggle--on" : ""}`}
-          aria-pressed={showMoves}
-          onClick={() => setShowMoves(!showMoves)}
-        >
-          <span className="reversi__toggle-box" aria-hidden="true" />
-          Show moves
-        </button>
-      </div>
+      <div className="reversi__bottom">
+        <div className="reversi__controls">
+          <button type="button" className="fp-btn fp-btn--secondary reversi__btn" onClick={undo} disabled={!canUndo}>
+            Undo
+          </button>
+          <button type="button" className="fp-btn fp-btn--secondary reversi__btn" onClick={() => request({})}>
+            New game
+          </button>
+          <button
+            type="button"
+            className={`reversi__toggle${showMoves ? " reversi__toggle--on" : ""}`}
+            aria-pressed={showMoves}
+            onClick={() => setShowMoves(!showMoves)}
+          >
+            <span className="reversi__toggle-box" aria-hidden="true" />
+            Show moves
+          </button>
+        </div>
 
-      {mode === "solo" && (
-        <p className="reversi__record-line">
-          vs {level}: {record.wins}W · {record.losses}L · {record.draws}D
-        </p>
-      )}
+        {mode === "solo" && (
+          <p className="reversi__record-line">
+            vs {level}: {record.wins}W · {record.losses}L · {record.draws}D
+          </p>
+        )}
+      </div>
 
       <p className="reversi__sr" role="status" aria-live="polite">
         {message}

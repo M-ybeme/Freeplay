@@ -6,6 +6,7 @@ export const definition: GameDefinition = {
   name: "2048",
   description: "Slide and merge matching numbers to build higher tiles.",
   category: "puzzle",
+  size: "standard",
   supportsTouch: true,
   supportsKeyboard: true,
 };

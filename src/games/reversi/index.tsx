@@ -6,6 +6,7 @@ export const definition: GameDefinition = {
   name: "Reversi",
   description: "Outflank to flip discs your colour. Play the computer or a friend.",
   category: "strategy",
+  size: "wide",
   orientation: "any",
   supportsTouch: true,
   supportsKeyboard: true,

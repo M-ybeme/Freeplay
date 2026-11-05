@@ -1,9 +1,51 @@
 .mahjong {
+  /* Height the controls above and below the board take (see .mahjong-stage). */
+  --stack-chrome: 240px;
   display: flex;
   flex-direction: column;
   align-items: center;
   width: 100%;
   gap: 0.65rem;
+}
+
+/*
+ * The screen narrows to fit the board instead of leaving empty space on
+ * either side. The boards are about 1.1x as wide as tall, and get the
+ * window height minus the cabinet and controls (about 400px); 720px
+ * keeps room for the score and layout row.
+ */
+.game-shell[data-size]:has(.mahjong) {
+  --panel-max: clamp(720px, calc(1.1 * (100svh - 400px) + 64px), 1040px);
+}
+
+/* On phones and tablets the two control groups are just part of the column. */
+.mahjong__bar,
+.mahjong__dock {
+  display: contents;
+}
+
+/*
+ * On a wide, landscape screen the controls pack into one row above the
+ * board (score + layouts) and one below (buttons + toggle). The board is
+ * height-limited there, so every row saved goes into bigger tiles.
+ */
+@container screen (min-width: 780px) and (orientation: landscape) {
+  .mahjong {
+    --stack-chrome: 150px;
+  }
+
+  .mahjong__bar,
+  .mahjong__dock {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem 1.25rem;
+  }
+
+  .mahjong__dock .mahjong__controls {
+    width: 420px;
+  }
 }
 
 .mahjong__hud {
@@ -90,16 +132,16 @@
 /* ---------- Board ---------- */
 
 /*
- * The stage sizes the board: as wide as the panel allows, but on tall
- * layouts on a desktop no taller than the viewport left after the
- * cabinet and controls. Phones always get the full width (tiles that
- * are big enough to tap matter more than avoiding a little scroll).
- * Tiles are sized from the stage via container units.
+ * The stage sizes the board: as wide as the panel allows, but no taller
+ * than the screen height left after the controls (--play-h comes from
+ * the cabinet). Phones always get the full width (tiles big enough to
+ * tap matter more than avoiding a little scroll). Tiles are sized from
+ * the stage via container units.
  */
 .mahjong-stage {
   --tile-ratio: 1.25;
   position: relative;
-  width: min(100%, max(260px, calc((100svh - 490px) * var(--cols) / (var(--rows) * var(--tile-ratio)))));
+  width: min(100%, max(320px, calc((var(--play-h) - var(--stack-chrome)) * var(--cols) / (var(--rows) * var(--tile-ratio)))));
   container-type: inline-size;
 }
 

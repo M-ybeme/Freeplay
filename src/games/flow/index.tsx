@@ -6,6 +6,7 @@ export const definition: GameDefinition = {
   name: "Flow",
   description: "Connect matching signals and fill the entire grid.",
   category: "puzzle",
+  size: "standard",
   supportsTouch: true,
   supportsKeyboard: true,
 };

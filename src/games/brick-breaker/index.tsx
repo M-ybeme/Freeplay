@@ -6,6 +6,7 @@ export const definition: GameDefinition = {
   name: "Brick Breaker",
   description: "Bounce the ball off your paddle and break down every wall.",
   category: "arcade",
+  size: "standard",
   orientation: "portrait",
   supportsTouch: true,
   supportsKeyboard: true,

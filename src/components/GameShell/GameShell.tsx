@@ -4,6 +4,7 @@ import "./GameShell.css";
 
 interface GameShellProps {
   title: string;
+  size?: "compact" | "standard" | "wide";
   children: ReactNode;
 }
 
@@ -13,11 +14,11 @@ interface GameShellProps {
  * the credits readout. All of it is chrome around the panel, so the games
  * themselves don't know or care.
  */
-export function GameShell({ title, children }: GameShellProps) {
+export function GameShell({ title, size = "compact", children }: GameShellProps) {
   const navigate = useNavigate();
 
   return (
-    <div className="game-shell">
+    <div className="game-shell" data-size={size}>
       <header className="game-shell__marquee">
         <h1 className="game-shell__title">{title}</h1>
       </header>

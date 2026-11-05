@@ -6,6 +6,7 @@ export const definition: GameDefinition = {
   name: "Solitaire",
   description: "Build alternating runs and move every card to the foundations.",
   category: "cards",
+  size: "wide",
   supportsTouch: true,
   supportsKeyboard: true,
 };

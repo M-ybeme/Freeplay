@@ -55,35 +55,37 @@ export function Mahjong() {
 
   return (
     <div className="mahjong">
-      <div className="mahjong__hud">
-        <div className="fp-hud-tile">
-          <span className="fp-hud-label">Tiles</span>
-          <span className={`fp-hud-value${matched > 0 ? " fp-pop" : ""}`} key={tiles.length}>
-            {tiles.length}
-          </span>
+      <div className="mahjong__bar">
+        <div className="mahjong__hud">
+          <div className="fp-hud-tile">
+            <span className="fp-hud-label">Tiles</span>
+            <span className={`fp-hud-value${matched > 0 ? " fp-pop" : ""}`} key={tiles.length}>
+              {tiles.length}
+            </span>
+          </div>
+          <div className="fp-hud-tile">
+            <span className="fp-hud-label">Time</span>
+            <span className="fp-hud-value">{formatTime(elapsed)}</span>
+          </div>
+          <div className="fp-hud-tile">
+            <span className="fp-hud-label">Best</span>
+            <span className="fp-hud-value">{best === undefined ? "--:--" : formatTime(best)}</span>
+          </div>
         </div>
-        <div className="fp-hud-tile">
-          <span className="fp-hud-label">Time</span>
-          <span className="fp-hud-value">{formatTime(elapsed)}</span>
-        </div>
-        <div className="fp-hud-tile">
-          <span className="fp-hud-label">Best</span>
-          <span className="fp-hud-value">{best === undefined ? "--:--" : formatTime(best)}</span>
-        </div>
-      </div>
 
-      <div className="mahjong__layouts" role="group" aria-label="Layout">
-        {LAYOUTS.map((l) => (
-          <button
-            key={l.id}
-            type="button"
-            className={`mahjong__layout${l.id === layoutId ? " mahjong__layout--on" : ""}`}
-            aria-pressed={l.id === layoutId}
-            onClick={() => requestDeal(l.id)}
-          >
-            {l.name}
-          </button>
-        ))}
+        <div className="mahjong__layouts" role="group" aria-label="Layout">
+          {LAYOUTS.map((l) => (
+            <button
+              key={l.id}
+              type="button"
+              className={`mahjong__layout${l.id === layoutId ? " mahjong__layout--on" : ""}`}
+              aria-pressed={l.id === layoutId}
+              onClick={() => requestDeal(l.id)}
+            >
+              {l.name}
+            </button>
+          ))}
+        </div>
       </div>
 
       {pendingLayout && (
@@ -177,30 +179,32 @@ export function Mahjong() {
         </div>
       )}
 
-      <div className="mahjong__controls">
-        <button type="button" className="fp-btn fp-btn--secondary mahjong__btn" onClick={showHint} disabled={won || stuck}>
-          Hint
-        </button>
-        <button type="button" className="fp-btn fp-btn--secondary mahjong__btn" onClick={undo} disabled={!canUndo || won}>
-          Undo
-        </button>
-        <button type="button" className="fp-btn fp-btn--secondary mahjong__btn" onClick={shuffle} disabled={won}>
-          Shuffle
-        </button>
-        <button type="button" className="fp-btn fp-btn--secondary mahjong__btn" onClick={() => requestDeal(layoutId)}>
-          New
+      <div className="mahjong__dock">
+        <div className="mahjong__controls">
+          <button type="button" className="fp-btn fp-btn--secondary mahjong__btn" onClick={showHint} disabled={won || stuck}>
+            Hint
+          </button>
+          <button type="button" className="fp-btn fp-btn--secondary mahjong__btn" onClick={undo} disabled={!canUndo || won}>
+            Undo
+          </button>
+          <button type="button" className="fp-btn fp-btn--secondary mahjong__btn" onClick={shuffle} disabled={won}>
+            Shuffle
+          </button>
+          <button type="button" className="fp-btn fp-btn--secondary mahjong__btn" onClick={() => requestDeal(layoutId)}>
+            New
+          </button>
+        </div>
+
+        <button
+          type="button"
+          className={`mahjong__toggle${showFree ? " mahjong__toggle--on" : ""}`}
+          aria-pressed={showFree}
+          onClick={() => setShowFree(!showFree)}
+        >
+          <span className="mahjong__toggle-box" aria-hidden="true" />
+          Dim blocked tiles
         </button>
       </div>
-
-      <button
-        type="button"
-        className={`mahjong__toggle${showFree ? " mahjong__toggle--on" : ""}`}
-        aria-pressed={showFree}
-        onClick={() => setShowFree(!showFree)}
-      >
-        <span className="mahjong__toggle-box" aria-hidden="true" />
-        Dim blocked tiles
-      </button>
 
       <p className="mahjong__sr" role="status" aria-live="polite">
         {message}

@@ -1,9 +1,30 @@
 .chess {
+  /*
+   * Board size. Stacked: the panel width, or the screen height left after
+   * the controls above and below it (--stack-chrome). Never below 320px
+   * (or the full width on a phone), so a short screen scrolls rather than
+   * shrinking the board to nothing.
+   */
+  --stack-chrome: 330px;
+  --board-w: min(100%, max(320px, calc(var(--play-h) - var(--stack-chrome))));
   display: flex;
   flex-direction: column;
   align-items: center;
   width: 100%;
   gap: 0.55rem;
+}
+
+/* Wider panels fit the setup on one row, so the controls take less height. */
+@container (min-width: 600px) {
+  .chess {
+    --stack-chrome: 250px;
+  }
+}
+
+/* Stacked, the two control groups are just part of the column. */
+.chess__top,
+.chess__bottom {
+  display: contents;
 }
 
 /* ---------- Setup ---------- */
@@ -169,13 +190,9 @@
 
 /* ---------- Board ---------- */
 
-/*
- * Square board: as wide as the panel, capped at 440px and by the height
- * left after the cabinet and controls on short desktop windows.
- */
 .chess-board-wrap {
   position: relative;
-  width: min(100%, 440px, max(280px, calc(100svh - 490px)));
+  width: var(--board-w);
 }
 
 .chess-board {
@@ -397,17 +414,29 @@
 /* ---------- Moves, controls ---------- */
 
 .chess__moves {
-  max-width: 100%;
-  margin: 0;
+  width: 100%;
+  max-width: var(--board-w);
+  min-height: 1.3em;
   overflow: hidden;
+}
+
+/* Stacked: one line, anchored right so the newest moves show. */
+.chess__moves-list {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1.1em;
+  margin: 0;
+  padding: 0;
+  list-style: none;
   font-family: var(--font-display);
   font-size: 0.65rem;
   letter-spacing: 0.04em;
   color: var(--muted);
-  white-space: pre;
-  text-overflow: ellipsis;
-  direction: rtl;
-  unicode-bidi: plaintext;
+  white-space: nowrap;
+}
+
+.chess__move {
+  flex-shrink: 0;
 }
 
 .chess__controls {
@@ -470,4 +499,131 @@
   overflow: hidden;
   clip-path: inset(50%);
   white-space: nowrap;
+}
+
+/* ---------- Side by side ---------- */
+
+/*
+ * On a wide, landscape screen the board takes the full height on the
+ * left and the controls sit in a column beside it: setup, players and
+ * status above the middle, the move list and buttons below it.
+ */
+@container screen (min-width: 700px) and (orientation: landscape) {
+  .chess {
+    --side-w: 290px;
+    --side-gap: clamp(1.25rem, 3cqw, 2.5rem);
+    --board-w: max(320px, min(var(--play-h), calc(var(--play-w) - var(--side-w) - var(--side-gap))));
+    display: grid;
+    grid-template-columns: var(--board-w) var(--side-w);
+    /* Content-sized rows: a tall board spreads them apart (controls
+       cluster around the middle), a short one doesn't pad them out. */
+    grid-template-rows: auto auto;
+    grid-template-areas:
+      "board top"
+      "board bottom";
+    column-gap: var(--side-gap);
+    justify-content: center;
+  }
+
+  /*
+   * Top-aligned: on short windows the side column can be taller than the
+   * board, and centring the board in that taller row would push its
+   * bottom below the fold. Aligned to the top, it stays fully visible and
+   * only the buttons under it scroll.
+   */
+  .chess-board-wrap {
+    grid-area: board;
+    align-self: start;
+  }
+
+  .chess__top,
+  .chess__bottom {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.6rem;
+  }
+
+  .chess__top {
+    grid-area: top;
+    align-self: end;
+    padding-bottom: 0.3rem;
+  }
+
+  .chess__bottom {
+    grid-area: bottom;
+    align-self: start;
+    padding-top: 0.3rem;
+  }
+
+  .chess__setup {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .chess__seg {
+    justify-content: stretch;
+  }
+
+  .chess__seg-btn {
+    flex: 1;
+  }
+
+  /* Players stack, opponent on top, like the board. */
+  .chess__players {
+    grid-template-columns: 1fr;
+  }
+
+  .chess__player--pink {
+    order: -1;
+  }
+
+  .chess__player {
+    padding: 0.5rem 0.7rem;
+  }
+
+  .chess__status {
+    text-align: center;
+  }
+
+  /*
+   * A scrolling move list, kept scrolled to the newest move. It gives up
+   * height on short windows (down to about three lines) so the side
+   * column stays close to the board's height.
+   */
+  .chess__moves {
+    display: flex;
+    flex-direction: column-reverse;
+    max-width: none;
+    height: clamp(3.4rem, calc(var(--play-h) - 400px), 7.5rem);
+    overflow-y: auto;
+    padding: 0.4rem 0.6rem;
+    background: var(--void);
+    border: 1px solid var(--surface-2);
+    border-radius: 6px;
+  }
+
+  .chess__moves-list {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.3rem 0.8rem;
+    justify-content: start;
+  }
+
+  .chess__moves-list:empty::before {
+    content: "No moves yet";
+  }
+
+  .chess .chess__player-icon {
+    width: 26px;
+    height: 26px;
+  }
+
+  .chess__controls {
+    justify-content: center;
+  }
+
+  .chess__record-line {
+    text-align: center;
+  }
 }

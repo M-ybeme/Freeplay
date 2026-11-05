@@ -1,4 +1,16 @@
 .snake {
+  /*
+   * Board size, up to 520px. Where the screen is tall enough, the HUD,
+   * board and D-pad all fit (play height minus about 232px). On shorter
+   * laptop screens the board keeps a comfortable 380-420px and stays
+   * fully visible under the HUD (play height minus about 80px); only the
+   * D-pad below it scrolls, and keyboard players don't need it. Phones
+   * get the full width.
+   */
+  --board-w: min(
+    520px,
+    max(min(100%, 380px), min(420px, calc(var(--play-h) - 80px)), calc(var(--play-h) - 232px))
+  );
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -24,7 +36,7 @@
 .snake-board {
   position: relative;
   width: 100%;
-  max-width: min(420px, 80vh, 80vw);
+  max-width: var(--board-w);
   aspect-ratio: 1;
   margin: 0 auto;
   background-color: var(--void);

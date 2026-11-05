@@ -43,12 +43,12 @@
 
 /*
  * Portrait field (100 x 130 units). Width is capped by the panel, by
- * 440px, and by the viewport height left after the cabinet chrome, HUD
- * and controls, so the whole field is always on screen while playing.
+ * 520px, and by the screen height left after the HUD (--play-h minus
+ * 130px), so the whole field is always on screen while playing.
  */
 .breaker-field {
   position: relative;
-  width: min(100%, 440px, calc((100svh - 380px) * 100 / 130));
+  width: min(100%, 520px, calc((var(--play-h) - 130px) * 100 / 130));
   min-width: min(100%, 220px);
   aspect-ratio: 100 / 130;
   background-color: var(--void);

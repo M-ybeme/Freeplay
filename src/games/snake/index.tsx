@@ -6,6 +6,7 @@ export const definition: GameDefinition = {
   name: "Snake",
   description: "Guide the snake around the board without hitting yourself.",
   category: "arcade",
+  size: "standard",
   orientation: "any",
   supportsTouch: true,
   supportsKeyboard: true,

@@ -13,7 +13,7 @@ export function Game() {
   const { definition, Component } = entry;
 
   return (
-    <GameShell title={definition.name}>
+    <GameShell title={definition.name} size={definition.size ?? "compact"}>
       <Component />
     </GameShell>
   );

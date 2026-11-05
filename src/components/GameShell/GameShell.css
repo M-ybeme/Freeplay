@@ -8,14 +8,29 @@
  * height), the deck pads for the home indicator, and the bezel is thinner
  * on phones with the panel's padding reduced by the same amount, so the
  * width a game gets is unchanged (Solitaire sizes its cards to it).
+ *
+ * Screen size: each game declares a tier (data-size) that caps how wide
+ * the screen may grow. Games size their boards from two measures the
+ * shell provides instead of guessing at the chrome around them:
+ *   --play-w  the panel's inner width (100cqw inside the panel)
+ *   --play-h  the height left inside the panel when it fills the screen
  */
 .game-shell {
+  --panel-max: 560px;
   display: flex;
   flex-direction: column;
   height: 100%;
   background:
     radial-gradient(ellipse 90% 40% at 50% 0%, rgba(139, 61, 255, 0.12), transparent 70%),
     var(--void);
+}
+
+.game-shell[data-size="standard"] {
+  --panel-max: 680px;
+}
+
+.game-shell[data-size="wide"] {
+  --panel-max: 1040px;
 }
 
 /* ---------- Marquee ---------- */
@@ -86,6 +101,11 @@
   align-items: center;
   padding: 1rem 0.75rem 1.25rem;
   overflow-y: auto;
+  /*
+   * A size container named "screen": games size boards to its visible
+   * height (cqh) and can switch layout on its shape (orientation).
+   */
+  container: screen / size;
 }
 
 /*
@@ -97,9 +117,16 @@
  */
 .game-shell__panel {
   --bezel: 6px;
+  /* Phones get less top/bottom padding: the height goes to the game. */
+  --pad-top: 1.5rem;
+  --pad-bottom: 1.25rem;
+  /* cqh here is the visible screen area (the content box of .game-shell__content). */
+  --play-h: calc(100cqh - var(--pad-top) - var(--pad-bottom) - 2 * var(--bezel));
+  --play-w: 100cqw;
   width: 100%;
-  max-width: 560px;
+  max-width: var(--panel-max);
   min-height: min(28rem, 55vh);
+  container-type: inline-size;
   /*
    * Never flex-shrink below the content's natural size. Without this, a
    * game with taller content than Higher or Lower's (e.g. Snake's HUD +
@@ -112,7 +139,7 @@
   flex-direction: column;
   align-items: center;
   /* Horizontal padding minus the bezel, so games keep the same inner width. */
-  padding: 2.25rem calc(clamp(1rem, 5vw, 1.75rem) + 0.25rem - var(--bezel)) 2rem;
+  padding: var(--pad-top) calc(clamp(1rem, 5vw, 1.75rem) + 0.25rem - var(--bezel)) var(--pad-bottom);
 
   /* CRT: rounded glass in a thick dark bezel, glowing faintly. */
   clip-path: none;
@@ -135,6 +162,8 @@
 
   .game-shell__panel {
     --bezel: 10px;
+    --pad-top: 2.25rem;
+    --pad-bottom: 2rem;
   }
 }
 
@@ -191,10 +220,11 @@
   align-items: center;
   justify-content: space-between;
   gap: 0.75rem;
-  /* On wide screens the controls stay lined up under the cabinet (720px)
-     instead of drifting to the window edges. */
-  padding: 0.5rem max(0.75rem, env(safe-area-inset-right), calc((100% - 720px) / 2))
-    max(0.5rem, env(safe-area-inset-bottom)) max(0.75rem, env(safe-area-inset-left), calc((100% - 720px) / 2));
+  /* On wide screens the controls stay lined up under the cabinet (at
+     least 720px, wider for wide screens) instead of drifting to the
+     window edges. */
+  padding: 0.5rem max(0.75rem, env(safe-area-inset-right), calc((100% - max(720px, var(--panel-max))) / 2))
+    max(0.5rem, env(safe-area-inset-bottom)) max(0.75rem, env(safe-area-inset-left), calc((100% - max(720px, var(--panel-max))) / 2));
   background: linear-gradient(180deg, #1c1830, #0e0b1a);
   border-top: 2px solid #2a2440;
   box-shadow:

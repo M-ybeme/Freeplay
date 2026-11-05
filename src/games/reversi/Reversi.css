@@ -1,9 +1,30 @@
 .reversi {
+  /*
+   * Board size. Stacked: the panel width, or the screen height left after
+   * the controls above and below it (--stack-chrome). Never below 320px
+   * (or the full width on a phone), so a short screen scrolls rather than
+   * shrinking the board to nothing.
+   */
+  --stack-chrome: 310px;
+  --board-w: min(100%, max(320px, calc(var(--play-h) - var(--stack-chrome))));
   display: flex;
   flex-direction: column;
   align-items: center;
   width: 100%;
   gap: 0.6rem;
+}
+
+/* Wider panels fit the setup on one row, so the controls take less height. */
+@container (min-width: 600px) {
+  .reversi {
+    --stack-chrome: 240px;
+  }
+}
+
+/* Stacked, the two control groups are just part of the column. */
+.reversi__top,
+.reversi__bottom {
+  display: contents;
 }
 
 /* ---------- Setup ---------- */
@@ -88,7 +109,7 @@
   grid-template-columns: 1fr 1fr;
   gap: 0.5rem;
   width: 100%;
-  max-width: 420px;
+  max-width: var(--board-w);
 }
 
 .reversi__player {
@@ -167,13 +188,9 @@
 
 /* ---------- Board ---------- */
 
-/*
- * Square board: as wide as the panel, capped at 420px and by the height
- * left after the cabinet and controls on short desktop windows.
- */
 .reversi-board-wrap {
   position: relative;
-  width: min(100%, 420px, max(260px, calc(100svh - 470px)));
+  width: var(--board-w);
 }
 
 .reversi-board {
@@ -396,4 +413,91 @@
   overflow: hidden;
   clip-path: inset(50%);
   white-space: nowrap;
+}
+
+/* ---------- Side by side ---------- */
+
+/*
+ * On a wide, landscape screen the board takes the full height on the
+ * left and the controls sit in a column beside it: setup, players and
+ * status above the middle, buttons and record below it.
+ */
+@container screen (min-width: 700px) and (orientation: landscape) {
+  .reversi {
+    --side-w: 270px;
+    --side-gap: clamp(1.25rem, 3cqw, 2.5rem);
+    --board-w: max(320px, min(var(--play-h), calc(var(--play-w) - var(--side-w) - var(--side-gap))));
+    display: grid;
+    grid-template-columns: var(--board-w) var(--side-w);
+    /* Content-sized rows: a tall board spreads them apart (controls
+       cluster around the middle), a short one doesn't pad them out. */
+    grid-template-rows: auto auto;
+    grid-template-areas:
+      "board top"
+      "board bottom";
+    column-gap: var(--side-gap);
+    justify-content: center;
+  }
+
+  /*
+   * Top-aligned: on short windows the side column can be taller than the
+   * board, and centring the board in that taller row would push its
+   * bottom below the fold. Aligned to the top, it stays fully visible and
+   * only the buttons under it scroll.
+   */
+  .reversi-board-wrap {
+    grid-area: board;
+    align-self: start;
+  }
+
+  .reversi__top,
+  .reversi__bottom {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.6rem;
+  }
+
+  .reversi__top {
+    grid-area: top;
+    align-self: end;
+    padding-bottom: 0.3rem;
+  }
+
+  .reversi__bottom {
+    grid-area: bottom;
+    align-self: start;
+    padding-top: 0.3rem;
+  }
+
+  .reversi__setup {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .reversi__seg-btn {
+    flex: 1;
+  }
+
+  /* Players stack, the second player on top, like the board's far side. */
+  .reversi__players {
+    grid-template-columns: 1fr;
+    max-width: none;
+  }
+
+  .reversi__player--pink {
+    order: -1;
+  }
+
+  .reversi__player {
+    padding: 0.55rem 0.75rem;
+  }
+
+  .reversi__status {
+    text-align: center;
+  }
+
+  .reversi__record-line {
+    text-align: center;
+  }
 }
