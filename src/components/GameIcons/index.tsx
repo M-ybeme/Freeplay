@@ -10,6 +10,7 @@ import { SolitaireIcon } from "./SolitaireIcon";
 import { BrickBreakerIcon } from "./BrickBreakerIcon";
 import { MahjongIcon } from "./MahjongIcon";
 import { ReversiIcon } from "./ReversiIcon";
+import { ChessIcon } from "./ChessIcon";
 
 interface IconProps {
   className?: string;
@@ -27,6 +28,7 @@ const icons: Record<string, ComponentType<IconProps>> = {
   "brick-breaker": BrickBreakerIcon,
   mahjong: MahjongIcon,
   reversi: ReversiIcon,
+  chess: ChessIcon,
 };
 
 interface GameIconProps extends IconProps {

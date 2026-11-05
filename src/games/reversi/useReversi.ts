@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useReducer } from "react";
 import { useGameStorage } from "../../hooks/useGameStorage";
+import { COMPUTER_DELAY_MS, EMPTY_RECORD, addResult, controllerFor, type MatchRecord, type Mode } from "../versus";
 import {
   cellName,
   chooseMove,
@@ -15,30 +16,7 @@ import {
   type Player,
 } from "./logic";
 
-export type Mode = "solo" | "duo";
-
-/*
- * Controllers: who plays each side. The rules don't care; this table is
- * the only place 1-player and 2-player differ. Solo: the person is cyan
- * (moves first), the computer is pink. Duo: both sides are people
- * sharing the device.
- */
-export type Controller = "person" | "computer";
-
-export function controllerFor(mode: Mode, side: Player): Controller {
-  return mode === "solo" && side === "pink" ? "computer" : "person";
-}
-
-/** Pause before the computer moves, so its reply reads as a turn. */
-const COMPUTER_DELAY_MS = 550;
-
-export interface Record3 {
-  wins: number;
-  losses: number;
-  draws: number;
-}
-
-const EMPTY_RECORD: Record3 = { wins: 0, losses: 0, draws: 0 };
+export type { Mode } from "../versus";
 
 interface ViewState {
   game: GameState;
@@ -91,7 +69,7 @@ export function useReversi() {
   const [mode, setMode] = useGameStorage<Mode>("reversi", "mode", "solo");
   const [level, setLevel] = useGameStorage<Level>("reversi", "level", "normal");
   const [showMoves, setShowMoves] = useGameStorage("reversi", "show-moves", true);
-  const [records, setRecords] = useGameStorage<Record<Level, Record3>>("reversi", "records", {
+  const [records, setRecords] = useGameStorage<Record<Level, MatchRecord>>("reversi", "records", {
     easy: EMPTY_RECORD,
     normal: EMPTY_RECORD,
     hard: EMPTY_RECORD,
@@ -101,7 +79,7 @@ export function useReversi() {
   const { board, current } = game;
 
   const moves = useMemo(() => legalMoves(board, current), [board, current]);
-  const turnController = game.status === "playing" ? controllerFor(mode, game.current) : null;
+  const turnController = game.status === "playing" ? controllerFor(mode, game.current, "pink") : null;
   const computerThinking = turnController === "computer";
 
   // The computer's turn: one timeout per position, cleared if anything
@@ -119,9 +97,7 @@ export function useReversi() {
   const result = winner(game);
   useEffect(() => {
     if (mode !== "solo" || result === null || view.recorded) return;
-    const r = records[level];
-    const next =
-      result === "draw" ? { ...r, draws: r.draws + 1 } : result === "cyan" ? { ...r, wins: r.wins + 1 } : { ...r, losses: r.losses + 1 };
+    const next = addResult(records[level], result === "draw" ? "draw" : result === "cyan" ? "win" : "loss");
     setRecords({ ...records, [level]: next });
     dispatch({ type: "recorded" });
   }, [mode, result, view.recorded, records, level, setRecords]);
