@@ -21,8 +21,8 @@ export function Home() {
         <hr className="fp-divider home__select-divider" />
         <div className="home__grid-frame fp-corner-marks">
           <div className="home__grid">
-            {games.map((game) => (
-              <GameCard key={game.definition.id} game={game.definition} />
+            {games.map((game, i) => (
+              <GameCard key={game.definition.id} game={game.definition} index={i} />
             ))}
           </div>
         </div>

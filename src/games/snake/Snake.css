@@ -82,6 +82,31 @@
   padding: 1px;
 }
 
+/*
+ * Only while actually playing: on restart the segments jump back to the
+ * start position, and gliding there across the board would look wrong.
+ * Walls end the run (no wrap-around), so a segment never needs to cross
+ * the board in one tick.
+ */
+.snake-board--moving .snake-segment {
+  transition:
+    left var(--tick, 150ms) linear,
+    top var(--tick, 150ms) linear;
+}
+
+/* The head flashes when the run ends. */
+.snake-board.fp-shake .snake-segment--head::before {
+  animation: snake-crash 500ms ease-out;
+}
+
+@keyframes snake-crash {
+  0%,
+  40% {
+    background: var(--hot-pink);
+    box-shadow: 0 0 14px rgba(255, 43, 214, 0.9);
+  }
+}
+
 .snake-segment::before {
   content: "";
   display: block;
@@ -140,6 +165,19 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  /* New food (keyed by position) pops in where it spawns. */
+  animation: snake-food-in 260ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes snake-food-in {
+  from {
+    transform: scale(0);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
 }
 
 .snake-food::before {

@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useLayoutEffect, useRef } from "react";
 import { cellLabel, type Cell } from "./logic";
 import { useMinesweeper } from "./useMinesweeper";
 import "./Minesweeper.css";
@@ -74,6 +74,49 @@ export function Minesweeper() {
   const minesLeft = difficulty.mines - board.cells.filter((c) => c.flagged).length;
   const bestTime = bestTimes[difficulty.id];
 
+  // Where the latest reveal started, so newly revealed cells can ripple
+  // outward from it instead of all appearing in the same frame.
+  const originRef = useRef<number | null>(null);
+  const previousCells = useRef<Cell[] | null>(null);
+
+  function revealFrom(index: number) {
+    originRef.current = index;
+    interact(index);
+  }
+
+  useLayoutEffect(() => {
+    const prev = previousCells.current;
+    previousCells.current = board.cells;
+    const root = boardRef.current;
+    // A different board (new game / difficulty) is a reset, not a reveal.
+    if (!prev || prev === board.cells || prev.length !== board.cells.length || !root) return;
+    if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) return;
+
+    const cols = difficulty.cols;
+    const origin = board.triggeredIndex ?? originRef.current ?? 0;
+    const or = Math.floor(origin / cols);
+    const oc = origin % cols;
+    board.cells.forEach((cell, i) => {
+      if (!cell.revealed || prev[i].revealed) return;
+      const el = root.querySelector<HTMLElement>(`[data-index="${i}"]`);
+      if (!el) return;
+      const distance = Math.max(Math.abs(Math.floor(i / cols) - or), Math.abs((i % cols) - oc));
+      el.animate(
+        [
+          { transform: "scale(0.55)", opacity: 0.2, filter: "brightness(2)" },
+          { transform: "scale(1)", opacity: 1, filter: "none" },
+        ],
+        {
+          duration: 220,
+          // Capped so a huge flood-fill still settles in well under a second.
+          delay: Math.min(distance * (cell.hasMine ? 45 : 28), 650),
+          easing: "cubic-bezier(0.22, 1, 0.36, 1)",
+          fill: "backwards",
+        },
+      );
+    });
+  }, [board.cells, board.triggeredIndex, difficulty.cols]);
+
   function clearLongPressTimer() {
     if (longPressTimer.current !== null) {
       window.clearTimeout(longPressTimer.current);
@@ -119,7 +162,7 @@ export function Minesweeper() {
     // pressState, so `state` is null here too, same as after a completed
     // long-press - this check can't be folded into the one above.
     if (boardLocked) return;
-    interact(index);
+    revealFrom(index);
   }
 
   function onPointerCancel() {
@@ -137,7 +180,7 @@ export function Minesweeper() {
     // they have no notion of pendingDifficulty, so this is the only place
     // that protects a mouse click while a confirmation is pending.
     if (boardLocked) return;
-    interact(index);
+    revealFrom(index);
   }
 
   function onContextMenu(e: React.MouseEvent, index: number) {
@@ -176,7 +219,7 @@ export function Minesweeper() {
     }
     if (e.key === "Enter" || e.key === " ") {
       e.preventDefault();
-      if (!boardLocked) interact(index);
+      if (!boardLocked) revealFrom(index);
       return;
     }
     if (e.key === "f" || e.key === "F") {
@@ -192,7 +235,9 @@ export function Minesweeper() {
         <div className="minesweeper__stats">
           <div className="fp-hud-tile">
             <span className="fp-hud-label">Mines</span>
-            <span className="fp-hud-value">{formatMines(minesLeft)}</span>
+            <span className={`fp-hud-value${minesLeft !== difficulty.mines ? " fp-pop" : ""}`} key={minesLeft}>
+              {formatMines(minesLeft)}
+            </span>
           </div>
           <div className="fp-hud-tile">
             <span className="fp-hud-label">Time</span>
@@ -216,7 +261,7 @@ export function Minesweeper() {
       </div>
 
       {pendingDifficulty && (
-        <div className="minesweeper__confirm" role="alertdialog" aria-label="Confirm new difficulty">
+        <div className="minesweeper__confirm fp-enter" role="alertdialog" aria-label="Confirm new difficulty">
           <p className="fp-label">Start a new {pendingDifficulty.label} game?</p>
           <div className="minesweeper__confirm-actions">
             <button type="button" className="fp-btn fp-btn--danger" onClick={confirmDifficultyChange}>
@@ -251,7 +296,7 @@ export function Minesweeper() {
       <div className={`minesweeper__board-wrap minesweeper__board-wrap--${difficulty.id}`}>
         <div
           ref={boardRef}
-          className={`minesweeper-board minesweeper-board--${difficulty.id} fp-corner-marks`}
+          className={`minesweeper-board minesweeper-board--${difficulty.id} fp-corner-marks${board.status === "lost" ? " fp-shake" : ""}`}
           style={{
             ["--cols" as string]: difficulty.cols,
             ["--rows" as string]: difficulty.rows,
@@ -283,7 +328,7 @@ export function Minesweeper() {
 
       {gameOver && (
         <div
-          className={`minesweeper__result ${board.status === "won" ? "fp-bg-accent--success" : "fp-bg-accent--danger"}`}
+          className={`minesweeper__result fp-enter ${board.status === "won" ? "fp-bg-accent--success" : "fp-bg-accent--danger"}`}
           role="alert"
         >
           <p className={`fp-result-title fp-result-title--${board.status === "won" ? "success" : "danger"}`}>

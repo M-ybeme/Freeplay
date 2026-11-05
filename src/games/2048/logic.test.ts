@@ -13,6 +13,7 @@ import {
   mergeLine,
   moveBoard,
   spawnTile,
+  traceMove,
   type Board,
 } from "./logic";
 
@@ -408,5 +409,43 @@ describe("isValidPersistedRun", () => {
   it("rejects an object missing required fields", () => {
     expect(isValidPersistedRun({ board: validBoard })).toBe(false);
     expect(isValidPersistedRun({ score: 0, milestoneShown: false })).toBe(false);
+  });
+});
+
+describe("traceMove", () => {
+  it("slides lone tiles to the edge and merges a pair into one slot", () => {
+    const b = board([2, 0, 2, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
+    expect(traceMove(b, "left")).toEqual([
+      { from: [0, 0], to: [0, 0], merging: true },
+      { from: [0, 2], to: [0, 0], merging: true },
+      { from: [0, 3], to: [0, 1], merging: false },
+    ]);
+  });
+
+  it("merges each tile at most once, matching mergeLine ([2,2,4,0] -> 4,4)", () => {
+    const b = board([2, 2, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
+    const slides = traceMove(b, "left");
+    expect(slides.find((s) => s.from[1] === 2)).toEqual({ from: [0, 2], to: [0, 1], merging: false });
+  });
+
+  it("maps right/up/down back to real board coordinates", () => {
+    const b = board([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 0, 0, 0]);
+    expect(traceMove(b, "right")).toEqual([{ from: [3, 0], to: [3, 3], merging: false }]);
+    expect(traceMove(b, "up")).toEqual([{ from: [3, 0], to: [0, 0], merging: false }]);
+    expect(traceMove(b, "down")).toEqual([{ from: [3, 0], to: [3, 0], merging: false }]);
+  });
+
+  it("agrees with moveBoard on where every value lands, for random boards", () => {
+    let seed = 12345;
+    const rng = () => (seed = (seed * 1103515245 + 12345) % 2 ** 31) / 2 ** 31;
+    for (let n = 0; n < 40; n++) {
+      const b = board(Array.from({ length: 16 }, () => [0, 0, 2, 2, 4, 8][Math.floor(rng() * 6)]));
+      for (const dir of ["left", "right", "up", "down"] as const) {
+        const expected = moveBoard(b, dir).board;
+        const rebuilt = createEmptyBoard();
+        for (const s of traceMove(b, dir)) rebuilt[s.to[0]][s.to[1]] += b[s.from[0]][s.from[1]];
+        expect(rebuilt).toEqual(expected);
+      }
+    }
   });
 });

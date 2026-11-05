@@ -61,12 +61,54 @@
   padding: 0.25rem 0;
 }
 
-.blackjack-hand__card {
+/*
+ * Each card sits in a slot that carries the overlap, so the overlap and
+ * card width can transition together as the hand tightens up while
+ * growing, instead of jumping to the new spacing.
+ */
+.blackjack-hand__slot {
+  display: block;
   margin-left: var(--pc-overlap, -24px);
+  transition: margin-left 220ms ease-out;
 }
 
-.blackjack-hand__card:first-child {
+.blackjack-hand__slot:first-child {
   margin-left: 0;
+}
+
+.blackjack-hand__card {
+  transition: width 220ms ease-out;
+  /* Slides in from the shoe (top right of the table) rather than the
+     shared PlayingCard fade, delayed per card for the opening deal. */
+  animation: blackjack-deal 340ms cubic-bezier(0.22, 1, 0.36, 1) backwards;
+  animation-delay: var(--deal-delay, 0ms);
+}
+
+@keyframes blackjack-deal {
+  from {
+    opacity: 0;
+    transform: translate(140px, -90px) rotate(14deg);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* The dealer's hole card turns over when the dealer's turn starts. */
+.blackjack-hand__card--revealed {
+  animation: blackjack-flip 320ms ease-out;
+}
+
+@keyframes blackjack-flip {
+  0% {
+    transform: perspective(600px) rotateY(90deg);
+    filter: brightness(1.5);
+  }
+  100% {
+    transform: perspective(600px) rotateY(0deg);
+    filter: none;
+  }
 }
 
 /* ---------- Result ---------- */

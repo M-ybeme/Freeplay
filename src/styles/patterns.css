@@ -307,3 +307,70 @@
     0 0 0 1px var(--hot-pink),
     0 0 16px rgba(255, 43, 214, 0.45);
 }
+
+/* ---------- Motion ---------- */
+
+/*
+ * Shared state-change motion, so a change reads as something happening
+ * rather than a hard swap between two screens. All three are CSS
+ * animations, so the global prefers-reduced-motion rule in theme.css
+ * already neutralises them.
+ *
+ * - .fp-enter: panels that appear (results, confirms, overlays).
+ * - .fp-pop:   a HUD value that just changed. Re-trigger it by keying the
+ *              element on its value (key={score}) so it remounts.
+ * - .fp-shake: a mistake or loss - a short horizontal shudder.
+ *
+ * Entrances use fill-mode `backwards`, never `both`: a finished animation
+ * that keeps holding `transform` would make the element a containing
+ * block for position: fixed descendants (Solitaire's drag ghost) and
+ * would override :hover transforms for good.
+ */
+.fp-enter {
+  animation: fp-enter 320ms cubic-bezier(0.22, 1, 0.36, 1) backwards;
+}
+
+@keyframes fp-enter {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fp-pop {
+  display: inline-block;
+  animation: fp-pop 280ms ease-out;
+}
+
+@keyframes fp-pop {
+  0% {
+    transform: scale(1.22);
+    color: var(--toxic);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.fp-shake {
+  animation: fp-shake 340ms ease-in-out;
+}
+
+@keyframes fp-shake {
+  20% {
+    transform: translateX(-6px);
+  }
+  40% {
+    transform: translateX(6px);
+  }
+  60% {
+    transform: translateX(-4px);
+  }
+  80% {
+    transform: translateX(3px);
+  }
+}

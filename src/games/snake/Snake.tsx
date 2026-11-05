@@ -1,5 +1,6 @@
 import { useRef } from "react";
 import { useSnake } from "./useSnake";
+import { tickDurationForScore } from "./logic";
 import "./Snake.css";
 
 const SWIPE_THRESHOLD_PX = 24;
@@ -56,7 +57,9 @@ export function Snake() {
       <div className="snake__hud">
         <div className="fp-hud-tile">
           <span className="fp-hud-label">Score</span>
-          <span className="fp-hud-value">{String(score).padStart(3, "0")}</span>
+          <span className={`fp-hud-value${score > 0 ? " fp-pop" : ""}`} key={score}>
+            {String(score).padStart(3, "0")}
+          </span>
         </div>
         <div className="fp-hud-tile">
           <span className="fp-hud-label">Best</span>
@@ -74,9 +77,12 @@ export function Snake() {
       </div>
 
       <div
-        className="snake-board fp-corner-marks"
+        className={`snake-board fp-corner-marks${status === "playing" ? " snake-board--moving" : ""}${status === "gameOver" ? " fp-shake" : ""}`}
         style={{
           backgroundSize: `${100 / boardSize}% ${100 / boardSize}%`,
+          // Segments glide for exactly one tick, so movement stays smooth
+          // and in step as the snake speeds up.
+          ["--tick" as string]: `${tickDurationForScore(score)}ms`,
         }}
         onTouchStart={onTouchStart}
         onTouchEnd={onTouchEnd}
@@ -95,7 +101,7 @@ export function Snake() {
           </div>
         ))}
 
-        {food && <div className="snake-food" style={cellStyle(food.x, food.y)} />}
+        {food && <div key={`${food.x}-${food.y}`} className="snake-food" style={cellStyle(food.x, food.y)} />}
 
         {status === "ready" && (
           <div className="snake__overlay" role="status" aria-live="polite">
@@ -105,14 +111,14 @@ export function Snake() {
         )}
 
         {status === "paused" && (
-          <div className="snake__overlay" role="status" aria-live="polite">
+          <div className="snake__overlay fp-enter" role="status" aria-live="polite">
             <p className="fp-result-title fp-result-title--info">Paused</p>
             <p className="fp-result-detail">Resume when you're ready</p>
           </div>
         )}
 
         {isGameEnd && (
-          <div className={`snake__overlay ${status === "won" ? "fp-bg-accent--success" : "fp-bg-accent--danger"}`} role="alert">
+          <div className={`snake__overlay fp-enter ${status === "won" ? "fp-bg-accent--success" : "fp-bg-accent--danger"}`} role="alert">
             <p className={`fp-result-title fp-result-title--${status === "won" ? "success" : "danger"}`}>
               {status === "won" ? "Board cleared" : "Game over"}
             </p>

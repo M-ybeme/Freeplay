@@ -23,6 +23,21 @@ function handStyle(count: number): CSSProperties {
   };
 }
 
+/**
+ * The opening two cards per hand are dealt alternately (player, dealer,
+ * player, dealer), so each gets a staggered delay; anything drawn later
+ * arrives on its own with no delay.
+ */
+function dealStyle(index: number, seat: 0 | 1): CSSProperties {
+  return index < 2 ? { ["--deal-delay" as string]: `${(index * 2 + seat) * 140}ms` } : {};
+}
+
+function cardKey(card: { rank: string; suit: string }, index: number): string {
+  // Keyed by identity, not just position, so a new round's cards mount
+  // fresh (and play the deal) instead of silently reusing the old elements.
+  return `${card.rank}-${card.suit}-${index}`;
+}
+
 function scoreLabel(total: number, soft: boolean, isBust: boolean, isBlackjack: boolean): string {
   if (isBlackjack) return "Blackjack";
   if (isBust) return `${total} — bust`;
@@ -62,15 +77,16 @@ export function Blackjack() {
           <p className="fp-label blackjack-zone__label">// Dealer</p>
           <div className="blackjack-hand" style={handStyle(dealerHand.length)}>
             {dealerHand.map((c, i) => (
-              <PlayingCard
-                key={i}
-                card={c}
-                faceDown={dealerHidden && i === 1}
-                className="blackjack-hand__card"
-              />
+              <span key={cardKey(c, i)} className="blackjack-hand__slot" style={dealStyle(i, 1)}>
+                <PlayingCard
+                  card={c}
+                  faceDown={dealerHidden && i === 1}
+                  className={`blackjack-hand__card${!dealerHidden && i === 1 ? " blackjack-hand__card--revealed" : ""}`}
+                />
+              </span>
             ))}
           </div>
-          <p className="blackjack-zone__value">
+          <p className="blackjack-zone__value fp-pop" key={dealerHidden ? `shows-${dealerUpCardScore}` : dealerScore.total}>
             {dealerHidden
               ? `Shows ${dealerUpCardScore}`
               : scoreLabel(dealerScore.total, dealerScore.soft, dealerScore.isBust, dealerScore.isBlackjack)}
@@ -81,18 +97,23 @@ export function Blackjack() {
 
         <div className="blackjack-zone blackjack-zone--player">
           <p className="fp-label blackjack-zone__label">// Player</p>
-          <div className="blackjack-hand" style={handStyle(playerHand.length)}>
+          <div
+            className={`blackjack-hand${playerScore.isBust ? " fp-shake" : ""}`}
+            style={handStyle(playerHand.length)}
+          >
             {playerHand.map((c, i) => (
-              <PlayingCard key={i} card={c} className="blackjack-hand__card" />
+              <span key={cardKey(c, i)} className="blackjack-hand__slot" style={dealStyle(i, 0)}>
+                <PlayingCard card={c} className="blackjack-hand__card" />
+              </span>
             ))}
           </div>
-          <p className="blackjack-zone__value">
+          <p className="blackjack-zone__value fp-pop" key={playerScore.total}>
             {scoreLabel(playerScore.total, playerScore.soft, playerScore.isBust, playerScore.isBlackjack)}
           </p>
         </div>
 
         {result && (
-          <div className="blackjack-result" role="alert">
+          <div className="blackjack-result fp-enter" role="alert">
             <p className={`fp-result-title fp-result-title--${result.accent}`}>{result.title}</p>
             <p className="fp-result-detail">
               {playerScore.total} — {dealerScore.total}
@@ -125,7 +146,7 @@ export function Blackjack() {
       </div>
 
       <div className="blackjack-stats fp-hud-tile">
-        <span className="fp-hud-label">W {stats.wins} · L {stats.losses} · P {stats.pushes} · BJ {stats.blackjacks}</span>
+        <span className="fp-hud-label fp-pop" key={stats.wins + stats.losses + stats.pushes}>W {stats.wins} · L {stats.losses} · P {stats.pushes} · BJ {stats.blackjacks}</span>
       </div>
     </div>
   );

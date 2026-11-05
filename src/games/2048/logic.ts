@@ -248,3 +248,40 @@ export function isValidPersistedRun(value: unknown): value is PersistedRun {
     typeof candidate.milestoneShown === "boolean"
   );
 }
+
+export interface TileSlide {
+  from: [number, number];
+  to: [number, number];
+  /** True when this tile ends up merged into another at `to`. */
+  merging: boolean;
+}
+
+/**
+ * Where every tile on `board` travels when moved in `direction` - purely
+ * for animating the slide. Follows exactly the same compress-then-merge-
+ * once rule as mergeLine, walking each reoriented line in order: each
+ * non-empty tile either merges with the next one (both slide to the same
+ * output slot) or takes the next output slot on its own.
+ */
+export function traceMove(board: Board, direction: Direction): TileSlide[] {
+  const slides: TileSlide[] = [];
+  const lines = getBoardLines(board, direction);
+  lines.forEach((line, lineIndex) => {
+    const tiles = line.map((value, pos) => ({ value, pos })).filter((t) => t.value !== 0);
+    let out = 0;
+    let i = 0;
+    while (i < tiles.length) {
+      const to = lineIndexToBoardPos(direction, lineIndex, out);
+      if (i + 1 < tiles.length && tiles[i].value === tiles[i + 1].value) {
+        slides.push({ from: lineIndexToBoardPos(direction, lineIndex, tiles[i].pos), to, merging: true });
+        slides.push({ from: lineIndexToBoardPos(direction, lineIndex, tiles[i + 1].pos), to, merging: true });
+        i += 2;
+      } else {
+        slides.push({ from: lineIndexToBoardPos(direction, lineIndex, tiles[i].pos), to, merging: false });
+        i += 1;
+      }
+      out += 1;
+    }
+  });
+  return slides;
+}

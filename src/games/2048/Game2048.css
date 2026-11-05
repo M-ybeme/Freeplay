@@ -88,7 +88,16 @@
   color: var(--text);
   border-width: 1.5px;
   border-style: solid;
-  animation: game2048-spawn 140ms ease-out;
+  /* No mount animation here: a tile that slides into a previously-empty
+     cell is a new element there, and popping it in made every move look
+     like the board was redrawn. Arrival is handled by useTileSlides. */
+}
+
+/* Merging tiles travel as ghosts on top of the grid (see useTileSlides). */
+.game2048-ghost {
+  position: absolute;
+  z-index: 2;
+  pointer-events: none;
 }
 
 .game2048-tile--digits-1-2 {
@@ -164,8 +173,27 @@
   }
 }
 
+/* Both wait for the slide (SLIDE_MS, 110ms) to land; `backwards` keeps
+   the merged/spawned tile hidden until then. */
 .game2048-tile--merged {
-  animation: game2048-merge-pulse 150ms ease-out;
+  animation: game2048-merge-in 200ms ease-out 100ms backwards;
+}
+
+@keyframes game2048-merge-in {
+  0% {
+    opacity: 0;
+    transform: scale(1);
+  }
+  1% {
+    opacity: 1;
+  }
+  45% {
+    transform: scale(1.16);
+    filter: brightness(1.5);
+  }
+  100% {
+    transform: scale(1);
+  }
 }
 
 @keyframes game2048-merge-pulse {
@@ -181,7 +209,7 @@
 }
 
 .game2048-tile--spawned {
-  animation: game2048-spawn 150ms ease-out;
+  animation: game2048-spawn 160ms ease-out 110ms backwards;
 }
 
 /* ---------- Overlays (milestone / game over) ---------- */

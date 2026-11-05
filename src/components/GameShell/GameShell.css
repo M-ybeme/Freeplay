@@ -83,3 +83,8 @@
   align-items: center;
   padding: 2.5rem clamp(1rem, 5vw, 1.75rem) 2rem;
 }
+
+/* Each game's panel rises in when its route opens, instead of appearing. */
+.game-shell__panel {
+  animation: fp-enter 360ms cubic-bezier(0.22, 1, 0.36, 1) backwards;
+}

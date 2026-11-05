@@ -178,7 +178,7 @@ export function Flow() {
         <div className="flow__stats">
           <div className="fp-hud-tile">
             <span className="fp-hud-label">Pairs</span>
-            <span className="fp-hud-value">
+            <span className={`fp-hud-value${connectedCount > 0 ? " fp-pop" : ""}`} key={connectedCount}>
               {connectedCount} / {puzzle.pairCount}
             </span>
           </div>
@@ -206,7 +206,7 @@ export function Flow() {
       </div>
 
       {pendingDifficulty && (
-        <div className="flow__confirm" role="alertdialog" aria-label="Confirm new puzzle">
+        <div className="flow__confirm fp-enter" role="alertdialog" aria-label="Confirm new puzzle">
           <p className="fp-label">Start a new {pendingDifficulty.label} puzzle? Current progress will be lost.</p>
           <div className="flow__confirm-actions">
             <button type="button" className="fp-btn fp-btn--danger" onClick={confirmPending}>
@@ -225,7 +225,7 @@ export function Flow() {
 
       <div
         ref={boardRef}
-        className="flow-board fp-corner-marks"
+        className={`flow-board fp-corner-marks${solved ? " flow-board--solved" : ""}`}
         style={{ ["--size" as string]: puzzle.size }}
         role="grid"
         aria-label={`${difficulty.label} signal routing board`}
@@ -262,7 +262,10 @@ export function Flow() {
                 role="gridcell"
                 tabIndex={isFocusable ? 0 : -1}
                 aria-label={cellLabel(row, col, owner)}
-                style={owner !== null ? { ["--signal" as string]: `var(--flow-signal-${owner})` } : undefined}
+                style={{
+                  ["--d" as string]: row + col,
+                  ...(owner !== null ? { ["--signal" as string]: `var(--flow-signal-${owner})` } : {}),
+                }}
               >
                 {owner !== null && (
                   <>
@@ -300,7 +303,7 @@ export function Flow() {
       </div>
 
       {solved && (
-        <div className="flow__result fp-bg-accent--success" role="alert">
+        <div className="flow__result fp-bg-accent--success fp-enter" role="alert">
           <p className="fp-result-title fp-result-title--success">Routing complete</p>
           <p className="fp-result-detail">All signals linked</p>
           <button type="button" className="fp-btn fp-btn--success" onClick={requestNewPuzzle}>

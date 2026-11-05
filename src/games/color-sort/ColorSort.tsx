@@ -1,5 +1,7 @@
+import { useRef } from "react";
 import { TUBE_CAPACITY, isLegalPour, isTubeComplete, type Tube } from "./logic";
 import { useColorSort } from "./useColorSort";
+import { usePourMotion } from "./usePourMotion";
 import "./ColorSort.css";
 
 // Names, not just hues - color identity here must survive color-blindness
@@ -36,6 +38,8 @@ export function ColorSort() {
   } = useColorSort();
 
   const won = status === "won";
+  const rackRef = useRef<HTMLDivElement>(null);
+  usePourMotion(rackRef, board);
   const best = bestMoves[difficulty.id];
 
   return (
@@ -45,7 +49,9 @@ export function ColorSort() {
         <div className="color-sort__stats">
           <div className="fp-hud-tile">
             <span className="fp-hud-label">Moves</span>
-            <span className="fp-hud-value">{moveCount}</span>
+            <span className={`fp-hud-value${moveCount > 0 ? " fp-pop" : ""}`} key={moveCount}>
+              {moveCount}
+            </span>
           </div>
           <div className="fp-hud-tile">
             <span className="fp-hud-label">Best</span>
@@ -69,7 +75,7 @@ export function ColorSort() {
       </div>
 
       {pendingDifficulty && (
-        <div className="color-sort__confirm" role="alertdialog" aria-label="Confirm new difficulty">
+        <div className="color-sort__confirm fp-enter" role="alertdialog" aria-label="Confirm new difficulty">
           <p className="fp-label">Start a new {pendingDifficulty.label} puzzle?</p>
           <div className="color-sort__confirm-actions">
             <button type="button" className="fp-btn fp-btn--danger" onClick={confirmDifficultyChange}>
@@ -82,7 +88,7 @@ export function ColorSort() {
         </div>
       )}
 
-      <div className="color-sort__rack fp-corner-marks" role="group" aria-label={`${difficulty.label} puzzle`}>
+      <div ref={rackRef} className={`color-sort__rack fp-corner-marks${won ? " color-sort__rack--won" : ""}`} role="group" aria-label={`${difficulty.label} puzzle`}>
         {board.map((tube, i) => (
           <TubeButton
             key={i}
@@ -116,7 +122,7 @@ export function ColorSort() {
       </div>
 
       {won && (
-        <div className="color-sort__result fp-bg-accent--success" role="alert">
+        <div className="color-sort__result fp-bg-accent--success fp-enter" role="alert">
           <p className="fp-result-title fp-result-title--success">Sorted</p>
           <p className="fp-result-detail">
             {moveCount} moves{best !== null && best < moveCount ? ` — Best ${best}` : ""}
@@ -150,7 +156,7 @@ function TubeButton({ tube, index, selected, legalTarget, disabled, onSelect }: 
   if (complete) classNames.push("color-sort-tube--complete");
 
   return (
-    <div className="color-sort-tube-wrap">
+    <div className="color-sort-tube-wrap" data-tube={index} style={{ ["--i" as string]: index }}>
       <button
         type="button"
         className={classNames.join(" ")}

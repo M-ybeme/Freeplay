@@ -175,6 +175,60 @@
   width: 54%;
 }
 
+/*
+ * A newly drawn pipe grows out from its cell's centre instead of
+ * appearing whole, so dragging a route reads as drawing a line.
+ */
+.flow-cell__pipe--up {
+  transform-origin: bottom center;
+  animation: flow-pipe-grow-y 110ms ease-out;
+}
+
+.flow-cell__pipe--down {
+  transform-origin: top center;
+  animation: flow-pipe-grow-y 110ms ease-out;
+}
+
+.flow-cell__pipe--left {
+  transform-origin: center right;
+  animation: flow-pipe-grow-x 110ms ease-out;
+}
+
+.flow-cell__pipe--right {
+  transform-origin: center left;
+  animation: flow-pipe-grow-x 110ms ease-out;
+}
+
+@keyframes flow-pipe-grow-y {
+  from {
+    transform: scaleY(0);
+  }
+}
+
+@keyframes flow-pipe-grow-x {
+  from {
+    transform: scaleX(0);
+  }
+}
+
+/* Solved: every cell brightens in a diagonal sweep (--d set per cell). */
+.flow-board--solved .flow-cell {
+  animation: flow-solved-sweep 600ms ease-out backwards;
+  animation-delay: calc(var(--d, 0) * 40ms);
+}
+
+@keyframes flow-solved-sweep {
+  0% {
+    filter: brightness(1);
+  }
+  35% {
+    filter: brightness(1.8);
+  }
+  100% {
+    filter: brightness(1);
+  }
+}
+
 @keyframes flow-connect-pulse {
   0% {
     transform: scale(1);

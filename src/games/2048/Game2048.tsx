@@ -1,6 +1,7 @@
 import { useRef } from "react";
 import { BOARD_SIZE, type Board } from "./logic";
 import { use2048 } from "./use2048";
+import { useTileSlides } from "./useTileSlides";
 import "./Game2048.css";
 
 const SWIPE_THRESHOLD_PX = 24;
@@ -21,6 +22,10 @@ function energyTier(value: number): number {
   if (value <= 256) return 4;
   if (value <= 1024) return 5;
   return 6; // 2048+
+}
+
+function tileClass(value: number): string {
+  return `game2048-cell game2048-tile game2048-tile--tier-${energyTier(value)} game2048-tile--${digitTier(value)}`;
 }
 
 function boardLabel(board: Board): string {
@@ -48,6 +53,8 @@ export function Game2048() {
   } = use2048();
 
   const gestureStart = useRef<{ x: number; y: number } | null>(null);
+  const boardRef = useRef<HTMLDivElement>(null);
+  useTileSlides(boardRef, board, lastSpawnedCell, tileClass);
 
   function onPointerDown(e: React.PointerEvent) {
     gestureStart.current = { x: e.clientX, y: e.clientY };
@@ -88,17 +95,21 @@ export function Game2048() {
         <div className="game2048__stats">
           <div className="fp-hud-tile">
             <span className="fp-hud-label">Score</span>
-            <span className="fp-hud-value">{score}</span>
+            <span className={`fp-hud-value${score > 0 ? " fp-pop" : ""}`} key={score}>
+              {score}
+            </span>
           </div>
           <div className="fp-hud-tile">
             <span className="fp-hud-label">Best</span>
-            <span className="fp-hud-value">{bestScore}</span>
+            <span className={`fp-hud-value${bestScore > 0 ? " fp-pop" : ""}`} key={bestScore}>
+              {bestScore}
+            </span>
           </div>
         </div>
       </div>
 
       {pendingNewGame && (
-        <div className="game2048__confirm" role="alertdialog" aria-label="Confirm new game">
+        <div className="game2048__confirm fp-enter" role="alertdialog" aria-label="Confirm new game">
           <p className="fp-label">Start a new game? Current progress will be lost.</p>
           <div className="game2048__confirm-actions">
             <button type="button" className="fp-btn fp-btn--danger" onClick={confirmNewGame}>
@@ -112,6 +123,7 @@ export function Game2048() {
       )}
 
       <div
+        ref={boardRef}
         className="game2048-board fp-corner-marks"
         role="group"
         aria-label={boardLabel(board)}
@@ -123,17 +135,12 @@ export function Game2048() {
         {board.map((row, r) =>
           row.map((value, c) => {
             const key = `${r}-${c}`;
-            if (value === 0) return <div key={key} className="game2048-cell" />;
-            const classNames = [
-              "game2048-cell",
-              "game2048-tile",
-              `game2048-tile--tier-${energyTier(value)}`,
-              `game2048-tile--${digitTier(value)}`,
-            ];
+            if (value === 0) return <div key={key} className="game2048-cell" data-cell={key} />;
+            const classNames = [tileClass(value)];
             if (mergedSet.has(key)) classNames.push("game2048-tile--merged");
             if (spawnedKey === key) classNames.push("game2048-tile--spawned");
             return (
-              <div key={key} className={classNames.join(" ")}>
+              <div key={key} className={classNames.join(" ")} data-cell={key}>
                 {value}
               </div>
             );
@@ -141,7 +148,7 @@ export function Game2048() {
         )}
 
         {showMilestonePrompt && (
-          <div className="game2048__overlay fp-bg-accent--success" role="status">
+          <div className="game2048__overlay fp-bg-accent--success fp-enter" role="status">
             <p className="fp-result-title fp-result-title--success">Core stable</p>
             <p className="fp-result-detail">2048 reached</p>
             <div className="game2048__overlay-actions">
@@ -156,7 +163,7 @@ export function Game2048() {
         )}
 
         {gameOver && (
-          <div className="game2048__overlay fp-bg-accent--danger" role="alert">
+          <div className="game2048__overlay fp-bg-accent--danger fp-enter" role="alert">
             <p className="fp-result-title fp-result-title--danger">Matrix locked</p>
             <p className="fp-result-detail">No moves remaining</p>
             <div className="game2048__overlay-actions">

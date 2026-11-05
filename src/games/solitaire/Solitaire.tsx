@@ -219,7 +219,7 @@ export function Solitaire() {
       </div>
 
       {pendingNewGame && (
-        <div className="solitaire__confirm" role="alertdialog" aria-label="Confirm new game">
+        <div className="solitaire__confirm fp-enter" role="alertdialog" aria-label="Confirm new game">
           <p className="fp-label">Start a new game? Current progress will be lost.</p>
           <div className="solitaire__confirm-actions">
             <button type="button" className="fp-btn fp-btn--danger" onClick={confirmNewGame}>

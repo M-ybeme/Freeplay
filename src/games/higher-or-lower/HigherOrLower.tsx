@@ -22,6 +22,16 @@ export function HigherOrLower() {
       ? "hol__value--correct"
       : "hol__value--incorrect"
     : "";
+  // The new value rolls in from the direction it moved: up from below when
+  // it went higher, down from above when it went lower.
+  const rollClass = feedback
+    ? feedback.revealed > feedback.previous
+      ? " hol__value--rolled-up"
+      : feedback.revealed < feedback.previous
+        ? " hol__value--rolled-down"
+        : ""
+    : "";
+  const missClass = status === "gameOver" && feedback && !feedback.correct ? " fp-shake" : "";
   const accentClass =
     status === "gameOver" ? (isNewBest ? " fp-bg-accent--success" : " fp-bg-accent--danger") : "";
 
@@ -33,7 +43,7 @@ export function HigherOrLower() {
 
       <div
         key={status === "gameOver" ? "final" : round}
-        className={`hol__value ${valueClass}`}
+        className={`hol__value ${valueClass}${rollClass}${missClass}`}
       >
         {displayedValue}
       </div>
@@ -42,7 +52,8 @@ export function HigherOrLower() {
         <>
           <p className="hol__prompt">Will the next value be higher or lower?</p>
           <p
-            className={`hol__feedback ${feedback?.correct ? "hol__feedback--correct" : ""}`}
+            key={round}
+            className={`hol__feedback ${feedback?.correct ? "hol__feedback--correct fp-enter" : ""}`}
             aria-live="polite"
           >
             {feedback?.correct
@@ -69,7 +80,7 @@ export function HigherOrLower() {
       )}
 
       {status === "gameOver" && feedback && (
-        <div className="hol__gameover" role="alert">
+        <div className="hol__gameover fp-enter" role="alert">
           <p className="fp-result-title fp-result-title--danger">Run over</p>
           <p className="fp-result-detail">
             The signal was {feedback.revealed} — you called {feedback.guess}.
@@ -88,11 +99,15 @@ export function HigherOrLower() {
       <div className="hol__scoreboard">
         <div className="fp-hud-tile">
           <span className="fp-hud-label">Score</span>
-          <span className="fp-hud-value">{String(score).padStart(3, "0")}</span>
+          <span className={`fp-hud-value${score > 0 ? " fp-pop" : ""}`} key={score}>
+            {String(score).padStart(3, "0")}
+          </span>
         </div>
         <div className="fp-hud-tile">
           <span className="fp-hud-label">Best</span>
-          <span className="fp-hud-value">{String(best).padStart(3, "0")}</span>
+          <span className={`fp-hud-value${best > 0 ? " fp-pop" : ""}`} key={best}>
+            {String(best).padStart(3, "0")}
+          </span>
         </div>
       </div>
     </div>
