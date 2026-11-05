@@ -1,0 +1,399 @@
+.reversi {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  gap: 0.6rem;
+}
+
+/* ---------- Setup ---------- */
+
+.reversi__setup {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.4rem;
+}
+
+.reversi__seg {
+  display: flex;
+  gap: 2px;
+  padding: 3px;
+  background: var(--void);
+  border: 1px solid var(--surface-2);
+  border-radius: 999px;
+}
+
+.reversi__seg-btn {
+  min-height: 36px;
+  padding: 0 0.75rem;
+  font-family: var(--font-display);
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+  background: none;
+  border: 0;
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.reversi__seg-btn--on {
+  color: var(--void);
+  background: var(--laser-blue);
+  box-shadow: 0 0 10px rgba(0, 217, 255, 0.45);
+}
+
+.reversi__seg-btn:focus,
+.reversi__toggle:focus,
+.reversi-cell:focus {
+  outline: none;
+}
+
+.reversi__seg-btn:focus-visible,
+.reversi__toggle:focus-visible {
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+.reversi__confirm {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem 0.75rem;
+  width: 100%;
+  padding: 0.6rem 0.75rem;
+  text-align: center;
+  background: var(--void);
+  border: 1px solid var(--surface-2);
+  border-radius: 6px;
+}
+
+.reversi__confirm-text {
+  margin: 0;
+  font-size: 0.85rem;
+}
+
+.reversi__confirm-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+/* ---------- Players ---------- */
+
+.reversi__players {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+  width: 100%;
+  max-width: 420px;
+}
+
+.reversi__player {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.45rem 0.65rem;
+  background: var(--void);
+  border: 1px solid var(--surface-2);
+  border-radius: 6px;
+  transition:
+    border-color 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.reversi__player--active.reversi__player--cyan {
+  border-color: var(--laser-blue);
+  box-shadow: 0 0 12px rgba(0, 217, 255, 0.35);
+}
+
+.reversi__player--active.reversi__player--pink {
+  border-color: var(--hot-pink);
+  box-shadow: 0 0 12px rgba(255, 43, 214, 0.35);
+}
+
+.reversi__player .reversi-disc {
+  position: relative;
+  inset: auto;
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+
+.reversi__player-name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  font-size: 0.8rem;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.reversi__player-count {
+  font-size: 1.15rem;
+}
+
+.reversi__status {
+  min-height: 1.3em;
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text);
+}
+
+.reversi__status--thinking {
+  color: var(--hot-pink);
+  animation: reversi-think 1s ease-in-out infinite;
+}
+
+@keyframes reversi-think {
+  50% {
+    opacity: 0.45;
+  }
+}
+
+.reversi__pass {
+  color: var(--orange);
+  text-transform: none;
+  letter-spacing: 0;
+  font-family: inherit;
+  font-weight: 400;
+}
+
+/* ---------- Board ---------- */
+
+/*
+ * Square board: as wide as the panel, capped at 420px and by the height
+ * left after the cabinet and controls on short desktop windows.
+ */
+.reversi-board-wrap {
+  position: relative;
+  width: min(100%, 420px, max(260px, calc(100svh - 470px)));
+}
+
+.reversi-board {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  aspect-ratio: 1;
+  gap: 2px;
+  padding: 4px;
+  background:
+    radial-gradient(ellipse 70% 70% at 50% 50%, rgba(139, 61, 255, 0.12), transparent 75%),
+    #0a0817;
+  border: 1px solid rgba(0, 217, 255, 0.45);
+  border-radius: 6px;
+  box-shadow:
+    0 0 24px rgba(0, 217, 255, 0.14),
+    inset 0 0 24px rgba(0, 0, 0, 0.6);
+}
+
+.reversi-cell {
+  position: relative;
+  padding: 0;
+  background: rgba(25, 22, 45, 0.85);
+  border: 1px solid rgba(0, 217, 255, 0.08);
+  border-radius: 3px;
+  cursor: default;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.reversi-cell--legal {
+  cursor: pointer;
+}
+
+.reversi-cell--legal:hover {
+  background: rgba(0, 217, 255, 0.12);
+}
+
+.reversi-cell:focus-visible {
+  outline: 3px solid var(--focus-ring);
+  outline-offset: -2px;
+  z-index: 1;
+}
+
+/* The last move gets a small corner marker. */
+.reversi-cell--last::after {
+  content: "";
+  position: absolute;
+  top: 3px;
+  right: 3px;
+  width: 4px;
+  height: 4px;
+  background: var(--orange);
+  border-radius: 50%;
+  box-shadow: 0 0 4px var(--orange);
+}
+
+/* Legal-move marker, in the colour of the side to move. */
+.reversi-hint {
+  position: absolute;
+  inset: 38%;
+  border-radius: 50%;
+  opacity: 0.55;
+}
+
+.reversi-hint--cyan {
+  border: 1.5px solid var(--laser-blue);
+}
+
+.reversi-hint--pink {
+  background: var(--hot-pink);
+}
+
+/* ---------- Discs ---------- */
+
+/*
+ * The two sides differ in shape, not just colour: cyan is a lit ring
+ * (hollow centre), pink is a solid core.
+ */
+.reversi-disc {
+  position: absolute;
+  inset: 12%;
+  border-radius: 50%;
+}
+
+.reversi-disc--cyan {
+  border: clamp(3px, 0.6vw + 1px, 5px) solid var(--laser-blue);
+  background: radial-gradient(circle, rgba(0, 217, 255, 0.18), rgba(0, 217, 255, 0.04) 60%);
+  box-shadow:
+    0 0 8px rgba(0, 217, 255, 0.6),
+    inset 0 0 6px rgba(0, 217, 255, 0.5);
+}
+
+.reversi-disc--pink {
+  background: radial-gradient(circle at 40% 35%, #ffd6f6, var(--hot-pink) 45%, #8f0f78);
+  box-shadow: 0 0 8px rgba(255, 43, 214, 0.6);
+}
+
+.reversi-disc--placed {
+  animation: reversi-place 260ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes reversi-place {
+  from {
+    transform: scale(0.3);
+    opacity: 0;
+  }
+}
+
+/* A flip: the old face narrows to nothing, then the new face opens out. */
+.reversi-flip {
+  position: absolute;
+  inset: 0;
+}
+
+.reversi-disc--out {
+  animation: reversi-flip-out 170ms ease-in var(--delay, 0ms) forwards;
+}
+
+.reversi-disc--in {
+  animation: reversi-flip-in 340ms ease-out var(--delay, 0ms) backwards;
+}
+
+@keyframes reversi-flip-out {
+  to {
+    transform: scaleX(0);
+  }
+}
+
+@keyframes reversi-flip-in {
+  0%,
+  50% {
+    transform: scaleX(0);
+  }
+  75% {
+    filter: brightness(1.8);
+  }
+  100% {
+    transform: scaleX(1);
+  }
+}
+
+.reversi__overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  padding: 1rem;
+  text-align: center;
+  background: rgba(8, 6, 18, 0.86);
+  border-radius: 6px;
+}
+
+.reversi__record {
+  text-transform: capitalize;
+  color: var(--muted);
+}
+
+/* ---------- Controls ---------- */
+
+.reversi__controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem 0.6rem;
+}
+
+.reversi__btn {
+  min-height: 44px;
+  padding: 0.4rem 0.9rem;
+  font-size: 0.8rem;
+}
+
+.reversi__toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 44px;
+  padding: 0 0.5rem;
+  font: inherit;
+  font-size: 0.8rem;
+  color: var(--muted);
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+
+.reversi__toggle-box {
+  width: 16px;
+  height: 16px;
+  border: 1.5px solid var(--muted);
+  border-radius: 3px;
+}
+
+.reversi__toggle--on {
+  color: var(--text);
+}
+
+.reversi__toggle--on .reversi__toggle-box {
+  background: var(--laser-blue);
+  border-color: var(--laser-blue);
+  box-shadow: inset 0 0 0 2px var(--void);
+}
+
+.reversi__record-line {
+  margin: 0;
+  font-size: 0.75rem;
+  color: var(--muted);
+  text-transform: capitalize;
+}
+
+.reversi__sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}

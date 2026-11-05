@@ -10,6 +10,7 @@ import { definition as flowDefinition, default as Flow } from "./flow";
 import { definition as solitaireDefinition, default as Solitaire } from "./solitaire";
 import { definition as brickBreakerDefinition, default as BrickBreaker } from "./brick-breaker";
 import { definition as mahjongDefinition, default as Mahjong } from "./mahjong";
+import { definition as reversiDefinition, default as Reversi } from "./reversi";
 
 export interface GameEntry {
   definition: GameDefinition;
@@ -27,6 +28,7 @@ export const games: GameEntry[] = [
   { definition: solitaireDefinition, Component: Solitaire },
   { definition: brickBreakerDefinition, Component: BrickBreaker },
   { definition: mahjongDefinition, Component: Mahjong },
+  { definition: reversiDefinition, Component: Reversi },
 ];
 
 export function getGameById(id: string): GameEntry | undefined {
