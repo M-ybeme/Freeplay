@@ -16,6 +16,43 @@ When adding an entry for a new game or feature, copy the pattern below:
 
 ---
 
+## `614bf3d` — Add Mahjong: neon tile-matching solitaire with winnable deals
+
+- Game 10. Tap two free tiles that match to clear them. A tile is free
+  when nothing on a higher layer overlaps it (even by half a tile) and
+  its left or right side is open. Positions are in half-tile units so
+  upper tiles can sit across seams.
+- Deals are winnable by construction. The layout is first "played" in
+  reverse, repeatedly removing two random free positions, and each
+  removed pair of positions then gets a matching pair of faces, so that
+  order is a guaranteed solution. A test replays the build order as legal
+  moves to a cleared board for 40 seeds of every layout. An exact
+  backtracking solver was tried and was too slow on 80-tile boards.
+  Shuffle redeals the remaining faces the same winnable way, and returns
+  nothing when the remaining positions can't be cleared in any
+  arrangement (e.g. two tiles stacked), which the UI turns into a "new
+  deal" prompt.
+- Neon tile set with the real set's structure: Orbs, Bars and Glyphs
+  1-9, four Compass tiles, three Cores, and two four-face bonus sets
+  (Arcade, Sky) where any two faces from the same set match. Every suit
+  differs by shape as well as colour, and numbered tiles carry a corner
+  index. Dark faces were chosen first; light faces are the fallback if
+  they don't read well in play.
+- Three original layouts sized for phones (at most 8 tiles wide):
+  Pyramid 82, Fortress 80, Diamond 80. Tiles size from the stage with
+  container units, solving `cols * tw + layers * 0.14 * tw = 100cqw` so
+  each layer's up-left shift (14% of a tile) still fits; lower layers
+  are shaded slightly so stacks read as height. Tiles are 30x38px at
+  320px wide. On a 320x700 screen the Diamond controls sit about 110px
+  below the fold; desktop fits all three layouts without scrolling.
+- Hint (a random available pair), Undo (pairs and shuffles), an
+  abandon-board confirm, an optional "Dim blocked tiles" assist, and a
+  live region that speaks tile names and events. The clock starts on the
+  first tap and counts only while the tab is visible. Best time per
+  layout is persisted; whether this clear beat the record is decided
+  once, at the moment of clearing, and kept in the reducer. A board in
+  progress is not saved across reloads.
+
 ## `08b2bfc` — Add Brick Breaker: neon wall-breaking arcade game
 
 - Game 9, and the second real-time game after Snake. Drag anywhere on
