@@ -16,6 +16,33 @@ When adding an entry for a new game or feature, copy the pattern below:
 
 ---
 
+## `e1659c9` — Fix card pip/index collision and tableau fan; add Solitaire card motion
+
+- Shared PlayingCard: the corner index now lives in a narrow edge strip
+  (rank 18cqw, "10" 13cqw, suit 12cqw at 4%/5% from the corner) and
+  number-card pips sit in their own central band (`inset: 14% 34%`,
+  14cqw pips). Measured across every rank at 36-96px widths: zero
+  pip/index overlaps, minimum clearance 6.6% of card width. Previously
+  the corner pips of every 4-10 landed on the index. Blackjack and
+  Higher or Lower inherit the fix.
+- Solitaire tableau fan was additive (positive margin pushed each card
+  *below* the previous, 102px apart for an 81px card); each card is now
+  pulled up by a card height minus the fan step, so the board fits on
+  screen without scrolling at 375px and desktop.
+- `useCardMotion` (FLIP via the Web Animations API): cards glide between
+  piles keyed by rank-suit, flip when revealed or drawn, deal from the
+  stock in true Klondike order (~1s), and settle from the drag ghost on
+  drop (springing back on an illegal drop). Positions are board-relative
+  layout offsets, not transformed rects, so a mid-flight measurement or
+  the confirm panel shifting the board doesn't read as every card
+  moving. WAAPI isn't reached by the global reduced-motion CSS rule, so
+  the hook checks the media query itself and skips everything.
+- Waste and foundations render their top two cards stacked so nothing
+  blanks while the top card is in flight; the PlayingCard mount fade is
+  disabled on this board because remounts would replay it.
+- Undoing a draw doesn't animate the card back into the stock - left
+  as-is.
+
 ## `c52a58b` — Add Solitaire as Game 8: Klondike Draw 1 with tap, drag, and keyboard play
 
 - Reuses the shared Card/deck/PlayingCard system from Blackjack (types,
