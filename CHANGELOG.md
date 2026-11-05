@@ -16,6 +16,52 @@ When adding an entry for a new game or feature, copy the pattern below:
 
 ---
 
+## `383325e` — Add Chess: 1-player vs three computer levels, or 2-player on one device
+
+- Game 12, built on the same setup as Reversi: 1 Player (you are cyan
+  and move first; the computer is pink) at Easy/Normal/Hard, or
+  2 Players sharing the device. Same mid-game confirm prompt, Undo (back
+  to your previous turn in solo, one move in duo), "Show moves" toggle
+  and per-level W/L/D record.
+- Chess is the second game to need the side-controller table, so
+  `controllerFor`, `COMPUTER_DELAY_MS` and the W/L/D record moved out of
+  Reversi into `src/games/versus.ts`, per the "share once a second game
+  needs it" guardrail. Reversi behaves the same. The setup buttons and
+  confirm prompt stay copied per game, because the guardrails rule out a
+  shared game menu.
+- Full rules in a pure `logic.ts`: castling (not out of, through or into
+  check), en passant, promotion to any piece via a picker, check,
+  checkmate, stalemate, the fifty-move rule, threefold repetition and
+  insufficient material. Move names use standard chess notation (SAN),
+  including disambiguation. Perft matches the published counts for five
+  standard positions (start, Kiwipete, and positions 3, 4 and 5).
+- Computer (`ai.ts`):
+  - Easy: random, but takes captures it sees.
+  - Normal: two-ply full-window search with capture quiescence and
+    40-centipawn noise.
+  - Hard: iterative-deepening alpha-beta up to 5 plies inside a 700ms
+    budget, with MVV-LVA ordering and piece-square tables.
+
+  Measured over 30 Hard moves on the dev machine: 315ms median and 702ms
+  max, which blocks the main thread while it thinks. In test matches,
+  Normal beat Easy 3/3 and Hard beat Normal 2/2.
+- Original SVG pieces: cyan pieces are lit outlines and pink pieces are
+  solid, so the sides differ by shape. Moved pieces (and the castling
+  rook) slide in from their old square. The last move's squares are
+  tinted orange and a checked king glows red. Player cards show captured
+  pieces, read from the move list so promotions don't count as losses,
+  plus the material lead. The last three move pairs show under the board.
+- Tests (27): perft, mate, stalemate, en passant timing, castling rules,
+  promotion, SAN disambiguation, pins, every draw rule, undo, and AI
+  legality plus tactics (free queen, mate in one, not taking a defended
+  pawn). Hard's tests use a fake clock so results don't depend on the
+  test machine's speed.
+- Known rough edges:
+  - On a 320x700 phone the Undo/New row sits below the fold.
+  - The board isn't flipped for player 2 in duo.
+  - Undoing a finished solo game and finishing it again counts the
+    result twice, as in Reversi.
+
 ## `eabfe84` — Add Reversi: 1-player vs three computer levels, or 2-player on one device
 
 - Game 11 and the first game with a 2-player mode. The rules in
