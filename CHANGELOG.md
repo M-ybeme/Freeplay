@@ -16,6 +16,47 @@ When adding an entry for a new game or feature, copy the pattern below:
 
 ---
 
+## `d6601e5` — Add state-change motion across every game, Home, and the shell
+
+- Shared motion patterns in patterns.css: `.fp-enter` (panels rise in),
+  `.fp-pop` (a HUD value that changed, re-triggered by keying the element
+  on its value), `.fp-shake` (a miss or loss). Entrances use fill-mode
+  `backwards`, never `both` - a finished animation still holding
+  `transform` would turn the game panel into a containing block for
+  Solitaire's position: fixed drag ghost, and would pin Home cards'
+  hover lift off for good.
+- 2048: tiles now slide to where they land (110ms) instead of the board
+  redrawing. A pure `traceMove` (property-tested against moveBoard over
+  random boards in all four directions) maps every tile's from/to; the
+  component infers the direction by comparing boards because key handling
+  lives inside use2048. Merging tiles travel as short-lived ghosts carrying
+  their old value; the merged tile and the spawned tile appear only once
+  the slide lands. The old per-tile mount pop was removed - it fired on
+  every tile that moved into a previously-empty cell.
+- Blackjack: cards slide in from the shoe in alternating deal order
+  (140ms apart), the hole card flips on reveal, and the hand's width and
+  overlap transition as it tightens. Cards are now keyed by identity, not
+  index - before, a new round reused the previous round's elements, so the
+  deal animation only ever played once.
+- Higher or Lower: the value rolls up or down by the direction it moved; a
+  wrong call lands then shakes.
+- Minesweeper: newly revealed cells ripple outward from the clicked cell
+  (Chebyshev distance, capped at 650ms so a big flood-fill still settles
+  fast); flags drop in; the triggered mine flashes and the board shakes.
+- Color Sort: the selected tube lifts; a pour tips the source toward the
+  target and drops the arriving segments in; a completed tube hops; a new
+  arrangement refills tube by tube; solving waves across the rack.
+- Snake: segments glide for exactly one tick (`--tick` from
+  tickDurationForScore), only while playing so a restart doesn't sweep
+  across the board. Safe because walls end the run - there is no
+  wrap-around. Food pops in where it spawns; a crash flashes the head.
+- Flow: pipes grow out from the cell centre as a route is drawn; solving
+  sweeps a diagonal glow.
+- Every Web Animations API path checks prefers-reduced-motion itself,
+  since the global CSS rule only reaches CSS animations.
+- Not exercised in the browser: the 2048 milestone overlay, Color Sort,
+  Flow and Snake win states.
+
 ## `e1659c9` — Fix card pip/index collision and tableau fan; add Solitaire card motion
 
 - Shared PlayingCard: the corner index now lives in a narrow edge strip
