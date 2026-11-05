@@ -16,6 +16,37 @@ When adding an entry for a new game or feature, copy the pattern below:
 
 ---
 
+## `0b12bbc` — Design pass: quieter card backs, court-card panels, Solitaire layout and HUD
+
+- Shared PlayingCard backs now recede (mark at 40% cyan, no glow); a
+  layout lights one explicitly with `.playing-card--back-lit` (Solitaire's
+  stock). With 20+ backs on a Solitaire table, the glowing mark on every
+  one was the loudest thing on screen.
+- Court cards get a chamfered, suit-tinted panel (color-mix on
+  currentColor) with one/two/three rank chevrons for J/Q/K, a rule and the
+  name, inset to clear the corner-index strip.
+- Compact mode via container query below 48px card width: big side-by-side
+  rank + suit index and one large centre suit, replacing ~6px pips. Kicks
+  in for phone Solitaire (29-36px) and long Blackjack hands (42px).
+- Solitaire card width is now `clamp(28px, (90vw - 84px) / 7, 76px)` and
+  the board, HUD and controls take their width from the seven columns.
+  The old fixed steps overflowed in two places: 70px cards in ~62px 1fr
+  tracks at 1100px+, and a 306px board in a 256px panel at 320px
+  (measured after: board right edge 287px vs panel inner 288px). The
+  panel widens to 700px for Solitaire only, via `:has(.solitaire)`.
+- The Solitaire top row shares the tableau's grid: stock over pile 1,
+  waste over pile 2, foundations over piles 4-7.
+- Empty slots are visible sockets (cyan dashed outline, faint fill, inset
+  shadow) with an A hint on foundations and a K hint on empty piles. The
+  stock shows offset depth edges plus a count badge, and the waste shows
+  an edge once cards are underneath. The edges sit on the stock button,
+  not the card, because the card's clip-path would clip a box-shadow.
+- The Solitaire HUD is Foundation / Stock / Hidden, all derived from the
+  run itself, so they stay right across reload and undo without new
+  persisted state.
+- Blackjack's lifetime record moves from one cramped label line to four
+  HUD tiles (W/L/P/BJ - "Blackjacks" overflowed at 320px).
+
 ## `d6601e5` — Add state-change motion across every game, Home, and the shell
 
 - Shared motion patterns in patterns.css: `.fp-enter` (panels rise in),
