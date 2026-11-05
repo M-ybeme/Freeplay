@@ -16,6 +16,27 @@ When adding an entry for a new game or feature, copy the pattern below:
 
 ---
 
+## `02e4041` — Arcade-floor home: neon sign, cabinet game cards, grid floor
+
+- Game cards are now small cabinets. Each has a marquee in its
+  category's colour (arcade pink, cards purple, puzzle cyan), the icon on
+  a CRT screen with scanlines, and a deck with the category and PRESS
+  START. Hovering or focusing one lifts it, makes it glow and blinks
+  PRESS START, and pressing it flashes the screen. The colour comes from
+  one `--accent` per card, applied with color-mix.
+- Descriptions are no longer body copy. They stay in each card's
+  accessible name (a visually hidden span) and in its title tooltip.
+- The FREEPLAY logo is a neon sign: a cyan tube in a pink tube frame
+  that flickers on. The tagline that repeated the logo is replaced by a
+  blinking "Insert coin · No coin needed" line.
+- A perspective grid floor sits behind the row of cabinets. It is a
+  fixed, clipped element, so it never adds scroll width.
+- Two cabinets per row on phones: 8 games in about 1.5 screens at 320px
+  (the old one-per-row cards needed about 3), with every name on one
+  line. Three per row from 560px and four from 760px. Auto-fill gave an
+  uneven five-and-three at 1440px.
+- Flicker and blink are off under reduced motion.
+
 ## `b199f5e` — Cabinet shell: neon marquee, CRT screen and control deck
 
 - The game shell is now an arcade cabinet, top to bottom. A backlit
