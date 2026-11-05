@@ -57,21 +57,28 @@
   line-height: 1;
 }
 
+/*
+ * The corner index lives in a narrow strip hugging the card edge (roughly
+ * the outer quarter of the width), and number-card pips live in a central
+ * band that starts inside that strip — see .playing-card__center--pips.
+ * Keeping the two in separate horizontal lanes is what stops the corner
+ * pips on 4-10 from landing on top of the rank/suit.
+ */
 .playing-card__index--top {
-  top: 6%;
-  left: 9%;
+  top: 4%;
+  left: 5%;
 }
 
 .playing-card__index--bottom {
-  bottom: 6%;
-  right: 9%;
+  bottom: 4%;
+  right: 5%;
   transform: rotate(180deg);
 }
 
 .playing-card__rank {
   font-family: var(--font-display);
   font-weight: 700;
-  font-size: 20cqw;
+  font-size: 18cqw;
 }
 
 /*
@@ -83,18 +90,29 @@
  * shrunk into a separate miniature label.
  */
 .playing-card__rank--ten {
-  font-size: 15cqw;
-  letter-spacing: -0.04em;
+  font-size: 13cqw;
+  letter-spacing: -0.06em;
 }
 
 .playing-card__index-suit {
-  width: 14cqw;
-  height: 14cqw;
+  width: 12cqw;
+  height: 12cqw;
 }
 
 .playing-card__center {
   position: absolute;
   inset: 16% 12%;
+}
+
+/*
+ * Pip grid: points are placed on a 0-100 grid whose edges are pip
+ * *centres*, so the band is inset by the index-strip width plus half a
+ * pip. Horizontal: pip columns at 34% / 66% of the card, so a 14cqw pip's
+ * outer edge sits at 27cqw — clear of the widest index ("10", ~25cqw).
+ * Vertical: centres run from 14% to 86% of the card height.
+ */
+.playing-card__center--pips {
+  inset: 14% 34%;
 }
 
 /* ---------- Number cards (pips) ---------- */
@@ -107,8 +125,8 @@
 
 .playing-card__pip {
   position: absolute;
-  width: 18cqw;
-  height: 18cqw;
+  width: 14cqw;
+  height: 14cqw;
   transform: translate(-50%, -50%);
 }
 

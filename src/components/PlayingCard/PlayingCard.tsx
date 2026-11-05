@@ -47,7 +47,10 @@ export function PlayingCard({ card, faceDown, className }: PlayingCardProps) {
         <SuitIcon suit={card.suit} className="playing-card__index-suit" />
       </span>
 
-      <div className="playing-card__center" aria-hidden="true">
+      <div
+        className={`playing-card__center${PIP_LAYOUTS[card.rank] ? " playing-card__center--pips" : ""}`}
+        aria-hidden="true"
+      >
         <CardCenter rank={card.rank} suit={card.suit} />
       </div>
 

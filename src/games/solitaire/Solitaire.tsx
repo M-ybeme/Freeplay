@@ -3,11 +3,16 @@ import { PlayingCard } from "../../components/PlayingCard/PlayingCard";
 import { SuitIcon } from "../../components/PlayingCard/SuitIcon";
 import { SUITS, cardName, suitLabel, type Card } from "../../components/PlayingCard/types";
 import { useSolitaire, type Selection } from "./useSolitaire";
-import type { TableauCard as TableauCardModel } from "./logic";
+import { FRESH_STOCK_SIZE, type TableauCard as TableauCardModel } from "./logic";
+import { useCardMotion } from "./useCardMotion";
 import "./Solitaire.css";
 
 const DRAG_THRESHOLD_PX = 6;
 const DOUBLE_TAP_MS = 350;
+
+function cardId(card: Card): string {
+  return `${card.rank}-${card.suit}`;
+}
 
 function selectionKey(sel: Selection): string {
   if (sel.zone === "waste") return "waste";
@@ -68,6 +73,15 @@ export function Solitaire() {
 
   const foundationCount = foundations.reduce((sum, p) => sum + p.length, 0);
 
+  const boardRef = useRef<HTMLDivElement>(null);
+  const { settleFrom } = useCardMotion(boardRef, [stock, waste, foundations, tableau], {
+    key: stock,
+    fresh: stock.length === FRESH_STOCK_SIZE && waste.length === 0 && foundationCount === 0,
+  });
+  // The originals stay in the layout while their ghost follows the pointer,
+  // but are hidden so the card reads as picked up rather than duplicated.
+  const draggingIds = new Set(drag?.cards.map(cardId) ?? []);
+
   function isSelected(target: Selection): boolean {
     if (!selected) return false;
     if (target.zone !== selected.zone) return false;
@@ -108,13 +122,22 @@ export function Solitaire() {
     if (!g || g.pointerId !== e.pointerId) return;
 
     if (g.dragging) {
+      // Wherever the ghost is right now becomes the starting point of the
+      // settle animation: onto the destination for a legal drop, back to
+      // the source pile for an illegal one.
+      const origins = new Map<string, { x: number; y: number }>();
+      document.querySelectorAll<HTMLElement>("[data-ghost-id]").forEach((el) => {
+        const r = el.getBoundingClientRect();
+        origins.set(el.dataset.ghostId!, { x: r.left, y: r.top });
+      });
+      settleFrom(origins);
       setDrag(null);
       setDragOverKey(null);
       const el = document.elementFromPoint(e.clientX, e.clientY);
       const zoneEl = el instanceof Element ? el.closest<HTMLElement>("[data-zone]") : null;
       const dest = zoneEl ? parseZoneTarget(zoneEl) : null;
-      // An illegal (or missing) drop target is simply a no-op - the cards
-      // never actually moved, so there is nothing to visually "return."
+      // An illegal (or missing) drop target is a no-op for game state; the
+      // settle animation above is what visibly returns the cards.
       if (dest) attemptMove(g.source, dest);
       return;
     }
@@ -182,13 +205,13 @@ export function Solitaire() {
   }
 
   return (
-    <div className="solitaire">
+    <div className={`solitaire${won ? " solitaire--won" : ""}`}>
       <div className="solitaire__hud">
         <p className="fp-label solitaire__level">// Card terminal — Klondike, draw 1</p>
         <div className="solitaire__stats">
           <div className="fp-hud-tile">
             <span className="fp-hud-label">Foundation</span>
-            <span className="fp-hud-value">
+            <span className="fp-hud-value solitaire__count" key={foundationCount}>
               {foundationCount} / 52
             </span>
           </div>
@@ -209,11 +232,12 @@ export function Solitaire() {
         </div>
       )}
 
-      <div className="solitaire-board fp-corner-marks">
+      <div className="solitaire-board fp-corner-marks" ref={boardRef}>
         <div className="solitaire-row">
           <button
             type="button"
             className="solitaire-stock"
+            data-motion-origin="stock"
             onClick={stockActivate}
             disabled={locked}
             aria-label={stock.length > 0 ? `Stock, ${stock.length} cards, draw one` : "Stock empty, tap to recycle waste"}
@@ -241,8 +265,21 @@ export function Solitaire() {
             onKeyDown={(e) => onZoneKeyDown(e, () => activateZone({ zone: "waste" }))}
           >
             {waste.length > 0 ? (
-              <div aria-hidden="true">
-                <PlayingCard card={waste[waste.length - 1]} />
+              <div className="solitaire-stack" aria-hidden="true">
+                {waste.slice(-2).map((card, i, shown) => {
+                  const isTop = i === shown.length - 1;
+                  return (
+                    <div
+                      key={cardId(card)}
+                      className={`solitaire-stack__card${isTop && draggingIds.has(cardId(card)) ? " solitaire-card--lifted" : ""}`}
+                      data-card-id={cardId(card)}
+                      data-face-up="true"
+                      data-from-stock={isTop ? "true" : undefined}
+                    >
+                      <PlayingCard card={card} />
+                    </div>
+                  );
+                })}
               </div>
             ) : (
               <div className="solitaire-slot" aria-hidden="true" />
@@ -271,8 +308,21 @@ export function Solitaire() {
                   onKeyDown={(e) => onZoneKeyDown(e, () => activateZone(target))}
                 >
                   {top ? (
-                    <div aria-hidden="true">
-                      <PlayingCard card={top} />
+                    <div className="solitaire-stack" aria-hidden="true">
+                      {pile.slice(-2).map((card, j, shown) => {
+                        const isTop = j === shown.length - 1;
+                        return (
+                          <div
+                            key={cardId(card)}
+                            className={`solitaire-stack__card${isTop && draggingIds.has(cardId(card)) ? " solitaire-card--lifted" : ""}`}
+                            data-card-id={cardId(card)}
+                            data-face-up="true"
+                            data-foundation-top={isTop ? "true" : undefined}
+                          >
+                            <PlayingCard card={card} />
+                          </div>
+                        );
+                      })}
                     </div>
                   ) : (
                     <div className="solitaire-slot solitaire-slot--foundation" aria-hidden="true">
@@ -324,10 +374,16 @@ export function Solitaire() {
                   if (selectedHere) classNames.push("solitaire-zone--selected");
                   if (isCursor) classNames.push("solitaire-pile__card--cursor");
                   if (dragOverKey === `tableau-${p}` && i === pile.length - 1) classNames.push("solitaire-zone--drag-over");
+                  if (draggingIds.has(cardId(tc.card))) classNames.push("solitaire-card--lifted");
                   return (
                     <div
-                      key={`${tc.card.rank}-${tc.card.suit}`}
+                      key={cardId(tc.card)}
                       className={classNames.join(" ")}
+                      data-card-id={cardId(tc.card)}
+                      data-face-up={tc.faceUp ? "true" : "false"}
+                      // Klondike deal order: row i covers piles i..6, so
+                      // earlier rows contribute 7, 6, 5... cards before it.
+                      data-deal-order={i * 7 - (i * (i - 1)) / 2 + (p - i)}
                       style={{ ["--card-overlap" as string]: i === 0 ? "0px" : pile[i - 1].faceUp ? "var(--overlap-up)" : "var(--overlap-down)" }}
                       onPointerDown={(e) => {
                         e.stopPropagation();
@@ -367,7 +423,7 @@ export function Solitaire() {
       {drag && (
         <div className="solitaire-drag-ghost" style={{ left: drag.x, top: drag.y }} aria-hidden="true">
           {drag.cards.map((card, i) => (
-            <div key={`${card.rank}-${card.suit}`} className="solitaire-drag-ghost__card" style={{ top: i * 22 }}>
+            <div key={cardId(card)} className="solitaire-drag-ghost__card" data-ghost-id={cardId(card)} style={{ top: i * 22 }}>
               <PlayingCard card={card} />
             </div>
           ))}

@@ -77,6 +77,8 @@
 /* ---------- Board ---------- */
 
 .solitaire-board {
+  /* Positioning context for useCardMotion's board-relative measurements. */
+  position: relative;
   width: 100%;
   max-width: 560px;
   padding: 0.75rem;
@@ -208,8 +210,18 @@
   outline-offset: 3px;
 }
 
+/*
+ * --card-overlap is how much of the previous card stays *visible* (the
+ * fan step), so each card is pulled up by a full card height minus that
+ * step. The first card in a pile sets it to 0 and gets no pull-up.
+ */
 .solitaire-pile__card {
   margin-top: var(--card-overlap, 0px);
+  touch-action: none;
+}
+
+.solitaire-pile__card + .solitaire-pile__card {
+  margin-top: calc(var(--card-overlap) - var(--pc-width) * 7 / 5);
   touch-action: none;
 }
 
@@ -274,4 +286,116 @@
   align-items: flex-start;
   gap: 0.5rem;
   border-radius: 4px;
+}
+
+/* ---------- Motion ---------- */
+
+/*
+ * Card movement on this board is driven by useCardMotion (FLIP via the Web
+ * Animations API). The shared PlayingCard mount animation would otherwise
+ * replay - a fade-in flash - every time a card remounts in a new pile, so
+ * it's switched off here and the motion hook owns how cards arrive.
+ */
+.solitaire .playing-card {
+  animation: none;
+}
+
+/* Waste and foundations render their top two cards stacked in one cell, so
+   the card underneath is already showing when the top one leaves. */
+.solitaire-stack {
+  display: grid;
+}
+
+.solitaire-stack__card {
+  grid-area: 1 / 1;
+}
+
+.solitaire-card--in-flight {
+  position: relative;
+  z-index: 20;
+  filter: drop-shadow(0 6px 8px rgba(0, 0, 0, 0.4));
+}
+
+.solitaire-card--lifted {
+  opacity: 0;
+}
+
+.solitaire-pile__card,
+.solitaire-waste,
+.solitaire-foundation {
+  transition:
+    transform 140ms ease-out,
+    filter 140ms ease-out,
+    outline-color 140ms ease-out;
+}
+
+.solitaire-stock .playing-card {
+  transition: transform 120ms ease-out;
+}
+
+.solitaire-stock:not(:disabled):hover .playing-card {
+  transform: translateY(-2px);
+}
+
+.solitaire-stock:not(:disabled):active .playing-card {
+  transform: translateY(1px) scale(0.97);
+}
+
+.solitaire__count {
+  display: inline-block;
+  animation: solitaire-count-pop 260ms ease-out;
+}
+
+@keyframes solitaire-count-pop {
+  0% {
+    transform: scale(1.25);
+    color: var(--toxic);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.solitaire__result {
+  animation: solitaire-result-in 380ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@keyframes solitaire-result-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Win: the four completed foundations hop in sequence. */
+.solitaire--won .solitaire-foundation {
+  animation: solitaire-foundation-hop 520ms ease-out both;
+}
+
+.solitaire--won .solitaire-foundation:nth-child(2) {
+  animation-delay: 90ms;
+}
+
+.solitaire--won .solitaire-foundation:nth-child(3) {
+  animation-delay: 180ms;
+}
+
+.solitaire--won .solitaire-foundation:nth-child(4) {
+  animation-delay: 270ms;
+}
+
+@keyframes solitaire-foundation-hop {
+  0%,
+  100% {
+    transform: translateY(0);
+    filter: none;
+  }
+  40% {
+    transform: translateY(-10px);
+    filter: drop-shadow(0 0 8px rgba(140, 255, 0, 0.7));
+  }
 }
