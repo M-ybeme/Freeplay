@@ -1,60 +1,90 @@
+/*
+ * The game shell is an arcade cabinet, top to bottom:
+ *   marquee  - backlit sign with the game's name in neon
+ *   screen   - the game panel as a CRT: bezel, scanlines, vignette, glow
+ *   deck     - control strip with the EXIT button and the credits readout
+ *
+ * Mobile first. The marquee and deck stay short (the screen gets the
+ * height), the deck pads for the home indicator, and the bezel is thinner
+ * on phones with the panel's padding reduced by the same amount, so the
+ * width a game gets is unchanged (Solitaire sizes its cards to it).
+ */
 .game-shell {
   display: flex;
   flex-direction: column;
   height: 100%;
+  background:
+    radial-gradient(ellipse 90% 40% at 50% 0%, rgba(139, 61, 255, 0.12), transparent 70%),
+    var(--void);
 }
 
-.game-shell__header {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.5rem 1rem;
-  background: var(--surface);
-  border-bottom: 1px solid var(--surface-2);
-}
+/* ---------- Marquee ---------- */
 
-.game-shell__back {
+.game-shell__marquee {
+  position: relative;
+  flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  min-width: 44px;
-  min-height: 44px;
-  background: none;
-  border: 1px solid var(--surface-2);
-  border-radius: 4px;
-  color: var(--text);
-  font-size: 1.1rem;
-  line-height: 1;
-  cursor: pointer;
-  transition: border-color 120ms ease;
+  min-height: 3.5rem;
+  padding: 0.6rem 1rem;
+  text-align: center;
+  /* Backlit panel: brightest in the middle, like a tube behind plastic. */
+  background:
+    radial-gradient(ellipse 60% 120% at 50% 50%, rgba(255, 43, 214, 0.16), transparent 70%),
+    linear-gradient(180deg, #1a1030, #0d0919);
+  border-bottom: 2px solid var(--hot-pink);
+  box-shadow:
+    0 2px 18px rgba(255, 43, 214, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
 }
 
-.game-shell__back:hover {
-  border-color: var(--laser-blue);
-}
-
-.game-shell__back:focus {
-  outline: none;
-}
-
-.game-shell__back:focus-visible {
-  outline: 3px solid var(--focus-ring);
-  outline-offset: 2px;
+/* Chrome trim along the top edge of the sign. */
+.game-shell__marquee::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto;
+  height: 3px;
+  background: linear-gradient(90deg, #2a2440, #6d6690 50%, #2a2440);
 }
 
 .game-shell__title {
   margin: 0;
   font-family: var(--font-display);
-  font-size: 1rem;
-  letter-spacing: 0.03em;
+  font-weight: 900;
+  font-size: clamp(1.05rem, 5vw, 1.6rem);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  text-wrap: balance;
+  line-height: 1.15;
+  /* Neon tube: near-white core, coloured glow. */
+  color: #ffe9fb;
+  text-shadow:
+    0 0 4px rgba(255, 43, 214, 0.9),
+    0 0 12px rgba(255, 43, 214, 0.7),
+    0 0 28px rgba(255, 43, 214, 0.45);
+  animation: game-shell-flicker 900ms linear backwards;
 }
+
+/* The sign stutters on when the cabinet powers up, then holds. */
+@keyframes game-shell-flicker {
+  0% { opacity: 0.1; }
+  10% { opacity: 1; }
+  14% { opacity: 0.2; }
+  22% { opacity: 1; }
+  30% { opacity: 0.35; }
+  34% { opacity: 1; }
+  100% { opacity: 1; }
+}
+
+/* ---------- Screen ---------- */
 
 .game-shell__content {
   flex: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 1.25rem 1rem 2rem;
+  padding: 1rem 0.75rem 1.25rem;
   overflow-y: auto;
 }
 
@@ -63,10 +93,10 @@
  * primary number/board) always renders at the same offset from the top,
  * regardless of how much shorter/taller the content below it is (e.g.
  * play controls vs. a game-over summary). This is what keeps a game's
- * main surface visually stable across state changes. Visual treatment
- * (surface/border/corners/sheen) comes from the shared .fp-panel class.
+ * main surface visually stable across state changes.
  */
 .game-shell__panel {
+  --bezel: 6px;
   width: 100%;
   max-width: 560px;
   min-height: min(28rem, 55vh);
@@ -81,10 +111,177 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 2.5rem clamp(1rem, 5vw, 1.75rem) 2rem;
+  /* Horizontal padding minus the bezel, so games keep the same inner width. */
+  padding: 2.25rem calc(clamp(1rem, 5vw, 1.75rem) + 0.25rem - var(--bezel)) 2rem;
+
+  /* CRT: rounded glass in a thick dark bezel, glowing faintly. */
+  clip-path: none;
+  border: var(--bezel) solid #05040b;
+  border-radius: 18px;
+  background-color: #0c0b1a;
+  background-image: radial-gradient(ellipse 80% 60% at 50% 40%, rgba(0, 217, 255, 0.06), transparent 75%);
+  box-shadow:
+    0 0 0 1px #2a2440,
+    0 0 0 3px #0d0919,
+    0 0 26px rgba(0, 217, 255, 0.14),
+    0 10px 30px rgba(0, 0, 0, 0.6);
+  animation: game-shell-power-on 420ms cubic-bezier(0.22, 1, 0.36, 1) backwards;
 }
 
-/* Each game's panel rises in when its route opens, instead of appearing. */
-.game-shell__panel {
-  animation: fp-enter 360ms cubic-bezier(0.22, 1, 0.36, 1) backwards;
+@media (min-width: 480px) {
+  .game-shell__content {
+    padding: 1.25rem 1rem 1.5rem;
+  }
+
+  .game-shell__panel {
+    --bezel: 10px;
+  }
+}
+
+/*
+ * Scanlines and vignette sit over the game but never take input. Kept
+ * faint (8% black lines, edges darkened only past the panel padding) so
+ * text contrast is effectively unchanged. z-index clears games' own
+ * layered pieces (z 1-3) but stays under Solitaire's drag ghost and
+ * overlays (z 20+).
+ */
+.game-shell__panel::before,
+.game-shell__panel::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  pointer-events: none;
+  border-radius: inherit;
+}
+
+.game-shell__panel::before {
+  background: repeating-linear-gradient(180deg, rgba(0, 0, 0, 0.08) 0 1px, transparent 1px 3px);
+}
+
+.game-shell__panel::after {
+  background: radial-gradient(ellipse 75% 70% at 50% 50%, transparent 70%, rgba(0, 0, 0, 0.32) 100%);
+  box-shadow: inset 0 0 18px rgba(0, 0, 0, 0.55);
+}
+
+/* The screen warms up when a game opens: a bright line opening out. */
+@keyframes game-shell-power-on {
+  0% {
+    opacity: 0;
+    transform: scaleY(0.02) scaleX(0.6);
+    filter: brightness(3);
+  }
+  45% {
+    opacity: 1;
+    transform: scaleY(0.02) scaleX(1);
+    filter: brightness(2.5);
+  }
+  100% {
+    opacity: 1;
+    transform: none;
+    filter: none;
+  }
+}
+
+/* ---------- Control deck ---------- */
+
+.game-shell__deck {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  /* On wide screens the controls stay lined up under the cabinet (720px)
+     instead of drifting to the window edges. */
+  padding: 0.5rem max(0.75rem, env(safe-area-inset-right), calc((100% - 720px) / 2))
+    max(0.5rem, env(safe-area-inset-bottom)) max(0.75rem, env(safe-area-inset-left), calc((100% - 720px) / 2));
+  background: linear-gradient(180deg, #1c1830, #0e0b1a);
+  border-top: 2px solid #2a2440;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    0 -6px 18px rgba(0, 0, 0, 0.5);
+}
+
+/* EXIT: a lit arcade button. */
+.game-shell__back {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45em;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0 1rem;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 0.8rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #ffe9fb;
+  background: radial-gradient(ellipse at 50% 30%, rgba(255, 43, 214, 0.35), rgba(255, 43, 214, 0.1));
+  border: 2px solid var(--hot-pink);
+  border-radius: 999px;
+  box-shadow:
+    0 3px 0 #6a0f58,
+    0 0 12px rgba(255, 43, 214, 0.35);
+  cursor: pointer;
+  transition:
+    transform 80ms ease,
+    box-shadow 80ms ease;
+}
+
+.game-shell__back:hover {
+  box-shadow:
+    0 3px 0 #6a0f58,
+    0 0 18px rgba(255, 43, 214, 0.6);
+}
+
+.game-shell__back:active {
+  transform: translateY(3px);
+  box-shadow:
+    0 0 0 #6a0f58,
+    0 0 10px rgba(255, 43, 214, 0.4);
+}
+
+.game-shell__back:focus {
+  outline: none;
+}
+
+.game-shell__back:focus-visible {
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 3px;
+}
+
+.game-shell__credits {
+  font-family: var(--font-display);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.game-shell__credits-value {
+  margin-left: 0.4em;
+  color: var(--toxic);
+  text-shadow: 0 0 8px rgba(140, 255, 0, 0.5);
+  animation: game-shell-blink 2.4s steps(1) infinite;
+}
+
+@keyframes game-shell-blink {
+  0%,
+  70% {
+    opacity: 1;
+  }
+  85% {
+    opacity: 0.35;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .game-shell__title,
+  .game-shell__panel,
+  .game-shell__credits-value {
+    animation: none;
+  }
 }
