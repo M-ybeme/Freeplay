@@ -1,0 +1,293 @@
+.breaker {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  gap: 0.6rem;
+}
+
+/* ---------- HUD ---------- */
+
+.breaker__hud {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.6rem;
+}
+
+/* Balls left: pips in the field's top-left corner, opposite the wall tag. */
+.breaker__lives {
+  position: absolute;
+  top: 8px;
+  left: 22px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  pointer-events: none;
+}
+
+.breaker__life {
+  width: 7px;
+  height: 7px;
+  border: 1.5px solid rgba(255, 255, 255, 0.25);
+  border-radius: 50%;
+}
+
+.breaker__life--on {
+  background: #fff;
+  border-color: #fff;
+  box-shadow: 0 0 6px var(--laser-blue);
+}
+
+/* ---------- Field ---------- */
+
+/*
+ * Portrait field (100 x 130 units). Width is capped by the panel, by
+ * 440px, and by the viewport height left after the cabinet chrome, HUD
+ * and controls, so the whole field is always on screen while playing.
+ */
+.breaker-field {
+  position: relative;
+  width: min(100%, 440px, calc((100svh - 380px) * 100 / 130));
+  min-width: min(100%, 220px);
+  aspect-ratio: 100 / 130;
+  background-color: var(--void);
+  background-image:
+    linear-gradient(180deg, rgba(139, 61, 255, 0.08), transparent 40%),
+    linear-gradient(rgba(0, 217, 255, 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 217, 255, 0.06) 1px, transparent 1px);
+  background-size:
+    auto,
+    10% 7.69%,
+    10% 7.69%;
+  border: 1px solid rgba(0, 217, 255, 0.5);
+  border-radius: 4px;
+  box-shadow:
+    0 0 24px rgba(0, 217, 255, 0.16),
+    inset 0 0 28px rgba(0, 0, 0, 0.65);
+  overflow: hidden;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  cursor: none;
+}
+
+.breaker-field.fp-corner-marks::before,
+.breaker-field.fp-corner-marks::after {
+  width: 14px;
+  height: 14px;
+  border-color: rgba(0, 217, 255, 0.6);
+}
+
+.breaker-field.fp-corner-marks::before {
+  top: 5px;
+  left: 5px;
+}
+
+.breaker-field.fp-corner-marks::after {
+  bottom: 5px;
+  right: 5px;
+}
+
+.breaker-field__tag {
+  position: absolute;
+  top: 6px;
+  right: 18px;
+  font-size: 0.6rem;
+  color: rgba(0, 217, 255, 0.5);
+  pointer-events: none;
+}
+
+/* ---------- Bricks ---------- */
+
+/* Row colours: one --c per row, cycling. */
+.breaker-brick--c0 { --c: var(--hot-pink); }
+.breaker-brick--c1 { --c: var(--orange); }
+.breaker-brick--c2 { --c: var(--toxic); }
+.breaker-brick--c3 { --c: var(--laser-blue); }
+.breaker-brick--c4 { --c: var(--uv-purple-text); }
+
+.breaker-brick {
+  position: absolute;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--c) 55%, #fff 10%), color-mix(in srgb, var(--c) 35%, transparent));
+  border: 1px solid var(--c);
+  border-radius: 2px;
+  box-shadow: 0 0 6px color-mix(in srgb, var(--c) 45%, transparent);
+}
+
+/*
+ * Armoured bricks take two hits. They're marked by shape, not just
+ * colour: a solid inner plate. Once hit, the plate goes and the brick
+ * shows diagonal crack stripes and dims.
+ */
+.breaker-brick--armoured {
+  border-width: 2px;
+  background: color-mix(in srgb, var(--c) 30%, var(--void));
+}
+
+.breaker-brick--armoured::after {
+  content: "";
+  position: absolute;
+  inset: 22% 18%;
+  background: var(--c);
+  border-radius: 1px;
+  box-shadow: 0 0 6px var(--c);
+}
+
+.breaker-brick--cracked {
+  background:
+    repeating-linear-gradient(135deg, color-mix(in srgb, var(--c) 55%, transparent) 0 2px, transparent 2px 6px),
+    color-mix(in srgb, var(--c) 15%, var(--void));
+  box-shadow: none;
+  animation: breaker-crack 220ms ease-out;
+}
+
+.breaker-brick--cracked::after {
+  display: none;
+}
+
+@keyframes breaker-crack {
+  0% {
+    filter: brightness(2.2);
+    transform: scale(1.08);
+  }
+}
+
+/* Where a brick was: a brief flash that blows outward and fades. */
+.breaker-burst {
+  position: absolute;
+  border: 1px solid var(--c);
+  border-radius: 2px;
+  background: color-mix(in srgb, var(--c) 40%, transparent);
+  pointer-events: none;
+  animation: breaker-burst 320ms ease-out forwards;
+}
+
+@keyframes breaker-burst {
+  from {
+    opacity: 1;
+    transform: scale(1);
+    box-shadow: 0 0 14px var(--c);
+  }
+  to {
+    opacity: 0;
+    transform: scale(1.6, 2.2);
+    box-shadow: 0 0 0 transparent;
+  }
+}
+
+/* ---------- Ball and paddle ---------- */
+
+.breaker-ball,
+.breaker-trail {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.breaker-ball {
+  z-index: 2;
+  background: #fff;
+  box-shadow:
+    0 0 6px #fff,
+    0 0 14px var(--laser-blue);
+}
+
+.breaker-trail {
+  background: var(--laser-blue);
+  box-shadow: 0 0 8px var(--laser-blue);
+}
+
+.breaker-paddle {
+  position: absolute;
+  z-index: 2;
+  border-radius: 999px;
+  background: linear-gradient(180deg, #ffd6f6, var(--hot-pink) 60%, #a1158a);
+  box-shadow:
+    0 0 10px rgba(255, 43, 214, 0.75),
+    0 4px 16px rgba(255, 43, 214, 0.35);
+  pointer-events: none;
+}
+
+/* ---------- Overlays ---------- */
+
+.breaker__overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 1rem;
+  text-align: center;
+  background: rgba(8, 6, 18, 0.85);
+}
+
+/* While serving, the field stays visible and draggable: the prompt sits
+   in the empty middle band and only its button takes input. */
+.breaker__overlay--serve {
+  inset: 42% 0 24%;
+  background: radial-gradient(ellipse 70% 60% at 50% 50%, rgba(8, 6, 18, 0.8), transparent 80%);
+  pointer-events: none;
+}
+
+.breaker__launch,
+.breaker__restart {
+  min-height: 44px;
+  padding: 0.5rem 1.4rem;
+  pointer-events: auto;
+  cursor: pointer;
+}
+
+.breaker__overlay:not(.breaker__overlay--serve) {
+  cursor: auto;
+}
+
+/* ---------- Controls ---------- */
+
+.breaker__controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem 1rem;
+  width: 100%;
+}
+
+.breaker__hint {
+  margin: 0;
+  font-size: 0.8rem;
+  color: var(--muted);
+  text-align: center;
+}
+
+.breaker__hint-keys {
+  display: none;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .breaker__hint-touch {
+    display: none;
+  }
+
+  .breaker__hint-keys {
+    display: inline;
+  }
+}
+
+.breaker__pause {
+  min-height: 44px;
+  padding: 0.5rem 1rem;
+}
+
+.breaker__sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}

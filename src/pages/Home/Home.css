@@ -155,8 +155,8 @@
   }
 }
 
-/* Four across, not as many as fit: eight machines make two even rows
-   instead of five-and-three. */
+/* A fixed four across rather than as many as fit: cabinets stay a
+   consistent size instead of shrinking to squeeze a fifth or sixth in. */
 @media (min-width: 760px) {
   .home {
     max-width: 960px;

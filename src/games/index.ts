@@ -8,6 +8,7 @@ import { definition as colorSortDefinition, default as ColorSort } from "./color
 import { definition as game2048Definition, default as Game2048 } from "./2048";
 import { definition as flowDefinition, default as Flow } from "./flow";
 import { definition as solitaireDefinition, default as Solitaire } from "./solitaire";
+import { definition as brickBreakerDefinition, default as BrickBreaker } from "./brick-breaker";
 
 export interface GameEntry {
   definition: GameDefinition;
@@ -23,6 +24,7 @@ export const games: GameEntry[] = [
   { definition: game2048Definition, Component: Game2048 },
   { definition: flowDefinition, Component: Flow },
   { definition: solitaireDefinition, Component: Solitaire },
+  { definition: brickBreakerDefinition, Component: BrickBreaker },
 ];
 
 export function getGameById(id: string): GameEntry | undefined {
