@@ -16,6 +16,20 @@ When adding an entry for a new game or feature, copy the pattern below:
 
 ---
 
+## `564e779` — Fix Flow pipes joining non-consecutive cells and routes extending past their end
+
+- Pipe connectors are now derived from route order (each cell links only
+  to the cells before and after it in its own path). They had been
+  derived from "the neighbour has the same owner", so a route that
+  doubled back beside itself drew a grid of false joins, and two
+  same-colour endpoints sitting side by side were bridged directly.
+- `extendRoute` refuses forward extension once the pair is connected, so
+  a drag that keeps going after reaching the partner endpoint stops
+  there. Backtracking a finished route still works.
+- Verified in the browser with a U-shaped route between adjacent
+  endpoints, dragged on past the end: no bridge, and the extra cells
+  stayed empty.
+
 ## `0b12bbc` — Design pass: quieter card backs, court-card panels, Solitaire layout and HUD
 
 - Shared PlayingCard backs now recede (mark at 40% cyan, no glow); a
