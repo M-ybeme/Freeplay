@@ -16,6 +16,65 @@ When adding an entry for a new game or feature, copy the pattern below:
 
 ---
 
+## `86d9e6f` — Size game screens per game and let boards scale with the screen
+
+- Each game's registry entry now declares a `size` tier, which caps how
+  wide the cabinet screen may grow: compact 560px (Higher or Lower,
+  Blackjack, Color Sort, the default), standard 680px (Snake, 2048,
+  Flow, Minesweeper, Brick Breaker) or wide 1040px (Chess, Reversi,
+  Mahjong, Solitaire). Before, every panel was capped at 560px, and
+  Solitaire had a one-off 700px `:has()` override.
+- Boards size themselves in CSS, with no JavaScript measuring:
+  - The screen area (`.game-shell__content`) is a size container named
+    `screen`, and the panel is an inline-size container.
+  - The panel exposes `--play-h` (visible height left inside it) and
+    `--play-w` (its inner width). Each game subtracts only its own
+    controls, replacing the per-game guesses such as `100svh - 490px`.
+  - Container queries apply style and size containment but not layout
+    containment, so Solitaire's fixed-position drag ghost still tracks
+    the pointer. Checked by dragging at 1440 and 375px widths.
+- Chess and Reversi switch to a side-by-side layout on a landscape
+  screen at least 700px wide:
+  - The board fills the height on the left, with setup, players and
+    status above the middle of a 270-290px column and the buttons below.
+  - The board is top-aligned and the grid rows are content-sized, so in
+    short windows the board stays fully visible and only the buttons
+    scroll.
+  - Chess gets a scrolling move list that stays on the newest move and
+    shrinks on short windows.
+  - Measured boards: 410/420px to 650px at 1440x900, 657/677px at
+    1920x1080, and 518px at 1024x768 and 1366x768. Tested in 12 desktop
+    window shapes from 800x600 to 1920x1080.
+  - Tablet portrait and phones stay stacked, with boards of 524/534px
+    on a 768x1024 tablet.
+- Mahjong and Solitaire grow, and their panel narrows to fit the board
+  instead of leaving empty side margins (Solitaire 664/820px, Mahjong
+  720/812px at 1440/1920).
+  - Mahjong on wide screens packs its controls into one row above the
+    board and one below. Its boards measure 437 to 533px at 1440x900 and
+    496 to 725px at 1920x1080, with no tiles clipped or overlapping in
+    any layout.
+  - Solitaire cards scale from both the panel width and the screen
+    height, never below the old 76px on desktop: 98px at 1920x1080 and
+    86px on tablet.
+- Standard games grow to 520px on tall screens. On laptop-height
+  screens they keep a comfortable board that stays fully visible, and
+  only the controls below it scroll: at 1366x768, Snake is 420px with
+  its D-pad below the fold and Flow is 380px. A first pass shrank both
+  to 300px to avoid scrolling; that was reverted after review.
+  Minesweeper beginner cells grow 44 to 56px and intermediate 30 to
+  33-36px.
+- Phones: the panel's top and bottom padding is smaller below 480px, so
+  every game gains about 24px of height. At 375x812, scrolling drops in
+  Chess (50 to 33px), Reversi (35 to 11px) and Flow (9 to 0).
+- Known rough edges:
+  - A phone held sideways (844x390) leaves about 140px of play height,
+    so Chess and Reversi still scroll there.
+  - Flow at 1280x720 keeps its 380px floor with the board's bottom 47px
+    below the fold.
+  - Minesweeper intermediate and expert still scroll on short screens,
+    as before.
+
 ## `383325e` — Add Chess: 1-player vs three computer levels, or 2-player on one device
 
 - Game 12, built on the same setup as Reversi: 1 Player (you are cyan
