@@ -16,6 +16,37 @@ When adding an entry for a new game or feature, copy the pattern below:
 
 ---
 
+## `e75eb52` — Give playing cards court figures, a lit back and printed face detail
+
+- Court cards were near-identical (a letter plus one to three chevrons).
+  Each now has an original two-ended figure, mirrored top and bottom like
+  a real court card, drawn in the same flat chamfered line language as the
+  suits and chess pieces (`CardArt.tsx`): the Jack wears a visored helmet,
+  the Queen a tiara with an orb and a veil, and the King a tall crown with
+  a cross, a beard and a raised blade. The suit sits on a plate where the
+  halves meet; rank chevrons stay on the chest. The figures replace the
+  old letter, rule and tiny name label. Red courts draw in the existing
+  pink, black ones in ink. Figures show from 56px up; under 48px cards
+  keep the compact layout.
+- The back blended into the table: Solitaire's face-down stacks were hard
+  to count on a phone, and Blackjack's hidden dealer card looked like an
+  empty slot. It now has a stronger cyan/purple lattice, a lit chamfered
+  frame with a purple inner frame and corner ticks, a diamond emblem
+  around FP, and a lit top edge (inset highlight) so stacked backs can be
+  counted edge by edge. It still stays darker than any face, and the
+  `--back-lit` variant (Solitaire's stock) stays brighter.
+- Faces get a faint card-stock gradient, a thin printed inner frame
+  (hidden on compact cards) and a chamfered ring around the ace pip.
+- The compact (36px) "10" ran into its suit; it is now 22cqw with
+  slightly tighter tracking and keeps a clear gap.
+- Suit paths moved from `SuitIcon.tsx` to `suitPaths.ts` so the court
+  art can inline them; exporting them from the component file tripped the
+  Fast Refresh lint rule.
+- Contrast (colours unchanged, backgrounds slightly darker): red on the
+  darkest corner of the face is 4.81:1 and ink 13.2:1; red court lines on
+  their tinted panel are 3.97:1 (graphics need 3:1) and ink 10.2:1. At
+  56px the figure strokes are about 0.9px, close to the legibility limit.
+
 ## `86d9e6f` — Size game screens per game and let boards scale with the screen
 
 - Each game's registry entry now declares a `size` tier, which caps how
