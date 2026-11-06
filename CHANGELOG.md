@@ -16,6 +16,61 @@ When adding an entry for a new game or feature, copy the pattern below:
 
 ---
 
+## `cc91f29` — Add Spades
+
+- New game: partnership Spades. You (South) and a computer partner
+  (North) play against two computer opponents.
+  - Bids are 1–13 or Nil (±100). There's no Blind Nil yet.
+  - Spades can't be led until broken.
+  - Making a contract scores 10 a trick plus 1 a bag; missing it costs 10
+    a trick.
+  - A failed nil's tricks count as bags, not toward the partner's
+    contract. Every 10 bags costs 100.
+  - The match is first to 500 (or a Short 250), and a team at −200 loses.
+    If both pass the target, the higher score wins; a tie plays another
+    hand.
+- Rules are pure functions in `logic.ts` with 25 tests: dealing, legal
+  plays, trick winners, every scoring case, match end, and checking a
+  saved match. `useSpades` holds the state, the AI timers (650ms a move,
+  1.1s to sweep a trick; 250ms and 500ms with reduced motion), saving the
+  match on every change so a refresh resumes mid-hand, and the W/L record.
+- One rule-based AI (`ai.ts`) plays all three computer seats. It only
+  sees its own hand, the bids and the cards played.
+  - It bids by counting likely tricks: high and long spades, side aces,
+    guarded kings, and ruffs in short suits. It bids nil on weak, low
+    hands, never on top of a nil partner.
+  - It plays to win cheaply, doesn't overtake a partner who is safely
+    winning, ducks once its contract is made, covers a nil partner, and
+    lets a nil opponent keep a trick.
+  - The bid rounding was tuned over 2,000 bot-only hands, counting each
+    bag at the 10 points it eventually costs. Rounding down made 97% of
+    contracts but bid only 9.9 a table and took 1.6 bags a team. The
+    chosen +0.25 bids 11.5, makes 89%, takes 0.9 bags and nets the most.
+  - 11 AI tests, including 40 full bot-only matches that must all end
+    with only legal plays.
+- Table layout: four seats around a UV-lit felt with the trick in the
+  middle, your hand as an overlapping fan that always fits the width, and
+  your seat across the bottom row.
+  - You tap a card to lift it and tap again to play it. Illegal cards dim
+    on your turn.
+  - Bidding shows a suggested bid from the AI's own estimate.
+  - The hand summary (and the final result) lies over the table, so it's
+    visible without scrolling on a phone.
+  - On wide landscape screens, scores and controls move to a side column.
+- Layout fixes found by playing it at 320–1440px:
+  - On phones the hand now sits above the bid buttons; it had been pushed
+    off-screen, so you couldn't see your cards while bidding.
+  - The side seats show Bid and Won on two lines, and your seat spans the
+    bottom row, so the table fits at 320px (it had overflowed by 18px).
+  - The trick area was widened on desktop, where the four cards had
+    overlapped.
+- Reuses the shared PlayingCard, deck helpers, setting picker, control row
+  and ConfirmPrompt. There's no Undo: taking back a card after seeing the
+  others' plays would cheat the AI. Home cabinet icon (reusing the shared
+  spade glyph) with an attract loop of a card slapping down on the trick.
+
+---
+
 ## `dccfa0c` — Show a player-count badge on hot-seat game cabinets
 
 - `GameDefinition` gains an optional `maxPlayers` (default 1). Chess and
