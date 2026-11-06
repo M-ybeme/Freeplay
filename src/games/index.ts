@@ -14,6 +14,7 @@ import { definition as reversiDefinition, default as Reversi } from "./reversi";
 import { definition as chessDefinition, default as Chess } from "./chess";
 import { definition as spadesDefinition, default as Spades } from "./spades";
 import { definition as chromaDefinition, default as Chroma } from "./chroma";
+import { definition as poolDefinition, default as Pool } from "./pool";
 
 export interface GameEntry {
   definition: GameDefinition;
@@ -35,6 +36,7 @@ export const games: GameEntry[] = [
   { definition: chessDefinition, Component: Chess },
   { definition: spadesDefinition, Component: Spades },
   { definition: chromaDefinition, Component: Chroma },
+  { definition: poolDefinition, Component: Pool },
 ];
 
 export function getGameById(id: string): GameEntry | undefined {

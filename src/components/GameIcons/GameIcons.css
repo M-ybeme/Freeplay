@@ -281,3 +281,27 @@
   22% { opacity: 1; }
   74%, 100% { opacity: 0; }
 }
+
+/* ---------- 8-Ball: the cue draws back and strikes, the ball rolls off and back ---------- */
+
+[data-attract] .gi-pl-cue {
+  animation: gi-pl-cue 3s ease-in-out both;
+}
+
+[data-attract] .gi-pl-ball {
+  animation: gi-pl-ball 3s ease-out both;
+}
+
+@keyframes gi-pl-cue {
+  0%, 8% { transform: none; }
+  28% { transform: translate(-3px, 3px); }
+  34% { transform: translate(1.5px, -1.5px); }
+  44%, 100% { transform: none; }
+}
+
+@keyframes gi-pl-ball {
+  0%, 34% { transform: none; opacity: 1; }
+  52% { transform: translate(6px, -6px); opacity: 0; }
+  72% { transform: none; opacity: 0; }
+  86%, 100% { transform: none; opacity: 1; }
+}

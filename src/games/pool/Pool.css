@@ -1,0 +1,507 @@
+/*
+ * 8-Ball: a UV-lit table drawn on a canvas. Phones in portrait get the
+ * table standing upright (break end nearest you), so the balls stay big;
+ * wide screens lay it flat with the players, controls and settings in a
+ * side column.
+ */
+.pool {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  gap: 0.55rem;
+}
+
+/* ---------- Players ---------- */
+
+.pool__hud {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.5rem;
+  width: 100%;
+  max-width: 32rem;
+}
+
+.pool-player {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.2rem;
+  min-width: 0;
+  padding: 0.35rem 0.55rem;
+  text-align: left;
+  border: 1px solid transparent;
+  transition:
+    border-color 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.pool-player--turn {
+  border-color: rgba(0, 217, 255, 0.6);
+  box-shadow: 0 0 12px rgba(0, 217, 255, 0.25);
+}
+
+.pool-player__top {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.4rem;
+}
+
+.pool-player__score {
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--laser-blue);
+}
+
+.pool-player__group {
+  font-size: 0.75rem;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.pool-player__balls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px;
+  min-height: 12px;
+}
+
+.pool-mini {
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  box-shadow: inset -1px -1px 2px rgba(0, 0, 0, 0.45);
+}
+
+.pool-mini--down {
+  opacity: 0.18;
+}
+
+.pool-mini--eight {
+  outline: 1px solid var(--uv-purple);
+}
+
+/* Upright on a phone: one slim line per player (name, balls, score). */
+.pool--vertical .pool-player {
+  flex-direction: row;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.3rem 0.5rem;
+}
+
+.pool--vertical .pool-player__top {
+  display: contents;
+}
+
+.pool--vertical .pool-player__score {
+  order: 3;
+  margin-left: auto;
+}
+
+.pool--vertical .pool-player__group--set {
+  display: none;
+}
+
+.pool--vertical .pool-player__balls:empty {
+  display: none;
+}
+
+.pool--vertical .pool-mini {
+  width: 9px;
+  height: 9px;
+}
+
+.pool--vertical .pool-player__balls {
+  gap: 2px;
+  flex-wrap: nowrap;
+}
+
+/* ---------- Table ---------- */
+
+.pool__table-area {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+.pool-table {
+  /* Lying flat: as wide as the panel, short enough to leave room below. */
+  aspect-ratio: 106.8 / 56.8;
+  width: min(100%, calc((var(--play-h, 100vh) - 9rem) * 106.8 / 56.8));
+}
+
+.pool-table--vertical {
+  aspect-ratio: 56.8 / 106.8;
+  /* Upright on a phone: as tall as fits with the players and controls in view. */
+  width: min(100% - 3.25rem, calc((var(--play-h, 100vh) - 7.6rem) * 56.8 / 106.8), 30rem);
+}
+
+.pool-table__canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: 12px;
+  touch-action: none;
+  cursor: crosshair;
+}
+
+.pool-table__canvas:focus {
+  outline: none;
+}
+
+.pool-table__canvas:focus-visible {
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 3px;
+}
+
+.pool-over {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  max-width: 20rem;
+  max-height: 16rem;
+  margin: auto;
+  padding: 0.9rem 1rem;
+  text-align: center;
+  background: rgba(8, 6, 18, 0.94);
+  border: 1px solid rgba(140, 255, 0, 0.5);
+  border-radius: 10px;
+}
+
+.pool-over--danger {
+  border-color: rgba(255, 43, 214, 0.5);
+}
+
+.pool-over .fp-result-detail {
+  margin: 0;
+}
+
+.pool-over__score {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 0.85rem;
+  color: var(--text);
+}
+
+/* ---------- Controls: spin, fine aim, power ---------- */
+
+.pool__controls {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  width: 100%;
+  max-width: 32rem;
+}
+
+.pool__shot-row {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.pool__shoot {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.05rem;
+  min-width: 0;
+  min-height: 46px;
+  padding: 0.2rem 0.5rem;
+  line-height: 1.1;
+}
+
+.pool__shoot-spin {
+  font-family: system-ui, sans-serif;
+  font-size: 0.7rem;
+  font-weight: 400;
+  letter-spacing: 0;
+  text-transform: none;
+  opacity: 0.85;
+}
+
+.pool-spin {
+  position: relative;
+  flex: none;
+}
+
+.pool-spin__ball {
+  position: relative;
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #fff 0, #e9e4ff 35%, #a99fd0 100%);
+  box-shadow:
+    0 0 0 1px rgba(0, 217, 255, 0.6),
+    0 0 10px rgba(0, 217, 255, 0.3);
+  cursor: pointer;
+  touch-action: none;
+}
+
+/* Cross-hairs: where centre is. */
+.pool-spin__ball::before,
+.pool-spin__ball::after {
+  content: "";
+  position: absolute;
+  background: rgba(18, 12, 38, 0.18);
+}
+
+.pool-spin__ball::before {
+  left: 50%;
+  top: 12%;
+  bottom: 12%;
+  width: 1px;
+}
+
+.pool-spin__ball::after {
+  top: 50%;
+  left: 12%;
+  right: 12%;
+  height: 1px;
+}
+
+.pool-spin__ball--off {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.pool-spin__dot {
+  position: absolute;
+  z-index: 1;
+  width: 12px;
+  height: 12px;
+  margin: -6px 0 0 -6px;
+  border-radius: 50%;
+  background: var(--hot-pink);
+  box-shadow: 0 0 6px var(--hot-pink);
+}
+
+.pool-spin__ball:focus {
+  outline: none;
+}
+
+.pool-spin__ball:focus-visible {
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 3px;
+}
+
+/* "Spin" sits on the ball until some is set; then a reset chip takes its place. */
+.pool-spin__label {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 5px;
+  font-family: var(--font-display);
+  font-size: 0.5rem;
+  letter-spacing: 0.1em;
+  text-align: center;
+  text-transform: uppercase;
+  color: rgba(18, 12, 38, 0.55);
+  pointer-events: none;
+}
+
+.pool__nudge-btn {
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0;
+  touch-action: manipulation;
+}
+
+.pool-power {
+  position: relative;
+  height: 44px;
+  overflow: hidden;
+  background: var(--void);
+  border: 1px solid rgba(0, 217, 255, 0.55);
+  border-radius: 8px;
+  cursor: pointer;
+  touch-action: none;
+}
+
+/* Upright beside the table on phones: tall, so it's precise. */
+.pool-power--vertical {
+  flex: none;
+  width: 44px;
+  height: auto;
+  align-self: stretch;
+}
+
+.pool-power--off {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.pool-power__fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  background: linear-gradient(90deg, var(--toxic), var(--orange) 70%, var(--hot-pink));
+  box-shadow: 0 0 14px rgba(255, 138, 0, 0.5);
+}
+
+.pool-power--vertical .pool-power__fill {
+  inset: auto 0 0 0;
+  background: linear-gradient(0deg, var(--toxic), var(--orange) 70%, var(--hot-pink));
+}
+
+.pool-power__label {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-family: var(--font-display);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text);
+  text-shadow: 0 0 4px #000;
+  pointer-events: none;
+}
+
+.pool-power--vertical .pool-power__label {
+  place-items: start center;
+  padding-top: 0.5rem;
+}
+
+.pool-power__label small {
+  font-size: 0.6rem;
+}
+
+.pool-power:focus {
+  outline: none;
+}
+
+.pool-power:focus-visible {
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+.pool__status {
+  margin: 0;
+  min-height: 2.6em;
+  max-width: 32rem;
+  font-size: 0.9rem;
+  color: var(--text);
+  text-align: center;
+}
+
+/* ---------- Settings ---------- */
+
+.pool__settings {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.6rem;
+  width: 100%;
+  max-width: 32rem;
+}
+
+.pool__level {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  width: 100%;
+  max-width: 22rem;
+}
+
+.pool__level-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+.pool__level-value {
+  font-family: var(--font-display);
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--laser-blue);
+}
+
+.pool__level input[type="range"] {
+  width: 100%;
+  height: 44px;
+  margin: 0;
+  accent-color: var(--laser-blue);
+  cursor: pointer;
+}
+
+.pool__level input[type="range"]:focus {
+  outline: none;
+}
+
+.pool__level input[type="range"]:focus-visible {
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+.pool__level-ends {
+  display: flex;
+  justify-content: space-between;
+  margin-top: -0.4rem;
+  font-size: 0.7rem;
+  color: var(--muted);
+}
+
+.pool__record {
+  margin: 0;
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+/* ---------- Wide screens: table on the left, everything else beside it ---------- */
+
+@container screen (min-width: 900px) and (orientation: landscape) {
+  .pool {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 260px;
+    grid-template-areas:
+      "table hud"
+      "table status"
+      "table controls"
+      "table settings";
+    grid-template-rows: auto auto auto 1fr;
+    column-gap: clamp(1rem, 2.5cqw, 2rem);
+    row-gap: 0.7rem;
+    align-items: start;
+  }
+
+  .pool__table-area {
+    grid-area: table;
+  }
+
+  .pool-table {
+    width: min(100%, calc((var(--play-h, 100vh) - 1.5rem) * 106.8 / 56.8));
+  }
+
+  .pool__hud {
+    grid-area: hud;
+    grid-template-columns: 1fr;
+  }
+
+  .pool__status {
+    grid-area: status;
+    text-align: left;
+    min-height: 3.9em;
+  }
+
+  .pool__controls {
+    grid-area: controls;
+  }
+
+  .pool__settings {
+    grid-area: settings;
+  }
+}
