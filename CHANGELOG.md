@@ -16,6 +16,22 @@ When adding an entry for a new game or feature, copy the pattern below:
 
 ---
 
+## `dccfa0c` — Show a player-count badge on hot-seat game cabinets
+
+- `GameDefinition` gains an optional `maxPlayers` (default 1). Chess and
+  Reversi set 2, and their home cabinets show a "1–2P" sticker in the
+  corner of the screen, in the cabinet's accent colour.
+- A home-page filter (all / solo / two-player) was considered and not
+  built. Every game can be played solo, so "solo only" would hide nothing,
+  and "two-player" would narrow 12 games to 2. Worth revisiting once there
+  are four or more hot-seat games.
+- The tag was first tried in the deck strip after the category. On
+  desktop that wrapped the strip onto two lines, so those cabinets stood
+  taller than the rest of their row. In the screen corner every card stays
+  the same height (222px on a 375px phone, 250px on desktop).
+
+---
+
 ## `2033ad9` — Add attract mode to the home floor
 
 - Phase 5. After 8s without input on the home page, one cabinet at a time
