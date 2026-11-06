@@ -8,6 +8,7 @@ export const definition: GameDefinition = {
   category: "strategy",
   size: "wide",
   orientation: "any",
+  maxPlayers: 2,
   supportsTouch: true,
   supportsKeyboard: true,
 };

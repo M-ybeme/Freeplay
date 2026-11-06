@@ -39,6 +39,7 @@ export function GameCard({ game, index = 0, attract = false }: GameCardProps) {
       </span>
       <span className="game-card__screen" aria-hidden="true">
         <GameIcon id={game.id} className="game-card__icon" />
+        {(game.maxPlayers ?? 1) > 1 && <span className="game-card__players">1–{game.maxPlayers}P</span>}
       </span>
       <span className="game-card__deck" aria-hidden="true">
         <span className="game-card__category">{game.category}</span>

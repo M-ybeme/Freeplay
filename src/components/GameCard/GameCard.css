@@ -121,6 +121,25 @@
   color: var(--muted);
 }
 
+/* Hot-seat games carry a player-count sticker in the screen's corner,
+   in the cabinet's own colour. */
+.game-card__players {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  z-index: 1;
+  padding: 1px 5px;
+  font-family: var(--font-display);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  line-height: 1.4;
+  color: var(--accent);
+  background: rgba(8, 6, 18, 0.8);
+  border: 1px solid color-mix(in srgb, var(--accent) 55%, transparent);
+  border-radius: 3px;
+}
+
 .game-card__start {
   color: var(--toxic);
   opacity: 0.55;

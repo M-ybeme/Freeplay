@@ -19,6 +19,11 @@ export interface GameDefinition {
    * games, wide 1040px for complex boards. Defaults to compact.
    */
   size?: "compact" | "standard" | "wide";
+  /**
+   * Most people who can play on one device (hot-seat). Defaults to 1;
+   * games above 1 show a player tag on their home cabinet.
+   */
+  maxPlayers?: number;
   supportsTouch: boolean;
   supportsKeyboard: boolean;
 }
