@@ -1,7 +1,9 @@
 import { describe, expect, it } from "vitest";
 import {
   DIFFICULTIES,
+  FALLBACK_ROUTES,
   beginRoute,
+  countSolutions,
   cellPairOwner,
   connectedPairCount,
   createEmptyRoutes,
@@ -16,7 +18,9 @@ import {
   isValidRoutes,
   resolveDragStart,
   resolveEndpointOwner,
+  routeTouchesItself,
   validatePuzzle,
+  type CellCoord,
   type Puzzle,
   type Routes,
 } from "./logic";
@@ -106,6 +110,98 @@ describe("generatePuzzle - repeatability", () => {
   });
 });
 
+// The old generator cut one snake through every cell into pieces, so ~98%
+// of Easy puzzles could only be finished with a route hugging itself -
+// technically winnable, but read by players as impossible.
+describe("generatePuzzle - every puzzle is fairly winnable", () => {
+  for (const difficulty of DIFFICULTIES) {
+    it(`never needs a route that touches itself (${difficulty.label})`, () => {
+      for (let seed = 0; seed < 25; seed++) {
+        const puzzle = generatePuzzle(difficulty, mulberry32(seed * 7 + 1));
+        for (const path of puzzle.solution) expect(routeTouchesItself(path)).toBe(false);
+      }
+    });
+
+    it(`has exactly one solution (${difficulty.label})`, () => {
+      for (let seed = 0; seed < 15; seed++) {
+        const puzzle = generatePuzzle(difficulty, mulberry32(seed * 13 + 2));
+        expect(countSolutions(puzzle)).toBe(1);
+      }
+    });
+  }
+
+  it("joins side-by-side dots directly, at most once per puzzle", () => {
+    for (const difficulty of DIFFICULTIES) {
+      for (let seed = 0; seed < 20; seed++) {
+        const puzzle = generatePuzzle(difficulty, mulberry32(seed * 31 + 4));
+        let adjacentPairs = 0;
+        puzzle.endpoints.forEach(([a, b], p) => {
+          if (Math.abs(a[0] - b[0]) + Math.abs(a[1] - b[1]) !== 1) return;
+          adjacentPairs++;
+          expect(puzzle.solution[p]).toHaveLength(2);
+        });
+        expect(adjacentPairs).toBeLessThanOrEqual(1);
+      }
+    }
+  });
+
+  it("keeps the fallback boards valid, clean and single-solution", () => {
+    for (const difficulty of DIFFICULTIES) {
+      const routes = FALLBACK_ROUTES[difficulty.id];
+      const puzzle: Puzzle = {
+        difficultyId: difficulty.id,
+        size: difficulty.size,
+        pairCount: difficulty.pairs,
+        endpoints: routes.map((r) => [r[0], r[r.length - 1]] as [CellCoord, CellCoord]),
+        solution: routes,
+      };
+      expect(isValidPuzzle(puzzle)).toBe(true);
+      expect(countSolutions(puzzle)).toBe(1);
+    }
+  });
+
+  it("falls back to a fixed board when no attempt is allowed", () => {
+    const puzzle = generatePuzzle(DIFFICULTIES[0], mulberry32(1), 0);
+    expect(puzzle.solution).toEqual(FALLBACK_ROUTES.easy);
+  });
+});
+
+describe("routeTouchesItself", () => {
+  it("accepts a straight line and an L", () => {
+    expect(routeTouchesItself([[0, 0], [0, 1], [0, 2]])).toBe(false);
+    expect(routeTouchesItself([[0, 0], [1, 0], [1, 1], [1, 2]])).toBe(false);
+  });
+
+  it("rejects a U-turn that runs alongside itself", () => {
+    expect(routeTouchesItself([[0, 0], [0, 1], [1, 1], [1, 0]])).toBe(true);
+  });
+
+  it("rejects side-by-side dots joined the long way round", () => {
+    expect(routeTouchesItself([[0, 0], [1, 0], [1, 1], [1, 2], [0, 2], [0, 1]])).toBe(true);
+  });
+});
+
+describe("countSolutions", () => {
+  it("finds the single fill of a board with one possible answer", () => {
+    // Two rows, each its own pair: the only full fill is the two lines.
+    expect(countSolutions({ size: 2, endpoints: [[[0, 0], [0, 1]], [[1, 0], [1, 1]]] })).toBe(1);
+  });
+
+  it("reports zero when no full fill exists", () => {
+    // Opposite corners of a 2x2 board: any route leaves one cell empty.
+    expect(countSolutions({ size: 2, endpoints: [[[0, 0], [1, 1]]] })).toBe(0);
+  });
+
+  it("stops counting at the cap when the fill is ambiguous", () => {
+    // Opposite corners of a 3x3 board: several routes cover every cell.
+    expect(countSolutions({ size: 3, endpoints: [[[0, 0], [2, 2]]] }, 2)).toBe(2);
+  });
+
+  it("returns null when it runs out of search budget", () => {
+    expect(countSolutions({ size: 5, endpoints: [[[0, 0], [4, 4]]] }, 1000, 10)).toBeNull();
+  });
+});
+
 describe("generatePuzzle - variety", () => {
   it("does not generate the same layout for every seed", () => {
     const layouts = new Set<string>();
@@ -152,11 +248,38 @@ describe("validatePuzzle", () => {
     expect(validatePuzzle(trivialPuzzle())).toBe(false); // covers 3 of 4 cells
   });
 
+  // 2x2 board, two pairs, one per row: full coverage with clean routes.
+  function twoRowPuzzle(): Puzzle {
+    return {
+      difficultyId: "easy",
+      size: 2,
+      pairCount: 2,
+      endpoints: [
+        [[0, 0], [0, 1]],
+        [[1, 0], [1, 1]],
+      ],
+      solution: [
+        [
+          [0, 0],
+          [0, 1],
+        ],
+        [
+          [1, 0],
+          [1, 1],
+        ],
+      ],
+    };
+  }
+
   it("accepts a full-coverage puzzle", () => {
+    expect(validatePuzzle(twoRowPuzzle())).toBe(true);
+  });
+
+  it("rejects a route that touches itself (as the old generator made)", () => {
     const puzzle = trivialPuzzle();
     puzzle.solution[0].push([1, 0]);
-    puzzle.endpoints[0] = [[0, 0], [1, 0]]; // the route's ends shifted once the 4th cell was appended
-    expect(validatePuzzle(puzzle)).toBe(true);
+    puzzle.endpoints[0] = [[0, 0], [1, 0]]; // a U round the 2x2 board: full coverage, but it hugs itself
+    expect(validatePuzzle(puzzle)).toBe(false);
   });
 
   it("rejects a route with a diagonal step", () => {
@@ -204,15 +327,13 @@ describe("validatePuzzle", () => {
   });
 
   it("rejects endpoint metadata that doesn't match the route's own ends", () => {
-    const puzzle = trivialPuzzle();
-    puzzle.solution[0].push([1, 0]);
-    puzzle.endpoints[0] = [[0, 0], [0, 1]]; // [0,1] is a middle cell, not an end
+    const puzzle = twoRowPuzzle();
+    puzzle.endpoints[0] = [[0, 0], [1, 1]]; // [1,1] belongs to the other route
     expect(validatePuzzle(puzzle)).toBe(false);
   });
 
   it("rejects a pair whose two endpoints are the same cell", () => {
-    const puzzle = trivialPuzzle();
-    puzzle.solution[0].push([1, 0]);
+    const puzzle = twoRowPuzzle();
     puzzle.endpoints[0] = [[0, 0], [0, 0]];
     expect(validatePuzzle(puzzle)).toBe(false);
   });
@@ -655,6 +776,23 @@ describe("isValidPuzzle", () => {
     expect(isValidPuzzle(null)).toBe(false);
     expect(isValidPuzzle("puzzle")).toBe(false);
     expect(isValidPuzzle(42)).toBe(false);
+  });
+
+  it("rejects a saved puzzle from the old snake-cutting generator", () => {
+    // Old style: one snake across the 5x5 rows, cut into four pieces. The
+    // first piece turns at the row end and runs back alongside itself.
+    const snake: CellCoord[] = [];
+    for (let r = 0; r < 5; r++) for (let c = 0; c < 5; c++) snake.push([r, r % 2 ? 4 - c : c]);
+    const cuts = [0, 7, 13, 19, 25];
+    const solution = cuts.slice(0, -1).map((start, i) => snake.slice(start, cuts[i + 1]));
+    const old: Puzzle = {
+      difficultyId: "easy",
+      size: 5,
+      pairCount: 4,
+      endpoints: solution.map((r) => [r[0], r[r.length - 1]] as [CellCoord, CellCoord]),
+      solution,
+    };
+    expect(isValidPuzzle(old)).toBe(false);
   });
 
   it("rejects a puzzle whose solution doesn't actually validate", () => {

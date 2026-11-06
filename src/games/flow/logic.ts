@@ -1,10 +1,9 @@
 // Pure Flow (Numberlink-style) rules and generation. No React/DOM.
 //
 // Two independent halves live here:
-//  - generation (buildHamiltonianPath -> splitIntoSegments -> Puzzle), which
-//    produces a *known-solved* board and derives the puzzle from it, per the
-//    "construct a valid completed routing first" strategy - the generator
-//    never scatters endpoints and hopes a solver can close the gap.
+//  - generation (attemptRoutes -> Puzzle), which builds a *known-solved*
+//    board of clean routes first and derives the dots from it, then uses
+//    countSolutions to prefer boards with exactly one answer.
 //  - player path editing (beginRoute/extendRoute and friends), which is
 //    deliberately unaware of the hidden solution - it only ever sees the
 //    puzzle's endpoints and the player's own drawn routes.
@@ -67,209 +66,191 @@ export function createEmptyRoutes(pairCount: number): Routes {
 // Generation
 // ============================================================
 
-function boustrophedonPath(size: number): CellCoord[] {
-  const path: CellCoord[] = [];
-  for (let r = 0; r < size; r++) {
-    if (r % 2 === 0) {
-      for (let c = 0; c < size; c++) path.push([r, c]);
-    } else {
-      for (let c = size - 1; c >= 0; c--) path.push([r, c]);
+/**
+ * True when a route touches itself: two of its cells are side by side on
+ * the board without being consecutive on the route (a U-turn hugging
+ * itself, or two adjacent dots joined the long way round). Flow players
+ * rule such routes out, so a puzzle whose only fills need one reads as
+ * unwinnable even though it technically isn't. The old generator (one
+ * snake through every cell, cut into pieces) produced exactly that in
+ * ~98% of Easy puzzles; generated routes are now never allowed to.
+ */
+export function routeTouchesItself(path: CellCoord[]): boolean {
+  for (let i = 0; i < path.length; i++) {
+    for (let j = i + 2; j < path.length; j++) {
+      if (isOrthogonallyAdjacent(path[i], path[j])) return true;
     }
   }
-  return path;
-}
-
-function shuffleIndices(arr: number[], rng: () => number): number[] {
-  const copy = arr.slice();
-  for (let i = copy.length - 1; i > 0; i--) {
-    const j = Math.floor(rng() * (i + 1));
-    [copy[i], copy[j]] = [copy[j], copy[i]];
-  }
-  return copy;
+  return false;
 }
 
 /**
- * One randomized-backtracking attempt at a full-board Hamiltonian path,
- * using Warnsdorff's rule (always try the neighbor with the fewest onward
- * options first) to keep backtracking rare in practice at these board
- * sizes. Ties are broken randomly (via the pre-shuffle) so repeated
- * attempts - and repeated seeds - don't collapse onto the same shape.
- *
- * Bounded by `stepBudget` total recursive calls so a pathological run
- * degrades to "try again" rather than hanging.
+ * One attempt at a full-board set of routes: every cell starts as its own
+ * one-cell route, and routes are joined end to end, at random, until
+ * `pairs` remain. A join is only allowed when the joined route still
+ * doesn't touch itself, so every route stays clean by construction.
+ * Joins between short routes are favoured, so single cells don't get
+ * stranded. Returns null when it gets stuck (no clean join left) before
+ * reaching `pairs`, or leaves a one-cell route.
  */
-function attemptHamiltonianPath(size: number, rng: () => number, stepBudget: number): CellCoord[] | null {
+function attemptRoutes(size: number, pairs: number, rng: () => number): CellCoord[][] | null {
   const total = size * size;
-  const visited = new Uint8Array(total);
-  const order: number[] = [];
-  const start = Math.floor(rng() * total);
-  order.push(start);
-  visited[start] = 1;
+  const routes = new Map<number, number[]>();
+  const owner = new Int32Array(total);
+  for (let c = 0; c < total; c++) {
+    routes.set(c, [c]);
+    owner[c] = c;
+  }
+  const toCoord = (c: number): CellCoord => [Math.floor(c / size), c % size];
+  const neighbors = (c: number): number[] => {
+    const r = Math.floor(c / size);
+    const col = c % size;
+    const out: number[] = [];
+    if (r > 0) out.push(c - size);
+    if (r < size - 1) out.push(c + size);
+    if (col > 0) out.push(c - 1);
+    if (col < size - 1) out.push(c + 1);
+    return out;
+  };
+
+  while (routes.size > pairs) {
+    const candidates: { keep: number; drop: number; joined: number[]; weight: number }[] = [];
+    for (const [id, route] of routes) {
+      const ends = route.length === 1 ? [route[0]] : [route[0], route[route.length - 1]];
+      for (const end of ends) {
+        for (const m of neighbors(end)) {
+          const other = owner[m];
+          if (other <= id) continue; // each pair of routes considered once
+          const otherRoute = routes.get(other)!;
+          if (otherRoute[0] !== m && otherRoute[otherRoute.length - 1] !== m) continue;
+          const left = route[route.length - 1] === end ? route : route.slice().reverse();
+          const right = otherRoute[0] === m ? otherRoute : otherRoute.slice().reverse();
+          const joined = left.concat(right);
+          if (routeTouchesItself(joined.map(toCoord))) continue;
+          candidates.push({ keep: id, drop: other, joined, weight: 1 / (route.length * otherRoute.length) });
+        }
+      }
+    }
+    if (candidates.length === 0) return null;
+
+    let x = rng() * candidates.reduce((sum, c) => sum + c.weight, 0);
+    let pick = candidates[candidates.length - 1];
+    for (const c of candidates) {
+      x -= c.weight;
+      if (x <= 0) {
+        pick = c;
+        break;
+      }
+    }
+    routes.delete(pick.drop);
+    routes.set(pick.keep, pick.joined);
+    for (const c of pick.joined) owner[c] = pick.keep;
+  }
+
+  const result = [...routes.values()];
+  if (result.some((r) => r.length < 2)) return null;
+  return result.map((r) => r.map(toCoord));
+}
+
+/**
+ * Counts full solutions of a puzzle from its dots alone, the way a player
+ * would have to: every pair joined, every cell filled, no crossings.
+ * Stops at `cap`. Returns null if it gives up after `budget` search steps
+ * (only plausible on Hard), so callers treat that as unknown.
+ */
+export function countSolutions(puzzle: Pick<Puzzle, "size" | "endpoints">, cap = 2, budget = 400_000): number | null {
+  const n = puzzle.size;
+  const grid = new Int8Array(n * n).fill(-1);
+  const ends = puzzle.endpoints.map(([a, b]) => [a[0] * n + a[1], b[0] * n + b[1]]);
+  ends.forEach(([a, b], i) => {
+    grid[a] = i;
+    grid[b] = i;
+  });
+  const neighbors = (c: number): number[] => {
+    const r = Math.floor(c / n);
+    const col = c % n;
+    const out: number[] = [];
+    if (r > 0) out.push(c - n);
+    if (r < n - 1) out.push(c + n);
+    if (col > 0) out.push(c - 1);
+    if (col < n - 1) out.push(c + 1);
+    return out;
+  };
+  let found = 0;
   let steps = 0;
 
-  function neighborsOf(idx: number): number[] {
-    const r = Math.floor(idx / size);
-    const c = idx % size;
-    const result: number[] = [];
-    if (r > 0) result.push(idx - size);
-    if (r < size - 1) result.push(idx + size);
-    if (c > 0) result.push(idx - 1);
-    if (c < size - 1) result.push(idx + 1);
-    return result;
-  }
-
-  function unvisitedDegree(idx: number): number {
-    let count = 0;
-    for (const n of neighborsOf(idx)) if (!visited[n]) count++;
-    return count;
-  }
-
-  function backtrack(): boolean {
-    if (order.length === total) return true;
+  // Route pair k from its tip; on reaching its partner, start pair k + 1.
+  function route(k: number, tip: number): void {
+    if (found >= cap || steps > budget) return;
     steps++;
-    if (steps > stepBudget) return false;
-    const current = order[order.length - 1];
-    const candidates = shuffleIndices(
-      neighborsOf(current).filter((n) => !visited[n]),
-      rng,
-    ).sort((a, b) => unvisitedDegree(a) - unvisitedDegree(b));
-
-    for (const next of candidates) {
-      visited[next] = 1;
-      order.push(next);
-      if (backtrack()) return true;
-      order.pop();
-      visited[next] = 0;
+    if (k === ends.length) {
+      if (grid.every((v) => v !== -1)) found++;
+      return;
     }
-    return false;
+    for (const m of neighbors(tip)) {
+      if (m === ends[k][1]) {
+        route(k + 1, k + 1 < ends.length ? ends[k + 1][0] : -1);
+      } else if (grid[m] === -1) {
+        grid[m] = k;
+        route(k, m);
+        grid[m] = -1;
+      }
+    }
   }
-
-  if (!backtrack()) return null;
-  return order.map((idx) => [Math.floor(idx / size), idx % size] as CellCoord);
+  route(0, ends[0][0]);
+  return steps > budget ? null : found;
 }
 
 /**
- * Builds a randomized full-board Hamiltonian path, retrying a bounded
- * number of times before falling back to a guaranteed (but visually
- * boring) boustrophedon sweep - generation must always terminate with a
- * usable path, never hang or throw.
+ * Lightweight quality gate: no single route dominating the board, and at
+ * most one pair whose dots sit side by side (joined directly - the clean
+ * route rule already forbids adjacent dots joined the long way round).
  */
-function buildHamiltonianPath(size: number, rng: () => number, attempts = 6): CellCoord[] {
-  const stepBudget = size * size * 25;
-  for (let attempt = 0; attempt < attempts; attempt++) {
-    const result = attemptHamiltonianPath(size, rng, stepBudget);
-    if (result) return result;
-  }
-  return boustrophedonPath(size);
+function isAcceptableLayout(routes: CellCoord[][], size: number): boolean {
+  const longest = Math.max(...routes.map((r) => r.length));
+  if (longest > size * size * 0.6) return false;
+  return routes.filter((r) => r.length === 2).length <= 1;
 }
+
+const GENERATE_MAX_ATTEMPTS = 6000;
 
 /**
- * Splits `total` into `parts` positive lengths, each >= min, summing back
- * to `total`, via a random stars-and-bars composition - a uniform-ish way
- * to distribute how long each pair's route gets without biasing toward
- * equal lengths every time.
- */
-function randomComposition(total: number, parts: number, min: number, rng: () => number): number[] {
-  const extra = total - parts * min;
-  const cuts: number[] = [];
-  for (let i = 0; i < parts - 1; i++) cuts.push(Math.floor(rng() * (extra + 1)));
-  cuts.sort((a, b) => a - b);
-  const lengths: number[] = [];
-  let prev = 0;
-  for (const cut of cuts) {
-    lengths.push(min + (cut - prev));
-    prev = cut;
-  }
-  lengths.push(min + (extra - prev));
-  return lengths;
-}
-
-function splitIntoSegments(hamPath: CellCoord[], pairCount: number, rng: () => number): CellCoord[][] {
-  const lengths = randomComposition(hamPath.length, pairCount, 2, rng);
-  const segments: CellCoord[][] = [];
-  let offset = 0;
-  for (const len of lengths) {
-    segments.push(hamPath.slice(offset, offset + len));
-    offset += len;
-  }
-  return segments;
-}
-
-function countBends(path: CellCoord[]): number {
-  let bends = 0;
-  for (let i = 1; i < path.length - 1; i++) {
-    const dr1 = path[i][0] - path[i - 1][0];
-    const dc1 = path[i][1] - path[i - 1][1];
-    const dr2 = path[i + 1][0] - path[i][0];
-    const dc2 = path[i + 1][1] - path[i][1];
-    if (dr1 !== dr2 || dc1 !== dc2) bends++;
-  }
-  return bends;
-}
-
-/**
- * Lightweight quality gate against the concrete failure modes the spec
- * calls out (one dominant path, too many trivially-adjacent pairs, an
- * overall shape that's mostly straight lines) - not an attempt at a full
- * puzzle-quality scoring system. Thresholds were picked by inspecting a
- * seed sweep during implementation (see logic.test.ts's variety tests and
- * the final report's generation section), not derived analytically.
- */
-function isAcceptableSegmentation(segments: CellCoord[][], size: number): boolean {
-  const total = size * size;
-  const longest = Math.max(...segments.map((s) => s.length));
-  if (longest > total * 0.6) return false;
-
-  const trivialCount = segments.filter((s) => s.length === 2).length;
-  if (trivialCount > Math.ceil(segments.length / 3)) return false;
-
-  const totalBends = segments.reduce((sum, s) => sum + countBends(s), 0);
-  const totalInternalSteps = segments.reduce((sum, s) => sum + Math.max(0, s.length - 2), 0);
-  if (totalInternalSteps > 0 && totalBends / totalInternalSteps < 0.15) return false;
-
-  return true;
-}
-
-const GENERATE_MAX_ATTEMPTS = 40;
-
-/**
- * Builds a complete Puzzle: a full-board Hamiltonian path is generated
- * once, then cut into `pairs` contiguous segments (retrying the cut, and
- * periodically the whole path, when the result fails the quality gate).
- * Every segment is by construction a simple orthogonal chain with no
- * overlaps that together cover the entire board, so the *only* way this
- * could return something invalid is a bug - validatePuzzle runs as a
- * defense-in-depth check before the fallback return, not because it's
- * expected to ever fail.
+ * Builds a complete Puzzle with a known clean solution (no route touching
+ * itself) and, whenever one turns up within the attempt budget, exactly
+ * one solution - so the puzzle can be reasoned out, like a real Flow
+ * board. If the budget runs out it returns the first clean layout found
+ * (still winnable with clean routes, just not unique), and only if there
+ * was none at all, a fixed fallback board.
  */
 export function generatePuzzle(difficulty: Difficulty, rng: () => number = Math.random, maxAttempts = GENERATE_MAX_ATTEMPTS): Puzzle {
   const { size, pairs } = difficulty;
-  let hamPath = buildHamiltonianPath(size, rng);
-
-  const toPuzzle = (segments: CellCoord[][]): Puzzle => ({
+  const toPuzzle = (routes: CellCoord[][]): Puzzle => ({
     difficultyId: difficulty.id,
     size,
     pairCount: pairs,
-    endpoints: segments.map((s) => [s[0], s[s.length - 1]] as [CellCoord, CellCoord]),
-    solution: segments,
+    endpoints: routes.map((r) => [r[0], r[r.length - 1]] as [CellCoord, CellCoord]),
+    solution: routes,
   });
 
+  let firstClean: Puzzle | null = null;
   for (let attempt = 0; attempt < maxAttempts; attempt++) {
-    if (attempt > 0 && attempt % 5 === 0) hamPath = buildHamiltonianPath(size, rng);
-    const segments = splitIntoSegments(hamPath, pairs, rng);
-    if (!isAcceptableSegmentation(segments, size)) continue;
-    const puzzle = toPuzzle(segments);
-    if (validatePuzzle(puzzle)) return puzzle;
+    const routes = attemptRoutes(size, pairs, rng);
+    if (!routes || !isAcceptableLayout(routes, size)) continue;
+    const puzzle = toPuzzle(routes);
+    if (!validatePuzzle(puzzle)) continue;
+    firstClean ??= puzzle;
+    if (countSolutions(puzzle) === 1) return puzzle;
   }
-
-  return toPuzzle(splitIntoSegments(hamPath, pairs, rng));
+  return firstClean ?? toPuzzle(FALLBACK_ROUTES[difficulty.id]);
 }
 
 /**
  * Verifies a puzzle's own known solution is actually legal under the same
  * rules the player is bound by: full coverage, no overlap, every route a
  * single continuous orthogonal chain with exactly two distinct endpoints
- * that match its declared endpoint metadata.
+ * that match its declared endpoint metadata - and clean (never touching
+ * itself), which also means a saved puzzle from the old generator is
+ * replaced with a fresh one on load.
  */
 export function validatePuzzle(puzzle: Puzzle): boolean {
   const { size, pairCount, endpoints, solution } = puzzle;
@@ -290,6 +271,8 @@ export function validatePuzzle(puzzle: Puzzle): boolean {
       occupied.add(key);
       if (i > 0 && !isOrthogonallyAdjacent(path[i - 1], cell)) return false;
     }
+
+    if (routeTouchesItself(path)) return false;
 
     const [a, b] = endpoints[p];
     if (sameCell(a, b)) return false;
@@ -556,3 +539,36 @@ export function isValidPersistedRun(value: unknown): value is PersistedRun {
   if (!isValidPuzzle(v.puzzle)) return false;
   return isValidRoutes(v.routes, v.puzzle);
 }
+
+// ============================================================
+// Fallback boards
+// ============================================================
+
+/**
+ * Last-resort boards for generatePuzzle, used only if every attempt fails
+ * (never seen in testing). Each is clean and has exactly one solution;
+ * logic.test.ts checks both.
+ */
+export const FALLBACK_ROUTES: Record<DifficultyId, CellCoord[][]> = {
+  easy: [
+    [[4, 0], [3, 0], [2, 0], [1, 0], [0, 0], [0, 1], [0, 2]],
+    [[0, 4], [0, 3], [1, 3], [2, 3], [2, 2], [3, 2], [4, 2], [4, 3], [4, 4]],
+    [[1, 2], [1, 1], [2, 1], [3, 1], [4, 1]],
+    [[1, 4], [2, 4], [3, 4], [3, 3]],
+  ],
+  medium: [
+    [[0, 0], [0, 1], [0, 2], [0, 3], [1, 3], [1, 4]],
+    [[0, 4], [0, 5], [1, 5], [2, 5], [2, 4], [2, 3], [2, 2], [2, 1], [3, 1], [4, 1], [4, 2], [5, 2]],
+    [[1, 2], [1, 1], [1, 0], [2, 0], [3, 0], [4, 0], [5, 0], [5, 1]],
+    [[3, 2], [3, 3], [3, 4], [4, 4]],
+    [[3, 5], [4, 5], [5, 5], [5, 4], [5, 3], [4, 3]],
+  ],
+  hard: [
+    [[0, 0], [1, 0], [2, 0], [2, 1], [2, 2], [2, 3], [3, 3], [3, 4]],
+    [[0, 1], [1, 1], [1, 2], [1, 3], [1, 4], [1, 5]],
+    [[0, 2], [0, 3], [0, 4], [0, 5], [0, 6], [1, 6], [2, 6], [2, 5], [2, 4]],
+    [[3, 0], [3, 1], [4, 1], [5, 1], [5, 2], [5, 3], [5, 4], [5, 5], [5, 6], [4, 6], [3, 6]],
+    [[3, 2], [4, 2], [4, 3], [4, 4], [4, 5], [3, 5]],
+    [[4, 0], [5, 0], [6, 0], [6, 1], [6, 2], [6, 3], [6, 4], [6, 5], [6, 6]],
+  ],
+};
