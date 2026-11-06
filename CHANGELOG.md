@@ -16,6 +16,45 @@ When adding an entry for a new game or feature, copy the pattern below:
 
 ---
 
+## `29c93c6` — Let game endings play out, add View board, and fix touch hover
+
+- Six games (Chess, Reversi, 2048, Mahjong, Snake, Brick Breaker) put an
+  85-88% opaque result overlay over the board the instant the game
+  ended, hiding the moment that ended it: in Chess the overlay covered
+  the mating move mid-slide. Overlays now carry the shared `.fp-settle`
+  class, which holds `.fp-enter` back 650ms. Measured in Chess: opacity
+  0 at 500ms after mate, 0.97 at 800ms, 1 at 1.1s.
+- Reduced motion now also zeroes animation and transition delays
+  (`theme.css`), so with it on the overlay appears at once.
+- Chess, Reversi and 2048 get a View board button that hides the overlay
+  for that final position. The result moves into the status line (2048:
+  a "Matrix locked" bar) with a Show result button. It is keyed on the
+  final board/position object, so undo or a new game brings the overlay
+  back with no reset logic; checked by mating, undoing and mating again.
+- Every `:hover` rule (16 across shared and game CSS) now sits inside
+  `@media (hover: hover)`. Touch browsers report no hover, so a tapped
+  button or cell no longer keeps its glow; desktop hover is unchanged.
+  Rules shared with `:focus-visible` were split so keyboard focus still
+  gets the same treatment.
+- Press feedback on board cells that had none: Chess and Reversi move
+  targets, free Mahjong tiles, hidden Minesweeper cells. Press rules sit
+  after the hover blocks, since equal specificity let hover win at
+  first.
+- Chess: a captured piece shrinks and fades on its square while the
+  attacker slides in (en passant fades the pawn beside the target), and
+  giving check pulses the king's square once.
+- Shared `.fp-win-sweep`, a twice-flaring filter with no fill mode (a
+  lasting filter would make the board a containing block for fixed
+  children). It runs on won boards in 2048 (at 2048), Minesweeper,
+  Snake, Chess and Reversi; in single-player Chess and Reversi it only
+  runs when the person wins. Brick Breaker has no final win, so a flash
+  layer keyed on the wall number flares each time a wall is cleared.
+- Minesweeper's flood reveal already rippled out from the click (Web
+  Animations API, staggered by distance, capped at 650ms); the review
+  missed it, and it is unchanged.
+- Layout check: panel, board and scroll metrics for all 12 games at four
+  sizes are identical to before.
+
 ## `e75eb52` — Give playing cards court figures, a lit back and printed face detail
 
 - Court cards were near-identical (a letter plus one to three chevrons).
