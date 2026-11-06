@@ -165,8 +165,10 @@
     border-color 100ms ease;
 }
 
-.minesweeper-cell:hover {
-  border-color: rgba(0, 217, 255, 0.55);
+@media (hover: hover) {
+  .minesweeper-cell:hover {
+    border-color: rgba(0, 217, 255, 0.55);
+  }
 }
 
 .minesweeper-cell:focus {
@@ -183,6 +185,13 @@
   background: var(--void);
   border-color: var(--surface-2);
   cursor: default;
+}
+
+/* Press on a hidden cell: it sinks a shade, so a tap (or the start of a
+   long-press to flag) is acknowledged before anything is revealed. */
+.minesweeper-cell:not(.minesweeper-cell--revealed, .minesweeper-cell--inert):active {
+  background: var(--surface-2);
+  border-color: rgba(0, 217, 255, 0.55);
 }
 
 .minesweeper-cell--flagged {

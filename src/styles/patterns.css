@@ -272,40 +272,55 @@
   border-color: var(--laser-blue);
 }
 
-.fp-btn--primary:hover:not(:disabled) {
-  box-shadow:
-    0 0 0 1px var(--laser-blue),
-    0 0 16px rgba(0, 217, 255, 0.45);
+@media (hover: hover) {
+  .fp-btn--primary:hover:not(:disabled) {
+    box-shadow:
+      0 0 0 1px var(--laser-blue),
+      0 0 16px rgba(0, 217, 255, 0.45);
+  }
 }
 
 .fp-btn--secondary {
   border-color: var(--uv-purple);
 }
 
-.fp-btn--secondary:hover:not(:disabled) {
-  box-shadow:
-    0 0 0 1px var(--uv-purple),
-    0 0 16px rgba(139, 61, 255, 0.45);
+@media (hover: hover) {
+  .fp-btn--secondary:hover:not(:disabled) {
+    box-shadow:
+      0 0 0 1px var(--uv-purple),
+      0 0 16px rgba(139, 61, 255, 0.45);
+  }
 }
 
 .fp-btn--success {
   border-color: var(--toxic);
 }
 
-.fp-btn--success:hover:not(:disabled) {
-  box-shadow:
-    0 0 0 1px var(--toxic),
-    0 0 16px rgba(140, 255, 0, 0.45);
+@media (hover: hover) {
+  .fp-btn--success:hover:not(:disabled) {
+    box-shadow:
+      0 0 0 1px var(--toxic),
+      0 0 16px rgba(140, 255, 0, 0.45);
+  }
 }
 
 .fp-btn--danger {
   border-color: var(--hot-pink);
 }
 
-.fp-btn--danger:hover:not(:disabled) {
-  box-shadow:
-    0 0 0 1px var(--hot-pink),
-    0 0 16px rgba(255, 43, 214, 0.45);
+@media (hover: hover) {
+  .fp-btn--danger:hover:not(:disabled) {
+    box-shadow:
+      0 0 0 1px var(--hot-pink),
+      0 0 16px rgba(255, 43, 214, 0.45);
+  }
+}
+
+/* A smaller button for inline spots (a status line); still a 44px target. */
+.fp-btn--compact {
+  min-height: 44px;
+  padding: 0.35rem 0.85rem;
+  font-size: 0.7rem;
 }
 
 /* ---------- Motion ---------- */
@@ -320,6 +335,7 @@
  * - .fp-pop:   a HUD value that just changed. Re-trigger it by keying the
  *              element on its value (key={score}) so it remounts.
  * - .fp-shake: a mistake or loss - a short horizontal shudder.
+ * - .fp-settle / .fp-win-sweep: game endings (see below).
  *
  * Entrances use fill-mode `backwards`, never `both`: a finished animation
  * that keeps holding `transform` would make the element a containing
@@ -358,6 +374,43 @@
 
 .fp-shake {
   animation: fp-shake 340ms ease-in-out;
+}
+
+/*
+ * .fp-settle: hold an .fp-enter result back until the last move has
+ * played out (a piece sliding in, discs flipping, a crash shake, a win
+ * sweep), so the overlay never covers the moment that ended the game.
+ * Reduced motion drops the delay (theme.css).
+ */
+.fp-enter.fp-settle {
+  animation-delay: 650ms;
+}
+
+/*
+ * .fp-win-sweep: a board that has just been won flares twice. Put it on
+ * the board element itself; it is only a filter, so nothing moves and
+ * the board's layout is untouched. No fill mode, so the filter is gone
+ * once it ends (a lingering filter would make the board a containing
+ * block for fixed-position children).
+ */
+.fp-win-sweep {
+  animation: fp-win-sweep 900ms ease-out;
+}
+
+@keyframes fp-win-sweep {
+  0%,
+  100% {
+    filter: none;
+  }
+  22% {
+    filter: brightness(1.6) saturate(1.25) drop-shadow(0 0 10px rgba(140, 255, 0, 0.45));
+  }
+  45% {
+    filter: brightness(1.05);
+  }
+  65% {
+    filter: brightness(1.35) saturate(1.15) drop-shadow(0 0 6px rgba(140, 255, 0, 0.3));
+  }
 }
 
 @keyframes fp-shake {

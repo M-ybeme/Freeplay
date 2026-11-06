@@ -77,7 +77,7 @@ export function Snake() {
       </div>
 
       <div
-        className={`snake-board fp-corner-marks${status === "playing" ? " snake-board--moving" : ""}${status === "gameOver" ? " fp-shake" : ""}`}
+        className={`snake-board fp-corner-marks${status === "playing" ? " snake-board--moving" : ""}${status === "gameOver" ? " fp-shake" : ""}${status === "won" ? " fp-win-sweep" : ""}`}
         style={{
           backgroundSize: `${100 / boardSize}% ${100 / boardSize}%`,
           // Segments glide for exactly one tick, so movement stays smooth
@@ -118,7 +118,7 @@ export function Snake() {
         )}
 
         {isGameEnd && (
-          <div className={`snake__overlay fp-enter ${status === "won" ? "fp-bg-accent--success" : "fp-bg-accent--danger"}`} role="alert">
+          <div className={`snake__overlay fp-enter fp-settle ${status === "won" ? "fp-bg-accent--success" : "fp-bg-accent--danger"}`} role="alert">
             <p className={`fp-result-title fp-result-title--${status === "won" ? "success" : "danger"}`}>
               {status === "won" ? "Board cleared" : "Game over"}
             </p>

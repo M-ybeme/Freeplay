@@ -1,6 +1,6 @@
 import { useState, useRef, type CSSProperties, type KeyboardEvent } from "react";
 import type { Level } from "./ai";
-import { colOf, materialBalance, rowOf, squareName, type Color, type PieceType, type Position } from "./logic";
+import { colOf, materialBalance, other, rowOf, squareName, type Color, type PieceType, type Position } from "./logic";
 import { Piece } from "./Piece";
 import { PIECE_NAME, SIDE_NAME, useChess, type Mode } from "./useChess";
 import "./Chess.css";
@@ -117,14 +117,19 @@ export function Chess() {
     }
   }
 
+  // A capture: the taken piece shrinks away on its square while the
+  // attacker slides in (en passant takes from beside the target square).
+  let capturedAt: { sq: number; type: PieceType; color: Color } | null = null;
+  if (slide && lastMove?.captured) {
+    const mover = board[lastMove.to]?.color;
+    if (mover) {
+      const at = lastMove.enPassant ? rowOf(lastMove.from) * 8 + colOf(lastMove.to) : lastMove.to;
+      capturedAt = { sq: at, type: lastMove.captured, color: other(mover) };
+    }
+  }
+
   const balance = materialBalance(board);
   const lead = (side: Color) => (side === "white" ? balance : -balance);
-
-  let statusText: string;
-  if (status !== "playing") statusText = "Game over";
-  else if (computerThinking) statusText = "Computer is thinking…";
-  else if (mode === "solo") statusText = "Your turn";
-  else statusText = `${sideName(mode, turn)}'s turn`;
 
   // Last few moves as "12. Nf3 Nc6".
   const pairs: string[] = [];
@@ -135,6 +140,17 @@ export function Chess() {
   const personLost = mode === "solo" && result === "black";
   const resultTitle =
     result === "draw" ? "Draw" : mode === "solo" ? (result === "white" ? "You win" : "Computer wins") : `${sideName(mode, result as Color)} wins`;
+
+  // "View board" hides the result overlay for this finished position only;
+  // keyed on the position itself, so undo or a new game brings it back.
+  const [reviewed, setReviewed] = useState<unknown>(null);
+  const reviewing = status !== "playing" && reviewed === position;
+
+  let statusText: string;
+  if (status !== "playing") statusText = reviewing ? resultTitle : "Game over";
+  else if (computerThinking) statusText = "Computer is thinking…";
+  else if (mode === "solo") statusText = "Your turn";
+  else statusText = `${sideName(mode, turn)}'s turn`;
 
   return (
     <div className="chess">
@@ -215,12 +231,17 @@ export function Chess() {
       <p className={`chess__status${computerThinking ? " chess__status--thinking" : ""}`}>
         {statusText}
         {status === "playing" && checked !== null && <span className="chess__check"> — Check</span>}
+        {reviewing && (
+          <button type="button" className="fp-btn fp-btn--secondary fp-btn--compact" onClick={() => setReviewed(null)}>
+            Show result
+          </button>
+        )}
       </p>
 
       </div>
 
       <div className="chess-board-wrap">
-        <div className="chess-board" role="grid" aria-label="Board" onKeyDown={onBoardKey}>
+        <div className={`chess-board${status === "checkmate" && !personLost ? " fp-win-sweep" : ""}`} role="grid" aria-label="Board" onKeyDown={onBoardKey}>
           {board.map((piece, i) => {
             const r = rowOf(i);
             const c = colOf(i);
@@ -266,6 +287,11 @@ export function Chess() {
                     {"abcdefgh"[c]}
                   </span>
                 )}
+                {capturedAt?.sq === i && (
+                  <span key={`taken-${played.length}`} className="chess-taken" aria-hidden="true">
+                    <Piece type={capturedAt.type} color={capturedAt.color} />
+                  </span>
+                )}
                 {piece && (
                   <span key={from === undefined ? "still" : `slide-${played.length}`} className={`chess-slide${from === undefined ? "" : " chess-slide--moving"}`} style={slideStyle}>
                     <Piece type={piece.type} color={piece.color} />
@@ -293,8 +319,8 @@ export function Chess() {
           </div>
         )}
 
-        {status !== "playing" && (
-          <div className={`chess__overlay fp-enter ${result === "draw" ? "" : personLost ? "fp-bg-accent--danger" : "fp-bg-accent--success"}`} role="alert">
+        {status !== "playing" && !reviewing && (
+          <div className={`chess__overlay fp-enter fp-settle ${result === "draw" ? "" : personLost ? "fp-bg-accent--danger" : "fp-bg-accent--success"}`} role="alert">
             <p className={`fp-result-title fp-result-title--${result === "draw" ? "info" : personLost ? "danger" : "success"}`}>{resultTitle}</p>
             <p className="fp-result-detail">{status === "checkmate" ? `Checkmate in ${Math.ceil(played.length / 2)} moves` : DRAW_REASON[status]}</p>
             {mode === "solo" && (
@@ -302,9 +328,14 @@ export function Chess() {
                 {level}: {record.wins}W {record.losses}L {record.draws}D
               </p>
             )}
-            <button type="button" className="fp-btn fp-btn--success chess__btn" onClick={() => newGame()}>
-              Play again
-            </button>
+            <div className="chess__overlay-actions">
+              <button type="button" className="fp-btn fp-btn--success chess__btn" onClick={() => newGame()}>
+                Play again
+              </button>
+              <button type="button" className="fp-btn fp-btn--secondary chess__btn" onClick={() => setReviewed(position)}>
+                View board
+              </button>
+            </div>
           </div>
         )}
       </div>

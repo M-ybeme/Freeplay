@@ -145,7 +145,7 @@ export function Mahjong() {
         </div>
 
         {won && (
-          <div className="mahjong__overlay fp-enter fp-bg-accent--success" role="alert">
+          <div className="mahjong__overlay fp-enter fp-settle fp-bg-accent--success" role="alert">
             <p className="fp-result-title fp-result-title--success">Board cleared</p>
             <p className="fp-result-detail">
               {LAYOUT_BY_ID[layoutId].name} in {formatTime(elapsed)}

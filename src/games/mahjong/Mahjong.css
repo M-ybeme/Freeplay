@@ -217,8 +217,15 @@
   filter: brightness(0.5) saturate(0.6);
 }
 
-.mahjong-tile--free:hover {
-  border-color: rgba(0, 217, 255, 0.5);
+@media (hover: hover) {
+  .mahjong-tile--free:hover {
+    border-color: rgba(0, 217, 255, 0.5);
+  }
+}
+
+/* Press: a free tile brightens under the finger before it is selected. */
+.mahjong-tile--free:active {
+  filter: brightness(1.25);
 }
 
 /* Selected: lifted, with a bright green rim. */

@@ -67,9 +67,22 @@ export function Reversi() {
   const moveNo = history.length;
   const flipped = new Set(lastFlips);
 
+  // "View board" hides the result overlay for this finished position only;
+  // keyed on the board itself, so undo or a new game brings it back.
+  const [reviewed, setReviewed] = useState<unknown>(null);
+  const reviewing = status === "over" && reviewed === board;
+  const resultTitle =
+    result === "draw"
+      ? "Draw"
+      : mode === "solo"
+        ? result === "cyan"
+          ? "You win"
+          : "Computer wins"
+        : `${sideName(mode, result as Player)} wins`;
+
   let statusText: string;
   if (status === "over") {
-    statusText = "Game over";
+    statusText = reviewing ? `${resultTitle} · ${counts.cyan} – ${counts.pink}` : "Game over";
   } else if (computerThinking) {
     statusText = "Computer is thinking…";
   } else if (mode === "solo") {
@@ -151,11 +164,16 @@ export function Reversi() {
         <p className={`reversi__status${computerThinking ? " reversi__status--thinking" : ""}`}>
           {statusText}
           {status === "playing" && passed && <span className="reversi__pass"> — {sideName(mode, passed)} had no move</span>}
+          {reviewing && (
+            <button type="button" className="fp-btn fp-btn--secondary fp-btn--compact" onClick={() => setReviewed(null)}>
+              Show result
+            </button>
+          )}
         </p>
       </div>
 
       <div className="reversi-board-wrap">
-        <div className={`reversi-board${personTurn ? " reversi-board--live" : ""}`} role="grid" aria-label="Board" onKeyDown={onBoardKey}>
+        <div className={`reversi-board${personTurn ? " reversi-board--live" : ""}${status === "over" && result !== "draw" && !(mode === "solo" && result === "pink") ? " fp-win-sweep" : ""}`} role="grid" aria-label="Board" onKeyDown={onBoardKey}>
           {board.map((cell, i) => {
             const legal = moves.has(i);
             const isFlip = flipped.has(i);
@@ -192,18 +210,12 @@ export function Reversi() {
           })}
         </div>
 
-        {status === "over" && (
-          <div className={`reversi__overlay fp-enter ${result === "draw" ? "" : mode === "solo" && result === "pink" ? "fp-bg-accent--danger" : "fp-bg-accent--success"}`} role="alert">
+        {status === "over" && !reviewing && (
+          <div className={`reversi__overlay fp-enter fp-settle ${result === "draw" ? "" : mode === "solo" && result === "pink" ? "fp-bg-accent--danger" : "fp-bg-accent--success"}`} role="alert">
             <p
               className={`fp-result-title fp-result-title--${result === "draw" ? "info" : mode === "solo" && result === "pink" ? "danger" : "success"}`}
             >
-              {result === "draw"
-                ? "Draw"
-                : mode === "solo"
-                  ? result === "cyan"
-                    ? "You win"
-                    : "Computer wins"
-                  : `${sideName(mode, result as Player)} wins`}
+              {resultTitle}
             </p>
             <p className="fp-result-detail">
               {counts.cyan} – {counts.pink}
@@ -213,9 +225,14 @@ export function Reversi() {
                 {level}: {record.wins}W {record.losses}L {record.draws}D
               </p>
             )}
-            <button type="button" className="fp-btn fp-btn--success reversi__btn" onClick={() => newGame()}>
-              Play again
-            </button>
+            <div className="reversi__overlay-actions">
+              <button type="button" className="fp-btn fp-btn--success reversi__btn" onClick={() => newGame()}>
+                Play again
+              </button>
+              <button type="button" className="fp-btn fp-btn--secondary reversi__btn" onClick={() => setReviewed(board)}>
+                View board
+              </button>
+            </div>
           </div>
         )}
       </div>

@@ -138,7 +138,6 @@
 /* ---------- Interaction ---------- */
 
 /* Walking up to a machine: it lifts, glows, and the attract text blinks. */
-.game-card:hover,
 .game-card:focus-visible {
   transform: translateY(-3px);
   border-color: color-mix(in srgb, var(--accent) 60%, #2a2440);
@@ -148,17 +147,41 @@
     0 0 22px color-mix(in srgb, var(--accent) 30%, transparent);
 }
 
-.game-card:hover .game-card__icon,
+@media (hover: hover) {
+  .game-card:hover {
+    transform: translateY(-3px);
+    border-color: color-mix(in srgb, var(--accent) 60%, #2a2440);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.06),
+      0 14px 28px rgba(0, 0, 0, 0.6),
+      0 0 22px color-mix(in srgb, var(--accent) 30%, transparent);
+  }
+}
+
 .game-card:focus-visible .game-card__icon {
   filter: drop-shadow(0 0 10px var(--accent)) brightness(1.2);
   transform: scale(1.1);
 }
 
-.game-card:hover .game-card__start,
+@media (hover: hover) {
+  .game-card:hover .game-card__icon {
+    filter: drop-shadow(0 0 10px var(--accent)) brightness(1.2);
+    transform: scale(1.1);
+  }
+}
+
 .game-card:focus-visible .game-card__start {
   opacity: 1;
   text-shadow: 0 0 8px rgba(140, 255, 0, 0.6);
   animation: game-card-blink 900ms steps(1) infinite;
+}
+
+@media (hover: hover) {
+  .game-card:hover .game-card__start {
+    opacity: 1;
+    text-shadow: 0 0 8px rgba(140, 255, 0, 0.6);
+    animation: game-card-blink 900ms steps(1) infinite;
+  }
 }
 
 @keyframes game-card-blink {

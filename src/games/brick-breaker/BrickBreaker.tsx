@@ -85,6 +85,8 @@ export function BrickBreaker() {
         onPointerUp={onPointerUp}
         onPointerCancel={onPointerUp}
       >
+        {/* A cleared wall: the field flares once as the next wall arrives (remounts per level). */}
+        {level > 1 && <span key={level} className="breaker__wall-flash" aria-hidden="true" />}
         <span className="breaker__lives" role="img" aria-label={`${lives} of ${START_LIVES} balls left`}>
           {Array.from({ length: START_LIVES }, (_, i) => (
             <span key={i} className={`breaker__life${i < lives ? " breaker__life--on" : ""}`} />
@@ -149,7 +151,7 @@ export function BrickBreaker() {
         )}
 
         {status === "gameOver" && (
-          <div className="breaker__overlay breaker__overlay--end fp-enter fp-bg-accent--danger">
+          <div className="breaker__overlay breaker__overlay--end fp-enter fp-settle fp-bg-accent--danger">
             <p className="fp-result-title fp-result-title--danger">Game over</p>
             <p className="fp-result-detail">
               Score {score} — Wall {level} — Best {Math.max(score, best)}

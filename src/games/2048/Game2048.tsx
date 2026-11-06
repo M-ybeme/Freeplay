@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { BOARD_SIZE, type Board } from "./logic";
 import { use2048 } from "./use2048";
 import { useTileSlides } from "./useTileSlides";
@@ -51,6 +51,11 @@ export function Game2048() {
     confirmNewGame,
     cancelNewGame,
   } = use2048();
+
+  // "View board" hides the game-over overlay for this final board only;
+  // keyed on the board itself, so undo or a new game brings it back.
+  const [reviewed, setReviewed] = useState<Board | null>(null);
+  const reviewing = gameOver && reviewed === board;
 
   const gestureStart = useRef<{ x: number; y: number } | null>(null);
   const boardRef = useRef<HTMLDivElement>(null);
@@ -124,7 +129,7 @@ export function Game2048() {
 
       <div
         ref={boardRef}
-        className="game2048-board fp-corner-marks"
+        className={`game2048-board fp-corner-marks${showMilestonePrompt ? " fp-win-sweep" : ""}`}
         role="group"
         aria-label={boardLabel(board)}
         onPointerDown={onPointerDown}
@@ -148,7 +153,7 @@ export function Game2048() {
         )}
 
         {showMilestonePrompt && (
-          <div className="game2048__overlay fp-bg-accent--success fp-enter" role="status">
+          <div className="game2048__overlay fp-bg-accent--success fp-enter fp-settle" role="status">
             <p className="fp-result-title fp-result-title--success">Core stable</p>
             <p className="fp-result-detail">2048 reached</p>
             <div className="game2048__overlay-actions">
@@ -162,8 +167,8 @@ export function Game2048() {
           </div>
         )}
 
-        {gameOver && (
-          <div className="game2048__overlay fp-bg-accent--danger fp-enter" role="alert">
+        {gameOver && !reviewing && (
+          <div className="game2048__overlay fp-bg-accent--danger fp-enter fp-settle" role="alert">
             <p className="fp-result-title fp-result-title--danger">Matrix locked</p>
             <p className="fp-result-detail">No moves remaining</p>
             <div className="game2048__overlay-actions">
@@ -175,10 +180,22 @@ export function Game2048() {
                   Undo
                 </button>
               )}
+              <button type="button" className="fp-btn fp-btn--secondary" onClick={() => setReviewed(board)}>
+                View board
+              </button>
             </div>
           </div>
         )}
       </div>
+
+      {reviewing && (
+        <p className="game2048__review">
+          Matrix locked · {score}
+          <button type="button" className="fp-btn fp-btn--secondary fp-btn--compact" onClick={() => setReviewed(null)}>
+            Show result
+          </button>
+        </p>
+      )}
 
       <div className="game2048__controls">
         <button

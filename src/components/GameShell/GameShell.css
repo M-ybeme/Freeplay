@@ -259,10 +259,12 @@
     box-shadow 80ms ease;
 }
 
-.game-shell__back:hover {
-  box-shadow:
-    0 3px 0 #6a0f58,
-    0 0 18px rgba(255, 43, 214, 0.6);
+@media (hover: hover) {
+  .game-shell__back:hover {
+    box-shadow:
+      0 3px 0 #6a0f58,
+      0 0 18px rgba(255, 43, 214, 0.6);
+  }
 }
 
 .game-shell__back:active {

@@ -296,7 +296,7 @@ export function Minesweeper() {
       <div className={`minesweeper__board-wrap minesweeper__board-wrap--${difficulty.id}`}>
         <div
           ref={boardRef}
-          className={`minesweeper-board minesweeper-board--${difficulty.id} fp-corner-marks${board.status === "lost" ? " fp-shake" : ""}`}
+          className={`minesweeper-board minesweeper-board--${difficulty.id} fp-corner-marks${board.status === "lost" ? " fp-shake" : ""}${board.status === "won" ? " fp-win-sweep" : ""}`}
           style={{
             ["--cols" as string]: difficulty.cols,
             ["--rows" as string]: difficulty.rows,

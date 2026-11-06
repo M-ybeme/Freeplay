@@ -167,6 +167,11 @@
   color: var(--text);
 }
 
+.reversi__status .fp-btn--compact {
+  margin-left: 0.6rem;
+  vertical-align: middle;
+}
+
 .reversi__status--thinking {
   color: var(--hot-pink);
   animation: reversi-think 1s ease-in-out infinite;
@@ -223,8 +228,14 @@
   cursor: pointer;
 }
 
-.reversi-cell--legal:hover {
-  background: rgba(0, 217, 255, 0.12);
+@media (hover: hover) {
+  .reversi-cell--legal:hover {
+    background: rgba(0, 217, 255, 0.12);
+  }
+}
+
+.reversi-cell--legal:active {
+  background: rgba(0, 217, 255, 0.24);
 }
 
 .reversi-cell:focus-visible {
@@ -329,6 +340,13 @@
   100% {
     transform: scaleX(1);
   }
+}
+
+.reversi__overlay-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.5rem;
 }
 
 .reversi__overlay {

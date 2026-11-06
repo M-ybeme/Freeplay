@@ -273,9 +273,11 @@
     transform 80ms ease;
 }
 
-.snake__dpad-btn:hover {
-  border-color: var(--laser-blue);
-  box-shadow: 0 0 10px rgba(0, 217, 255, 0.35);
+@media (hover: hover) {
+  .snake__dpad-btn:hover {
+    border-color: var(--laser-blue);
+    box-shadow: 0 0 10px rgba(0, 217, 255, 0.35);
+  }
 }
 
 .snake__dpad-btn:active {

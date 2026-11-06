@@ -424,8 +424,10 @@
   transition: transform 120ms ease-out;
 }
 
-.solitaire-stock:not(:disabled):hover .playing-card {
-  transform: translateY(-2px);
+@media (hover: hover) {
+  .solitaire-stock:not(:disabled):hover .playing-card {
+    transform: translateY(-2px);
+  }
 }
 
 .solitaire-stock:not(:disabled):active .playing-card {
