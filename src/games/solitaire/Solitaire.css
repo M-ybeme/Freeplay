@@ -83,22 +83,6 @@
   white-space: nowrap;
 }
 
-.solitaire__confirm {
-  width: 100%;
-  padding: 0.85rem 1rem;
-  background: var(--surface);
-  border: 1px solid var(--hot-pink);
-  border-radius: 4px;
-  display: flex;
-  flex-direction: column;
-  gap: 0.6rem;
-}
-
-.solitaire__confirm-actions {
-  display: flex;
-  gap: 0.6rem;
-}
-
 /* ---------- Board ---------- */
 
 .solitaire-board {
@@ -358,16 +342,6 @@
 }
 
 /* ---------- Controls / result ---------- */
-
-.solitaire__controls {
-  width: 100%;
-  display: flex;
-  gap: 0.6rem;
-}
-
-.solitaire__control-btn {
-  flex: 1;
-}
 
 .solitaire__result {
   width: 100%;

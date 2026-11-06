@@ -2,6 +2,7 @@ import { useMemo, useState, type CSSProperties } from "react";
 import { LAYOUTS, LAYOUT_BY_ID, faceName, layoutBounds, layoutPositions, type Tile } from "./logic";
 import { TileFace } from "./TileFace";
 import { formatTime, useMahjong } from "./useMahjong";
+import { ConfirmPrompt } from "../../components/ConfirmPrompt/ConfirmPrompt";
 import "./Mahjong.css";
 
 function tileStyle(t: Tile): CSSProperties {
@@ -73,12 +74,12 @@ export function Mahjong() {
           </div>
         </div>
 
-        <div className="mahjong__layouts" role="group" aria-label="Layout">
+        <div className="fp-seg mahjong__layouts" role="group" aria-label="Layout">
           {LAYOUTS.map((l) => (
             <button
               key={l.id}
               type="button"
-              className={`mahjong__layout${l.id === layoutId ? " mahjong__layout--on" : ""}`}
+              className="fp-seg__btn"
               aria-pressed={l.id === layoutId}
               onClick={() => requestDeal(l.id)}
             >
@@ -89,24 +90,15 @@ export function Mahjong() {
       </div>
 
       {pendingLayout && (
-        <div className="mahjong__confirm fp-enter" role="alertdialog" aria-label="Abandon this board?">
-          <p className="mahjong__confirm-text">Abandon this board and deal {LAYOUT_BY_ID[pendingLayout].name}?</p>
-          <div className="mahjong__confirm-actions">
-            <button
-              type="button"
-              className="fp-btn fp-btn--danger mahjong__btn"
-              onClick={() => {
-                newDeal(pendingLayout);
-                setPendingLayout(null);
-              }}
-            >
-              Deal
-            </button>
-            <button type="button" className="fp-btn fp-btn--secondary mahjong__btn" onClick={() => setPendingLayout(null)}>
-              Keep playing
-            </button>
-          </div>
-        </div>
+        <ConfirmPrompt
+          message={`Deal ${LAYOUT_BY_ID[pendingLayout].name}? This board will be lost.`}
+          confirmLabel={`Deal ${LAYOUT_BY_ID[pendingLayout].name}`}
+          onConfirm={() => {
+            newDeal(pendingLayout);
+            setPendingLayout(null);
+          }}
+          onCancel={() => setPendingLayout(null)}
+        />
       )}
 
       <div className={`mahjong-stage${showFree ? " mahjong-stage--show-free" : ""}`} style={stageStyle}>
@@ -180,28 +172,28 @@ export function Mahjong() {
       )}
 
       <div className="mahjong__dock">
-        <div className="mahjong__controls">
-          <button type="button" className="fp-btn fp-btn--secondary mahjong__btn" onClick={showHint} disabled={won || stuck}>
+        <div className="fp-controls">
+          <button type="button" className="fp-btn fp-btn--secondary" onClick={showHint} disabled={won || stuck}>
             Hint
           </button>
-          <button type="button" className="fp-btn fp-btn--secondary mahjong__btn" onClick={undo} disabled={!canUndo || won}>
+          <button type="button" className="fp-btn fp-btn--secondary" onClick={undo} disabled={!canUndo || won}>
             Undo
           </button>
-          <button type="button" className="fp-btn fp-btn--secondary mahjong__btn" onClick={shuffle} disabled={won}>
+          <button type="button" className="fp-btn fp-btn--secondary" onClick={shuffle} disabled={won}>
             Shuffle
           </button>
-          <button type="button" className="fp-btn fp-btn--secondary mahjong__btn" onClick={() => requestDeal(layoutId)}>
-            New
+          <button type="button" className="fp-btn fp-btn--secondary" onClick={() => requestDeal(layoutId)}>
+            New game
           </button>
         </div>
 
         <button
           type="button"
-          className={`mahjong__toggle${showFree ? " mahjong__toggle--on" : ""}`}
+          className="fp-toggle"
           aria-pressed={showFree}
           onClick={() => setShowFree(!showFree)}
         >
-          <span className="mahjong__toggle-box" aria-hidden="true" />
+          <span className="fp-toggle__box" aria-hidden="true" />
           Dim blocked tiles
         </button>
       </div>

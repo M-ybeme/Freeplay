@@ -98,6 +98,12 @@ export function useMinesweeper() {
     startNewGame(difficulty);
   }
 
+  /** New game mid-play asks first (same prompt as a difficulty switch). */
+  function requestNewGame() {
+    if (board.status === "playing") setPendingDifficulty(difficulty);
+    else startNewGame(difficulty);
+  }
+
   return {
     board,
     difficulty,
@@ -111,6 +117,7 @@ export function useMinesweeper() {
     flag,
     interact,
     newGame,
+    requestNewGame,
     selectDifficulty,
     confirmDifficultyChange,
     cancelDifficultyChange,

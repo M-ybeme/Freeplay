@@ -2,6 +2,7 @@ import { useRef } from "react";
 import { TUBE_CAPACITY, isLegalPour, isTubeComplete, type Tube } from "./logic";
 import { useColorSort } from "./useColorSort";
 import { usePourMotion } from "./usePourMotion";
+import { ConfirmPrompt } from "../../components/ConfirmPrompt/ConfirmPrompt";
 import "./ColorSort.css";
 
 // Names, not just hues - color identity here must survive color-blindness
@@ -33,6 +34,7 @@ export function ColorSort() {
     confirmDifficultyChange,
     cancelDifficultyChange,
     newPuzzle,
+    requestNewPuzzle,
     restartPuzzle,
     undo,
   } = useColorSort();
@@ -60,12 +62,12 @@ export function ColorSort() {
         </div>
       </div>
 
-      <div className="color-sort__difficulty" role="group" aria-label="Difficulty">
+      <div className="fp-seg" role="group" aria-label="Difficulty">
         {difficulties.map((d) => (
           <button
             key={d.id}
             type="button"
-            className={`fp-btn color-sort__difficulty-btn ${d.id === difficulty.id ? "fp-btn--primary" : "fp-btn--secondary"}`}
+            className="fp-seg__btn"
             onClick={() => selectDifficulty(d)}
             aria-pressed={d.id === difficulty.id}
           >
@@ -75,17 +77,16 @@ export function ColorSort() {
       </div>
 
       {pendingDifficulty && (
-        <div className="color-sort__confirm fp-enter" role="alertdialog" aria-label="Confirm new difficulty">
-          <p className="fp-label">Start a new {pendingDifficulty.label} puzzle?</p>
-          <div className="color-sort__confirm-actions">
-            <button type="button" className="fp-btn fp-btn--danger" onClick={confirmDifficultyChange}>
-              Yes, restart
-            </button>
-            <button type="button" className="fp-btn fp-btn--secondary" onClick={cancelDifficultyChange}>
-              Cancel
-            </button>
-          </div>
-        </div>
+        <ConfirmPrompt
+          message={
+            pendingDifficulty.id === difficulty.id
+              ? "Start a new puzzle? This one will be lost."
+              : `Start a new ${pendingDifficulty.label} puzzle? This one will be lost.`
+          }
+          confirmLabel="New puzzle"
+          onConfirm={confirmDifficultyChange}
+          onCancel={cancelDifficultyChange}
+        />
       )}
 
       <div ref={rackRef} className={`color-sort__rack fp-corner-marks${won ? " color-sort__rack--won" : ""}`} role="group" aria-label={`${difficulty.label} puzzle`}>
@@ -102,10 +103,10 @@ export function ColorSort() {
         ))}
       </div>
 
-      <div className="color-sort__controls">
+      <div className="fp-controls">
         <button
           type="button"
-          className="fp-btn fp-btn--secondary color-sort__control-btn"
+          className="fp-btn fp-btn--secondary"
           onClick={undo}
           disabled={!canUndo || pendingDifficulty !== null}
         >
@@ -113,12 +114,22 @@ export function ColorSort() {
         </button>
         <button
           type="button"
-          className="fp-btn fp-btn--secondary color-sort__control-btn"
+          className="fp-btn fp-btn--secondary"
           onClick={restartPuzzle}
           disabled={won || pendingDifficulty !== null}
         >
-          Restart puzzle
+          Restart
         </button>
+        {!won && (
+          <button
+            type="button"
+            className="fp-btn fp-btn--secondary"
+            onClick={requestNewPuzzle}
+            disabled={pendingDifficulty !== null}
+          >
+            New puzzle
+          </button>
+        )}
       </div>
 
       {won && (

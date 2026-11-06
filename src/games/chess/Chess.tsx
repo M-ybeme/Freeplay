@@ -3,6 +3,7 @@ import type { Level } from "./ai";
 import { colOf, materialBalance, other, rowOf, squareName, type Color, type PieceType, type Position } from "./logic";
 import { Piece } from "./Piece";
 import { PIECE_NAME, SIDE_NAME, useChess, type Mode } from "./useChess";
+import { ConfirmPrompt } from "../../components/ConfirmPrompt/ConfirmPrompt";
 import "./Chess.css";
 
 const LEVELS: Level[] = ["easy", "normal", "hard"];
@@ -156,12 +157,12 @@ export function Chess() {
     <div className="chess">
       <div className="chess__top">
         <div className="chess__setup">
-          <div className="chess__seg" role="group" aria-label="Players">
+          <div className="fp-seg" role="group" aria-label="Players">
             {(["solo", "duo"] as Mode[]).map((m) => (
               <button
                 key={m}
                 type="button"
-                className={`chess__seg-btn${mode === m ? " chess__seg-btn--on" : ""}`}
+                className="fp-seg__btn"
                 aria-pressed={mode === m}
                 onClick={() => mode !== m && request({ mode: m })}
               >
@@ -170,12 +171,12 @@ export function Chess() {
             ))}
           </div>
           {mode === "solo" && (
-            <div className="chess__seg" role="group" aria-label="Computer level">
+            <div className="fp-seg" role="group" aria-label="Computer level">
               {LEVELS.map((l) => (
                 <button
                   key={l}
                   type="button"
-                  className={`chess__seg-btn${level === l ? " chess__seg-btn--on" : ""}`}
+                  className="fp-seg__btn"
                   aria-pressed={level === l}
                   onClick={() => level !== l && request({ level: l })}
                 >
@@ -187,24 +188,15 @@ export function Chess() {
       </div>
 
       {pending && (
-        <div className="chess__confirm fp-enter" role="alertdialog" aria-label="Abandon this game?">
-          <p className="chess__confirm-text">Abandon this game and start a new one?</p>
-          <div className="chess__confirm-actions">
-            <button
-              type="button"
-              className="fp-btn fp-btn--danger chess__btn"
-              onClick={() => {
-                newGame(pending);
-                setPending(null);
-              }}
-            >
-              New game
-            </button>
-            <button type="button" className="fp-btn fp-btn--secondary chess__btn" onClick={() => setPending(null)}>
-              Keep playing
-            </button>
-          </div>
-        </div>
+        <ConfirmPrompt
+          message="Start a new game? This one will be lost."
+          confirmLabel="New game"
+          onConfirm={() => {
+            newGame(pending);
+            setPending(null);
+          }}
+          onCancel={() => setPending(null)}
+        />
       )}
 
       <div className="chess__players">
@@ -352,23 +344,23 @@ export function Chess() {
           </ol>
         </div>
 
-        <div className="chess__controls">
-          <button type="button" className="fp-btn fp-btn--secondary chess__btn" onClick={undo} disabled={!canUndo}>
+        <div className="fp-controls">
+          <button type="button" className="fp-btn fp-btn--secondary" onClick={undo} disabled={!canUndo}>
             Undo
           </button>
-          <button type="button" className="fp-btn fp-btn--secondary chess__btn" onClick={() => request({})}>
+          <button type="button" className="fp-btn fp-btn--secondary" onClick={() => request({})}>
             New game
           </button>
           <button
             type="button"
-            className={`chess__toggle${showMoves ? " chess__toggle--on" : ""}`}
+            className="fp-toggle"
             aria-pressed={showMoves}
             onClick={() => setShowMoves(!showMoves)}
           >
-            <span className="chess__toggle-box" aria-hidden="true" />
+            <span className="fp-toggle__box" aria-hidden="true" />
             Show moves
           </button>
-      </div>
+        </div>
 
       {mode === "solo" && (
         <p className="chess__record-line">

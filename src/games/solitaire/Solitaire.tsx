@@ -5,6 +5,7 @@ import { SUITS, cardName, suitLabel, type Card } from "../../components/PlayingC
 import { useSolitaire, type Selection } from "./useSolitaire";
 import { FRESH_STOCK_SIZE, type TableauCard as TableauCardModel } from "./logic";
 import { useCardMotion } from "./useCardMotion";
+import { ConfirmPrompt } from "../../components/ConfirmPrompt/ConfirmPrompt";
 import "./Solitaire.css";
 
 const DRAG_THRESHOLD_PX = 6;
@@ -232,17 +233,12 @@ export function Solitaire() {
       </div>
 
       {pendingNewGame && (
-        <div className="solitaire__confirm fp-enter" role="alertdialog" aria-label="Confirm new game">
-          <p className="fp-label">Start a new game? Current progress will be lost.</p>
-          <div className="solitaire__confirm-actions">
-            <button type="button" className="fp-btn fp-btn--danger" onClick={confirmNewGame}>
-              Yes, new game
-            </button>
-            <button type="button" className="fp-btn fp-btn--secondary" onClick={cancelNewGame}>
-              Cancel
-            </button>
-          </div>
-        </div>
+        <ConfirmPrompt
+          message="Start a new game? This one will be lost."
+          confirmLabel="New game"
+          onConfirm={confirmNewGame}
+          onCancel={cancelNewGame}
+        />
       )}
 
       <div className="solitaire-board fp-corner-marks" ref={boardRef}>
@@ -451,11 +447,11 @@ export function Solitaire() {
         </div>
       )}
 
-      <div className="solitaire__controls">
-        <button type="button" className="fp-btn fp-btn--secondary solitaire__control-btn" onClick={undo} disabled={!canUndo || locked}>
+      <div className="fp-controls">
+        <button type="button" className="fp-btn fp-btn--secondary" onClick={undo} disabled={!canUndo || locked}>
           Undo
         </button>
-        <button type="button" className="fp-btn fp-btn--secondary solitaire__control-btn" onClick={requestNewGame} disabled={locked}>
+        <button type="button" className="fp-btn fp-btn--secondary" onClick={requestNewGame} disabled={locked}>
           New game
         </button>
       </div>

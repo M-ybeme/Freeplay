@@ -323,6 +323,145 @@
   font-size: 0.7rem;
 }
 
+/* ---------- Option picker ---------- */
+
+/*
+ * .fp-seg: a pill of mutually exclusive settings (difficulty, mode,
+ * level, layout). Deliberately unlike .fp-btn, so choosing a setting never
+ * looks like an action. The chosen option carries aria-pressed="true".
+ */
+.fp-seg {
+  display: inline-flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 2px;
+  padding: 3px;
+  background: var(--void);
+  border: 1px solid var(--surface-2);
+  border-radius: 24px;
+}
+
+.fp-seg__btn {
+  min-height: 44px;
+  padding: 0 0.85rem;
+  font-family: var(--font-display);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  background: none;
+  border: 0;
+  border-radius: 999px;
+  cursor: pointer;
+  transition:
+    color 120ms ease,
+    background 120ms ease;
+}
+
+@media (hover: hover) {
+  .fp-seg__btn:hover:not([aria-pressed="true"], :disabled) {
+    color: var(--text);
+  }
+}
+
+/* Phones: tighter pills so three long labels (Beginner / Intermediate /
+   Expert) stay on one line. */
+@media (max-width: 420px) {
+  .fp-seg__btn {
+    padding-inline: 0.6rem;
+    letter-spacing: 0.04em;
+  }
+}
+
+.fp-seg__btn[aria-pressed="true"] {
+  color: var(--void);
+  background: var(--laser-blue);
+  box-shadow: 0 0 10px rgba(0, 217, 255, 0.45);
+}
+
+.fp-seg__btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.fp-seg__btn:focus {
+  outline: none;
+}
+
+.fp-seg__btn:focus-visible {
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+/* ---------- Control row ---------- */
+
+/*
+ * .fp-controls: a game's row of action buttons (Undo, New game, ...).
+ * Buttons share the width evenly on one line; four buttons wrap two by
+ * two on a phone instead of shrinking.
+ */
+.fp-controls {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.5rem;
+  width: 100%;
+  max-width: 32rem;
+  margin-inline: auto;
+}
+
+.fp-controls > .fp-btn {
+  flex: 1 1 7rem;
+  min-width: 0;
+  padding-inline: 0.6rem;
+  font-size: 0.85rem;
+  white-space: nowrap;
+}
+
+/* ---------- Toggle ---------- */
+
+/* .fp-toggle: an on/off assist ("Show moves"); aria-pressed carries state. */
+.fp-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 44px;
+  padding: 0 0.5rem;
+  font: inherit;
+  font-size: 0.8rem;
+  color: var(--muted);
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+
+.fp-toggle__box {
+  width: 16px;
+  height: 16px;
+  border: 1.5px solid var(--muted);
+  border-radius: 3px;
+}
+
+.fp-toggle[aria-pressed="true"] {
+  color: var(--text);
+}
+
+.fp-toggle[aria-pressed="true"] .fp-toggle__box {
+  background: var(--laser-blue);
+  border-color: var(--laser-blue);
+  box-shadow: inset 0 0 0 2px var(--void);
+}
+
+.fp-toggle:focus {
+  outline: none;
+}
+
+.fp-toggle:focus-visible {
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
 /* ---------- Motion ---------- */
 
 /*

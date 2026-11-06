@@ -43,8 +43,9 @@
     gap: 0.5rem 1.25rem;
   }
 
-  .mahjong__dock .mahjong__controls {
-    width: 420px;
+  .mahjong__dock .fp-controls {
+    width: 30rem;
+    margin-inline: 0;
   }
 }
 
@@ -61,45 +62,9 @@
 /* ---------- Layout picker ---------- */
 
 .mahjong__layouts {
-  display: flex;
-  gap: 0.35rem;
-  padding: 3px;
-  background: var(--void);
-  border: 1px solid var(--surface-2);
-  border-radius: 999px;
+  flex-wrap: nowrap;
 }
 
-.mahjong__layout {
-  min-height: 36px;
-  padding: 0 0.8rem;
-  font-family: var(--font-display);
-  font-size: 0.62rem;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--muted);
-  background: none;
-  border: 0;
-  border-radius: 999px;
-  cursor: pointer;
-}
-
-.mahjong__layout--on {
-  color: var(--void);
-  background: var(--laser-blue);
-  box-shadow: 0 0 10px rgba(0, 217, 255, 0.45);
-}
-
-.mahjong__layout:focus {
-  outline: none;
-}
-
-.mahjong__layout:focus-visible {
-  outline: 3px solid var(--focus-ring);
-  outline-offset: 2px;
-}
-
-.mahjong__confirm,
 .mahjong__stuck {
   display: flex;
   flex-wrap: wrap;
@@ -118,15 +83,9 @@
   border-color: rgba(255, 138, 0, 0.6);
 }
 
-.mahjong__confirm-text,
 .mahjong__stuck-text {
   margin: 0;
   font-size: 0.85rem;
-}
-
-.mahjong__confirm-actions {
-  display: flex;
-  gap: 0.5rem;
 }
 
 /* ---------- Board ---------- */
@@ -294,58 +253,10 @@
 
 /* ---------- Controls ---------- */
 
-.mahjong__controls {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 0.4rem;
-  width: 100%;
-  max-width: 420px;
-}
-
 .mahjong__btn {
   min-height: 44px;
   padding: 0.4rem 0.6rem;
   font-size: 0.8rem;
-}
-
-.mahjong__toggle {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  min-height: 44px;
-  padding: 0 0.5rem;
-  font: inherit;
-  font-size: 0.8rem;
-  color: var(--muted);
-  background: none;
-  border: 0;
-  cursor: pointer;
-}
-
-.mahjong__toggle-box {
-  width: 16px;
-  height: 16px;
-  border: 1.5px solid var(--muted);
-  border-radius: 3px;
-}
-
-.mahjong__toggle--on {
-  color: var(--text);
-}
-
-.mahjong__toggle--on .mahjong__toggle-box {
-  background: var(--laser-blue);
-  border-color: var(--laser-blue);
-  box-shadow: inset 0 0 0 2px var(--void);
-}
-
-.mahjong__toggle:focus {
-  outline: none;
-}
-
-.mahjong__toggle:focus-visible {
-  outline: 3px solid var(--focus-ring);
-  outline-offset: 2px;
 }
 
 .mahjong__sr {

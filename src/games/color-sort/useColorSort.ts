@@ -204,6 +204,12 @@ export function useColorSort() {
     startNewPuzzle(state.difficulty);
   }
 
+  /** New puzzle mid-solve asks first (same prompt as a difficulty switch). */
+  function requestNewPuzzle() {
+    if (state.status === "playing" && state.moveCount > 0) setPendingDifficulty(state.difficulty);
+    else startNewPuzzle(state.difficulty);
+  }
+
   function restartPuzzle() {
     dispatch({ type: "restart" });
   }
@@ -227,6 +233,7 @@ export function useColorSort() {
     confirmDifficultyChange,
     cancelDifficultyChange,
     newPuzzle,
+    requestNewPuzzle,
     restartPuzzle,
     undo,
   };

@@ -36,70 +36,8 @@
   gap: 0.4rem;
 }
 
-.reversi__seg {
-  display: flex;
-  gap: 2px;
-  padding: 3px;
-  background: var(--void);
-  border: 1px solid var(--surface-2);
-  border-radius: 999px;
-}
-
-.reversi__seg-btn {
-  min-height: 36px;
-  padding: 0 0.75rem;
-  font-family: var(--font-display);
-  font-size: 0.6rem;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--muted);
-  background: none;
-  border: 0;
-  border-radius: 999px;
-  cursor: pointer;
-}
-
-.reversi__seg-btn--on {
-  color: var(--void);
-  background: var(--laser-blue);
-  box-shadow: 0 0 10px rgba(0, 217, 255, 0.45);
-}
-
-.reversi__seg-btn:focus,
-.reversi__toggle:focus,
 .reversi-cell:focus {
   outline: none;
-}
-
-.reversi__seg-btn:focus-visible,
-.reversi__toggle:focus-visible {
-  outline: 3px solid var(--focus-ring);
-  outline-offset: 2px;
-}
-
-.reversi__confirm {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem 0.75rem;
-  width: 100%;
-  padding: 0.6rem 0.75rem;
-  text-align: center;
-  background: var(--void);
-  border: 1px solid var(--surface-2);
-  border-radius: 6px;
-}
-
-.reversi__confirm-text {
-  margin: 0;
-  font-size: 0.85rem;
-}
-
-.reversi__confirm-actions {
-  display: flex;
-  gap: 0.5rem;
 }
 
 /* ---------- Players ---------- */
@@ -371,49 +309,10 @@
 
 /* ---------- Controls ---------- */
 
-.reversi__controls {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: center;
-  gap: 0.4rem 0.6rem;
-}
-
 .reversi__btn {
   min-height: 44px;
   padding: 0.4rem 0.9rem;
   font-size: 0.8rem;
-}
-
-.reversi__toggle {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  min-height: 44px;
-  padding: 0 0.5rem;
-  font: inherit;
-  font-size: 0.8rem;
-  color: var(--muted);
-  background: none;
-  border: 0;
-  cursor: pointer;
-}
-
-.reversi__toggle-box {
-  width: 16px;
-  height: 16px;
-  border: 1.5px solid var(--muted);
-  border-radius: 3px;
-}
-
-.reversi__toggle--on {
-  color: var(--text);
-}
-
-.reversi__toggle--on .reversi__toggle-box {
-  background: var(--laser-blue);
-  border-color: var(--laser-blue);
-  box-shadow: inset 0 0 0 2px var(--void);
 }
 
 .reversi__record-line {
@@ -493,7 +392,11 @@
     align-items: stretch;
   }
 
-  .reversi__seg-btn {
+  .reversi__setup .fp-seg {
+    display: flex;
+  }
+
+  .reversi__setup .fp-seg__btn {
     flex: 1;
   }
 

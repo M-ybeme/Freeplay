@@ -2,6 +2,7 @@ import { useRef, useState } from "react";
 import { BOARD_SIZE, type Board } from "./logic";
 import { use2048 } from "./use2048";
 import { useTileSlides } from "./useTileSlides";
+import { ConfirmPrompt } from "../../components/ConfirmPrompt/ConfirmPrompt";
 import "./Game2048.css";
 
 const SWIPE_THRESHOLD_PX = 24;
@@ -114,17 +115,12 @@ export function Game2048() {
       </div>
 
       {pendingNewGame && (
-        <div className="game2048__confirm fp-enter" role="alertdialog" aria-label="Confirm new game">
-          <p className="fp-label">Start a new game? Current progress will be lost.</p>
-          <div className="game2048__confirm-actions">
-            <button type="button" className="fp-btn fp-btn--danger" onClick={confirmNewGame}>
-              Yes, restart
-            </button>
-            <button type="button" className="fp-btn fp-btn--secondary" onClick={cancelNewGame}>
-              Cancel
-            </button>
-          </div>
-        </div>
+        <ConfirmPrompt
+          message="Start a new game? This one will be lost."
+          confirmLabel="New game"
+          onConfirm={confirmNewGame}
+          onCancel={cancelNewGame}
+        />
       )}
 
       <div
@@ -197,10 +193,10 @@ export function Game2048() {
         </p>
       )}
 
-      <div className="game2048__controls">
+      <div className="fp-controls game2048__controls">
         <button
           type="button"
-          className="fp-btn fp-btn--secondary game2048__control-btn"
+          className="fp-btn fp-btn--secondary"
           onClick={undo}
           disabled={!canUndo || pendingNewGame}
         >
@@ -208,7 +204,7 @@ export function Game2048() {
         </button>
         <button
           type="button"
-          className="fp-btn fp-btn--secondary game2048__control-btn"
+          className="fp-btn fp-btn--secondary"
           onClick={requestNewGame}
           disabled={pendingNewGame}
         >

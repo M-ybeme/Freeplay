@@ -48,7 +48,7 @@
 .game-card__name {
   font-family: var(--font-display);
   font-weight: 900;
-  font-size: clamp(0.62rem, 2.7vw, 0.8rem);
+  font-size: clamp(0.7rem, 2.9vw, 0.8rem);
   letter-spacing: 0.06em;
   line-height: 1.2;
   text-transform: uppercase;
@@ -111,9 +111,9 @@
   background: linear-gradient(180deg, #221d38, #120f22);
   border-top: 1px solid #332c4d;
   font-family: var(--font-display);
-  font-size: 0.55rem;
+  font-size: 0.7rem;
   font-weight: 700;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
 }
 
@@ -211,9 +211,5 @@
 @media (min-width: 480px) {
   .game-card__marquee {
     min-height: 3.2rem;
-  }
-
-  .game-card__deck {
-    font-size: 0.6rem;
   }
 }

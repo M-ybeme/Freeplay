@@ -1,6 +1,7 @@
 import { useLayoutEffect, useRef } from "react";
 import { cellLabel, type Cell } from "./logic";
 import { useMinesweeper } from "./useMinesweeper";
+import { ConfirmPrompt } from "../../components/ConfirmPrompt/ConfirmPrompt";
 import "./Minesweeper.css";
 
 const LONG_PRESS_MS = 420;
@@ -41,6 +42,7 @@ export function Minesweeper() {
     flag,
     interact,
     newGame,
+    requestNewGame,
     selectDifficulty,
     confirmDifficultyChange,
     cancelDifficultyChange,
@@ -246,12 +248,12 @@ export function Minesweeper() {
         </div>
       </div>
 
-      <div className="minesweeper__difficulty" role="group" aria-label="Difficulty">
+      <div className="fp-seg" role="group" aria-label="Difficulty">
         {difficulties.map((d) => (
           <button
             key={d.id}
             type="button"
-            className={`fp-btn minesweeper__difficulty-btn ${d.id === difficulty.id ? "fp-btn--primary" : "fp-btn--secondary"}`}
+            className="fp-seg__btn"
             onClick={() => selectDifficulty(d)}
             aria-pressed={d.id === difficulty.id}
           >
@@ -261,35 +263,39 @@ export function Minesweeper() {
       </div>
 
       {pendingDifficulty && (
-        <div className="minesweeper__confirm fp-enter" role="alertdialog" aria-label="Confirm new difficulty">
-          <p className="fp-label">Start a new {pendingDifficulty.label} game?</p>
-          <div className="minesweeper__confirm-actions">
-            <button type="button" className="fp-btn fp-btn--danger" onClick={confirmDifficultyChange}>
-              Yes, restart
-            </button>
-            <button type="button" className="fp-btn fp-btn--secondary" onClick={cancelDifficultyChange}>
-              Cancel
-            </button>
-          </div>
-        </div>
+        <ConfirmPrompt
+          message={
+            pendingDifficulty.id === difficulty.id
+              ? "Start a new game? This one will be lost."
+              : `Start a new ${pendingDifficulty.label} game? This one will be lost.`
+          }
+          confirmLabel="New game"
+          onConfirm={confirmDifficultyChange}
+          onCancel={cancelDifficultyChange}
+        />
       )}
 
-      <div className="minesweeper__mode" role="group" aria-label="Interaction mode">
-        <button
-          type="button"
-          className={`fp-btn minesweeper__mode-btn ${mode === "reveal" ? "fp-btn--primary" : "fp-btn--secondary"}`}
-          onClick={() => setMode("reveal")}
-          aria-pressed={mode === "reveal"}
-        >
-          Reveal
-        </button>
-        <button
-          type="button"
-          className={`fp-btn minesweeper__mode-btn ${mode === "flag" ? "fp-btn--primary" : "fp-btn--secondary"}`}
-          onClick={() => setMode("flag")}
-          aria-pressed={mode === "flag"}
-        >
-          Flag
+      <div className="minesweeper__tools">
+        <div className="fp-seg" role="group" aria-label="Interaction mode">
+          <button
+            type="button"
+            className="fp-seg__btn"
+            onClick={() => setMode("reveal")}
+            aria-pressed={mode === "reveal"}
+          >
+            Reveal
+          </button>
+          <button
+            type="button"
+            className="fp-seg__btn"
+            onClick={() => setMode("flag")}
+            aria-pressed={mode === "flag"}
+          >
+            Flag
+          </button>
+        </div>
+        <button type="button" className="fp-btn fp-btn--secondary minesweeper__new" onClick={requestNewGame} disabled={pendingDifficulty !== null}>
+          New game
         </button>
       </div>
 

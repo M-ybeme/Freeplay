@@ -1,6 +1,7 @@
 import { useRef, useState, type CSSProperties, type KeyboardEvent } from "react";
 import { SIZE, cellName, colOf, opponent, rowOf, type Level, type Player } from "./logic";
 import { useReversi, type Mode } from "./useReversi";
+import { ConfirmPrompt } from "../../components/ConfirmPrompt/ConfirmPrompt";
 import "./Reversi.css";
 
 const LEVELS: Level[] = ["easy", "normal", "hard"];
@@ -95,12 +96,12 @@ export function Reversi() {
     <div className="reversi">
       <div className="reversi__top">
         <div className="reversi__setup">
-          <div className="reversi__seg" role="group" aria-label="Players">
+          <div className="fp-seg" role="group" aria-label="Players">
             {(["solo", "duo"] as Mode[]).map((m) => (
               <button
                 key={m}
                 type="button"
-                className={`reversi__seg-btn${mode === m ? " reversi__seg-btn--on" : ""}`}
+                className="fp-seg__btn"
                 aria-pressed={mode === m}
                 onClick={() => mode !== m && request({ mode: m })}
               >
@@ -109,12 +110,12 @@ export function Reversi() {
             ))}
           </div>
           {mode === "solo" && (
-            <div className="reversi__seg" role="group" aria-label="Computer level">
+            <div className="fp-seg" role="group" aria-label="Computer level">
               {LEVELS.map((l) => (
                 <button
                   key={l}
                   type="button"
-                  className={`reversi__seg-btn${level === l ? " reversi__seg-btn--on" : ""}`}
+                  className="fp-seg__btn"
                   aria-pressed={level === l}
                   onClick={() => level !== l && request({ level: l })}
                 >
@@ -126,24 +127,15 @@ export function Reversi() {
         </div>
 
         {pending && (
-          <div className="reversi__confirm fp-enter" role="alertdialog" aria-label="Abandon this game?">
-            <p className="reversi__confirm-text">Abandon this game and start a new one?</p>
-            <div className="reversi__confirm-actions">
-              <button
-                type="button"
-                className="fp-btn fp-btn--danger reversi__btn"
-                onClick={() => {
-                  newGame(pending);
-                  setPending(null);
-                }}
-              >
-                New game
-              </button>
-              <button type="button" className="fp-btn fp-btn--secondary reversi__btn" onClick={() => setPending(null)}>
-                Keep playing
-              </button>
-            </div>
-          </div>
+          <ConfirmPrompt
+            message="Start a new game? This one will be lost."
+            confirmLabel="New game"
+            onConfirm={() => {
+              newGame(pending);
+              setPending(null);
+            }}
+            onCancel={() => setPending(null)}
+          />
         )}
 
         <div className="reversi__players">
@@ -238,20 +230,20 @@ export function Reversi() {
       </div>
 
       <div className="reversi__bottom">
-        <div className="reversi__controls">
-          <button type="button" className="fp-btn fp-btn--secondary reversi__btn" onClick={undo} disabled={!canUndo}>
+        <div className="fp-controls">
+          <button type="button" className="fp-btn fp-btn--secondary" onClick={undo} disabled={!canUndo}>
             Undo
           </button>
-          <button type="button" className="fp-btn fp-btn--secondary reversi__btn" onClick={() => request({})}>
+          <button type="button" className="fp-btn fp-btn--secondary" onClick={() => request({})}>
             New game
           </button>
           <button
             type="button"
-            className={`reversi__toggle${showMoves ? " reversi__toggle--on" : ""}`}
+            className="fp-toggle"
             aria-pressed={showMoves}
             onClick={() => setShowMoves(!showMoves)}
           >
-            <span className="reversi__toggle-box" aria-hidden="true" />
+            <span className="fp-toggle__box" aria-hidden="true" />
             Show moves
           </button>
         </div>

@@ -43,40 +43,6 @@
   gap: 0.75rem;
 }
 
-/* ---------- Difficulty / confirm ---------- */
-
-.color-sort__difficulty {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 0.4rem;
-  width: 100%;
-}
-
-.color-sort__difficulty-btn {
-  min-height: 40px;
-  padding: 0.5rem 0.9rem;
-  font-size: 0.7rem;
-  letter-spacing: 0.04em;
-}
-
-.color-sort__confirm {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1rem;
-  width: 100%;
-  background: var(--surface);
-  border: 1px solid var(--hot-pink);
-  border-radius: 4px;
-}
-
-.color-sort__confirm-actions {
-  display: flex;
-  gap: 0.5rem;
-}
-
 /* ---------- Rack (the tube surface) ---------- */
 
 .color-sort__rack {
@@ -108,8 +74,8 @@
 }
 
 .color-sort-tube__number {
-  color: rgba(0, 217, 255, 0.55);
-  font-size: 0.6rem;
+  color: rgba(0, 217, 255, 0.7);
+  font-size: 0.7rem;
 }
 
 /* ---------- Tube ---------- */
@@ -284,21 +250,6 @@
 
 .color-sort-mark--6::after {
   clip-path: polygon(25% 0, 75% 0, 100% 50%, 75% 100%, 25% 100%, 0 50%); /* hexagon */
-}
-
-/* ---------- Controls ---------- */
-
-.color-sort__controls {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 0.6rem;
-  width: 100%;
-}
-
-.color-sort__control-btn {
-  flex: 1 1 auto;
-  min-width: 128px;
 }
 
 /* ---------- Result ---------- */

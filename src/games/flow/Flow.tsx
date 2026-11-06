@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { extendRoute, isPairConnected, resolveEndpointOwner, type CellCoord } from "./logic";
 import { useFlow } from "./useFlow";
+import { ConfirmPrompt } from "../../components/ConfirmPrompt/ConfirmPrompt";
 import "./Flow.css";
 
 // Color name + geometric marker per pair, matching the principle Color Sort
@@ -212,12 +213,12 @@ export function Flow() {
         </div>
       </div>
 
-      <div className="flow__difficulty" role="group" aria-label="Difficulty">
+      <div className="fp-seg" role="group" aria-label="Difficulty">
         {difficulties.map((d) => (
           <button
             key={d.id}
             type="button"
-            className={`fp-btn flow__difficulty-btn ${d.id === difficulty.id ? "fp-btn--primary" : "fp-btn--secondary"}`}
+            className="fp-seg__btn"
             onClick={() => requestDifficulty(d)}
             aria-pressed={d.id === difficulty.id}
           >
@@ -227,17 +228,16 @@ export function Flow() {
       </div>
 
       {pendingDifficulty && (
-        <div className="flow__confirm fp-enter" role="alertdialog" aria-label="Confirm new puzzle">
-          <p className="fp-label">Start a new {pendingDifficulty.label} puzzle? Current progress will be lost.</p>
-          <div className="flow__confirm-actions">
-            <button type="button" className="fp-btn fp-btn--danger" onClick={confirmPending}>
-              Yes, start new puzzle
-            </button>
-            <button type="button" className="fp-btn fp-btn--secondary" onClick={cancelPending}>
-              Cancel
-            </button>
-          </div>
-        </div>
+        <ConfirmPrompt
+          message={
+            pendingDifficulty.id === difficulty.id
+              ? "Start a new puzzle? This one will be lost."
+              : `Start a new ${pendingDifficulty.label} puzzle? This one will be lost.`
+          }
+          confirmLabel="New puzzle"
+          onConfirm={confirmPending}
+          onCancel={cancelPending}
+        />
       )}
 
       <p className="flow__status" role="status" aria-live="polite">
@@ -311,11 +311,11 @@ export function Flow() {
         )}
       </div>
 
-      <div className="flow__controls">
-        <button type="button" className="fp-btn fp-btn--secondary flow__control-btn" onClick={restart} disabled={locked}>
-          Restart puzzle
+      <div className="fp-controls flow__controls">
+        <button type="button" className="fp-btn fp-btn--secondary" onClick={restart} disabled={locked}>
+          Restart
         </button>
-        <button type="button" className="fp-btn fp-btn--secondary flow__control-btn" onClick={requestNewPuzzle} disabled={locked}>
+        <button type="button" className="fp-btn fp-btn--secondary" onClick={requestNewPuzzle} disabled={locked}>
           New puzzle
         </button>
       </div>

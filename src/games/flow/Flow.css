@@ -53,33 +53,6 @@
   gap: 0.6rem;
 }
 
-.flow__difficulty {
-  display: flex;
-  gap: 0.5rem;
-}
-
-.flow__difficulty-btn {
-  min-width: 84px;
-  padding: 0.6rem 0.9rem;
-}
-
-.flow__confirm {
-  width: 100%;
-  max-width: var(--board-w);
-  padding: 0.85rem 1rem;
-  background: var(--surface);
-  border: 1px solid var(--hot-pink);
-  border-radius: 4px;
-  display: flex;
-  flex-direction: column;
-  gap: 0.6rem;
-}
-
-.flow__confirm-actions {
-  display: flex;
-  gap: 0.6rem;
-}
-
 .flow__status {
   margin: 0;
   min-height: 1.1em;
@@ -313,15 +286,9 @@
 
 /* ---------- Controls / result ---------- */
 
+/* The control row lines up with the board's edges. */
 .flow__controls {
-  width: 100%;
   max-width: var(--board-w);
-  display: flex;
-  gap: 0.6rem;
-}
-
-.flow__control-btn {
-  flex: 1;
 }
 
 .flow__result {
@@ -333,12 +300,4 @@
   align-items: flex-start;
   gap: 0.5rem;
   border-radius: 4px;
-}
-
-@media (max-width: 360px) {
-  .flow__difficulty-btn {
-    min-width: 0;
-    flex: 1;
-    padding: 0.6rem 0.5rem;
-  }
 }
