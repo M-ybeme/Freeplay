@@ -16,6 +16,49 @@ When adding an entry for a new game or feature, copy the pattern below:
 
 ---
 
+## `8ce7acb` — Standardize game controls, confirm prompts, and small text
+
+- Phase 4 consistency pass. Settings everywhere (difficulty, mode, level,
+  Mahjong layout, Minesweeper Reveal/Flag) use one shared `.fp-seg`
+  picker in `patterns.css`. It replaces the earlier mix of 36px custom
+  pills and 40px primary/secondary `.fp-btn`s that made a setting look
+  like an action. Targets are 44px, and phones get tighter padding so
+  "Beginner / Intermediate / Expert" stays on one line.
+- One `ConfirmPrompt` component replaces eight hand-rolled confirm bars
+  with eight different wordings ("Yes, restart" / "Cancel" / "Deal" /
+  ...). It always reads "Start a new game/puzzle? This one will be
+  lost." (naming the difficulty when switching; Mahjong names the
+  layout). The confirm button names the action and the other button is
+  always Keep playing. Focus starts on Keep playing and Escape cancels,
+  so pressing Enter twice can't throw a game away.
+- Minesweeper and Color Sort had no way to start over mid-game except
+  switching difficulty. They now have New game / New puzzle buttons,
+  which only ask when there's progress to lose. Minesweeper's sits
+  beside Reveal/Flag to avoid adding a row.
+- Action buttons share `.fp-controls`: an even, wrapping row capped at
+  32rem. Mahjong's four buttons go two by two on phones instead of
+  squeezing, and Color Sort stops stacking. Flow and 2048 cap the row at
+  their board width. `.fp-toggle` replaces three copies of the same
+  checkbox-style toggle (Chess, Reversi, Mahjong).
+- Readability, measured with an in-browser audit at 375px and 1440px:
+  - Snake/Brick Breaker field tags: 9.6px at 3.5:1 contrast, now 11.2px
+    at about 6:1.
+  - Color Sort tube numbers: 4.04:1, now about 6:1.
+  - Blackjack stat labels: 9.3px, now the standard 10.4px HUD label.
+  - Chess coordinates: 7.2px on phones, now at least 9px.
+  - Home card names and categories: 10.1px and 8.8px on phones, now
+    11.2px.
+  - Decorative marks were left alone: the card-back monogram, Solitaire's
+    empty-slot letter, and Mahjong's tile corner indices.
+- Layout cost: board sizes are unchanged at every tested size.
+  - Chess and Reversi on phones gain about 20px, because Show moves
+    wraps under the buttons.
+  - Minesweeper at 1440×900 scrolls 28px (was 4px).
+  - Mahjong on phones gains 64px for the two-by-two buttons, and still
+    fits.
+
+---
+
 ## `a1c21e3` — Generate Flow puzzles with clean routes and a single solution
 
 - Reported as "easy puzzles with no winnable solution". A brute-force
