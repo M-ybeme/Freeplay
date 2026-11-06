@@ -247,3 +247,37 @@
   44% { transform: scale(0.94); }
   52%, 100% { transform: none; opacity: 1; }
 }
+
+/* ---------- Chroma Clash: the front card flips to a wild and back ---------- */
+
+[data-attract] .gi-cc-front {
+  animation: gi-cc-flip 3s ease-in-out both;
+}
+
+[data-attract] .gi-cc-face {
+  animation: gi-cc-face 3s steps(1, end) both;
+}
+
+[data-attract] .gi-cc-wild {
+  animation: gi-cc-wild 3s steps(1, end) both;
+}
+
+@keyframes gi-cc-flip {
+  0%, 10% { transform: none; }
+  22% { transform: scaleX(0); }
+  34%, 62% { transform: none; }
+  74% { transform: scaleX(0); }
+  86%, 100% { transform: none; }
+}
+
+@keyframes gi-cc-face {
+  0% { opacity: 1; }
+  22% { opacity: 0; }
+  74%, 100% { opacity: 1; }
+}
+
+@keyframes gi-cc-wild {
+  0% { opacity: 0; }
+  22% { opacity: 1; }
+  74%, 100% { opacity: 0; }
+}

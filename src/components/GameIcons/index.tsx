@@ -12,6 +12,7 @@ import { MahjongIcon } from "./MahjongIcon";
 import { ReversiIcon } from "./ReversiIcon";
 import { ChessIcon } from "./ChessIcon";
 import { SpadesIcon } from "./SpadesIcon";
+import { ChromaIcon } from "./ChromaIcon";
 import "./GameIcons.css";
 
 interface IconProps {
@@ -32,6 +33,7 @@ const icons: Record<string, ComponentType<IconProps>> = {
   reversi: ReversiIcon,
   chess: ChessIcon,
   spades: SpadesIcon,
+  chroma: ChromaIcon,
 };
 
 interface GameIconProps extends IconProps {

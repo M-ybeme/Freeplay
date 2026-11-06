@@ -1,0 +1,756 @@
+/*
+ * Chroma Clash: a four-seat table under UV light, dealt with glowing
+ * neon cards. Stacked on phones (scores, table, hand, controls); on wide
+ * landscape screens the scores and controls move to a side column.
+ */
+.chroma {
+  --cc-hand: clamp(50px, calc(var(--play-w) * 0.15), 76px);
+  --cc-pile: clamp(54px, calc(var(--play-w) * 0.15), 74px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  gap: 0.6rem;
+}
+
+.chroma__side-top,
+.chroma__side-bottom,
+.chroma__main {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  gap: 0.6rem;
+}
+
+/* ---------- Cards ---------- */
+
+.cc {
+  /* Size comes from --cc-w on the card or any ancestor. */
+  --w: var(--cc-w, 60px);
+  --tone: var(--uv-purple);
+  position: relative;
+  display: block;
+  width: var(--w);
+  height: calc(var(--w) * 1.42);
+  color: var(--tone);
+  background:
+    radial-gradient(ellipse 80% 60% at 50% 50%, color-mix(in srgb, var(--tone) 16%, transparent), transparent 75%),
+    #0d0a1c;
+  border: max(1.5px, calc(var(--w) * 0.035)) solid var(--tone);
+  border-radius: calc(var(--w) * 0.1);
+  box-shadow:
+    0 0 calc(var(--w) * 0.12) color-mix(in srgb, var(--tone) 45%, transparent),
+    inset 0 0 calc(var(--w) * 0.1) color-mix(in srgb, var(--tone) 25%, transparent);
+  font-family: var(--font-display);
+  font-weight: 800;
+  line-height: 1;
+  user-select: none;
+}
+
+.cc--cyan {
+  --tone: var(--laser-blue);
+}
+
+.cc--pink {
+  --tone: var(--hot-pink);
+}
+
+.cc--green {
+  --tone: var(--toxic);
+}
+
+.cc--orange {
+  --tone: var(--orange);
+}
+
+.cc--wild {
+  --tone: #f4f0ff;
+  border-color: transparent;
+  background:
+    radial-gradient(ellipse 80% 60% at 50% 50%, rgba(139, 61, 255, 0.22), transparent 75%) padding-box,
+    #0d0a1c padding-box,
+    conic-gradient(var(--laser-blue) 0 25%, var(--hot-pink) 0 50%, var(--toxic) 0 75%, var(--orange) 0) border-box;
+  box-shadow: 0 0 calc(var(--w) * 0.12) rgba(139, 61, 255, 0.5);
+}
+
+.cc__corner {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: calc(var(--w) * 0.03);
+  font-size: calc(var(--w) * 0.2);
+}
+
+.cc__corner--tl {
+  top: calc(var(--w) * 0.06);
+  left: calc(var(--w) * 0.07);
+}
+
+.cc__corner--br {
+  right: calc(var(--w) * 0.07);
+  bottom: calc(var(--w) * 0.06);
+  transform: rotate(180deg);
+}
+
+.cc__corner .cc-shape {
+  width: calc(var(--w) * 0.16);
+  height: calc(var(--w) * 0.16);
+}
+
+.cc__mark--corner {
+  width: calc(var(--w) * 0.2);
+  height: calc(var(--w) * 0.2);
+  text-align: center;
+}
+
+.cc-shape {
+  fill: currentColor;
+}
+
+.cc__middle {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+}
+
+.cc__middle > * {
+  grid-area: 1 / 1;
+}
+
+/* The colour's shape, large and faint behind the mark. */
+.cc-shape--ghost {
+  width: calc(var(--w) * 0.74);
+  height: calc(var(--w) * 0.74);
+  opacity: 0.16;
+}
+
+.cc__mark--middle {
+  width: calc(var(--w) * 0.5);
+  height: calc(var(--w) * 0.5);
+  font-size: calc(var(--w) * 0.46);
+  display: grid;
+  place-items: center;
+  text-shadow: 0 0 calc(var(--w) * 0.08) color-mix(in srgb, var(--tone) 80%, transparent);
+}
+
+.cc__digit {
+  letter-spacing: -0.04em;
+}
+
+.cc--k-draw2 .cc__mark--middle,
+.cc__wild4-label {
+  font-size: calc(var(--w) * 0.34);
+}
+
+.cc__wild4 {
+  display: grid;
+  place-items: center;
+}
+
+.cc__wild4 > * {
+  grid-area: 1 / 1;
+}
+
+.cc__wild4-label {
+  color: #fff;
+  text-shadow:
+    0 0 4px #000,
+    0 0 2px #000;
+}
+
+/* Face down: a dark card with a UV diamond. */
+.cc--back {
+  --tone: var(--uv-purple);
+  background:
+    repeating-linear-gradient(45deg, rgba(139, 61, 255, 0.12) 0 2px, transparent 2px 6px),
+    #120c26;
+  box-shadow: none;
+}
+
+.cc__back-mark {
+  position: absolute;
+  inset: 28% 22%;
+  border: max(1px, calc(var(--w) * 0.04)) solid var(--uv-purple-text);
+  transform: rotate(45deg) scale(0.75);
+}
+
+/* ---------- Scores ---------- */
+
+.chroma__scores {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 5.5rem));
+  justify-content: center;
+  gap: 0.45rem;
+  width: 100%;
+}
+
+.chroma__score {
+  min-width: 0;
+  padding-inline: 0.3rem;
+}
+
+.chroma__score--you .fp-hud-value {
+  color: var(--laser-blue);
+}
+
+.chroma__meta {
+  margin: 0;
+  color: var(--muted);
+}
+
+/* ---------- Table ---------- */
+
+.chroma-table {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(3.5rem, 1fr) auto minmax(3.5rem, 1fr);
+  grid-template-areas:
+    ".     north ."
+    "west  mid   east"
+    "south south south";
+  align-items: center;
+  justify-items: center;
+  gap: 0.4rem;
+  width: 100%;
+  max-width: 40rem;
+  min-height: 17rem;
+  padding: 0.75rem 0.35rem;
+  background:
+    radial-gradient(ellipse 70% 60% at 50% 50%, rgba(139, 61, 255, 0.14), transparent 75%),
+    var(--void);
+  border: 1px solid rgba(139, 61, 255, 0.4);
+  border-radius: 999px / 140px;
+  box-shadow:
+    inset 0 0 40px rgba(0, 0, 0, 0.6),
+    0 0 18px rgba(139, 61, 255, 0.15);
+}
+
+/* ---------- Seats ---------- */
+
+.chroma-seat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
+  padding: 0.3rem 0.5rem;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  text-align: center;
+  transition:
+    border-color 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.chroma-seat--s2 {
+  grid-area: north;
+}
+
+.chroma-seat--s1 {
+  grid-area: west;
+}
+
+.chroma-seat--s3 {
+  grid-area: east;
+}
+
+.chroma-seat--s0 {
+  grid-area: south;
+  flex-direction: row;
+  gap: 0.6rem;
+}
+
+.chroma-seat__name {
+  font-family: var(--font-display);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--hot-pink);
+}
+
+.chroma-seat--s0 .chroma-seat__name {
+  color: var(--laser-blue);
+}
+
+.chroma-seat__cards {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.chroma-seat__stack {
+  --cc-w: 22px;
+  display: inline-flex;
+}
+
+.chroma-seat__stack .cc + .cc {
+  margin-left: -15px;
+}
+
+.chroma-seat__count {
+  min-width: 1.4em;
+  font-family: var(--font-display);
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.chroma-seat--s0 .chroma-seat__count {
+  font-size: 0.75rem;
+  font-weight: 400;
+  color: var(--muted);
+}
+
+.chroma-seat__called {
+  padding: 0.1rem 0.35rem;
+  font-family: var(--font-display);
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--toxic);
+  border: 1px solid rgba(140, 255, 0, 0.5);
+  border-radius: 4px;
+  white-space: nowrap;
+}
+
+.chroma-seat--turn {
+  border-color: rgba(0, 217, 255, 0.55);
+  box-shadow: 0 0 12px rgba(0, 217, 255, 0.25);
+}
+
+/* ---------- Centre: piles, colour, direction ---------- */
+
+.chroma-center {
+  grid-area: mid;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.chroma-piles {
+  --cc-w: var(--cc-pile);
+  display: flex;
+  align-items: flex-start;
+  gap: calc(var(--cc-pile) * 0.3);
+}
+
+.chroma-draw {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0;
+  margin: 0;
+  color: var(--muted);
+  background: none;
+  border: 0;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.chroma-draw:disabled {
+  cursor: default;
+}
+
+.chroma-draw__label {
+  font-family: var(--font-display);
+  font-size: 0.625rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.chroma-draw:not(:disabled) .chroma-draw__label {
+  color: var(--laser-blue);
+}
+
+@media (hover: hover) {
+  .chroma-draw:not(:disabled):hover .cc {
+    transform: translateY(-3px);
+  }
+}
+
+.chroma-draw .cc {
+  transition: transform 140ms ease;
+}
+
+/* Nothing to play: the draw pile calls for attention. */
+.chroma-draw--hint .cc {
+  animation: chroma-hint 1.2s ease-in-out infinite;
+}
+
+@keyframes chroma-hint {
+  50% {
+    box-shadow: 0 0 0 2px var(--laser-blue), 0 0 16px rgba(0, 217, 255, 0.6);
+  }
+}
+
+.chroma-draw:focus {
+  outline: none;
+}
+
+.chroma-draw:focus-visible {
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 3px;
+}
+
+.chroma-discard__card {
+  animation: chroma-land 260ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes chroma-land {
+  from {
+    transform: translateY(-18px) rotate(-8deg) scale(1.08);
+    opacity: 0;
+  }
+}
+
+.chroma-now {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.chroma-now__color {
+  --tone: var(--laser-blue);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.15rem 0.45rem;
+  font-family: var(--font-display);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--tone);
+  border: 1px solid var(--tone);
+  border-radius: 999px;
+  box-shadow: 0 0 10px color-mix(in srgb, var(--tone) 35%, transparent);
+}
+
+.chroma-now__color .cc-shape {
+  width: 0.8rem;
+  height: 0.8rem;
+}
+
+.chroma-now__color--pink {
+  --tone: var(--hot-pink);
+}
+
+.chroma-now__color--green {
+  --tone: var(--toxic);
+}
+
+.chroma-now__color--orange {
+  --tone: var(--orange);
+}
+
+.chroma-now__dir {
+  display: inline-flex;
+  color: var(--uv-purple-text);
+}
+
+.chroma-now__dir svg {
+  width: 1.2rem;
+  height: 1.2rem;
+  transition: transform 300ms ease;
+}
+
+.chroma-now__dir--flip {
+  transform: scaleX(-1);
+}
+
+/* ---------- Your hand ---------- */
+
+.chroma-hand-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  width: 100%;
+  max-width: 52rem;
+  container-type: inline-size;
+}
+
+.chroma-hand {
+  --cc-w: var(--cc-hand);
+  /* Overlap so the row fits the width, never spreading wider than a
+     comfortable fan. */
+  --step: min(calc(var(--cc-hand) * 0.72), calc((100cqw - var(--cc-hand)) / max(1, var(--n) - 1)));
+  display: flex;
+  justify-content: center;
+  padding-top: 14px;
+}
+
+.chroma-hand__card {
+  position: relative;
+  flex: none;
+  padding: 0;
+  margin: 0;
+  background: none;
+  border: 0;
+  border-radius: 6px;
+  cursor: pointer;
+  transition:
+    transform 140ms ease,
+    filter 140ms ease;
+}
+
+.chroma-hand__card + .chroma-hand__card {
+  margin-left: calc(var(--step) - var(--cc-hand));
+}
+
+.chroma-hand__card[aria-disabled="true"] {
+  cursor: default;
+}
+
+@media (hover: hover) {
+  .chroma-hand__card:not([aria-disabled="true"]):hover {
+    transform: translateY(-6px);
+  }
+}
+
+.chroma-hand__card--lifted,
+.chroma-hand__card--lifted:hover {
+  transform: translateY(-14px);
+}
+
+.chroma-hand__card--lifted .cc {
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+}
+
+/* The card you just drew. */
+.chroma-hand__card--drawn {
+  transform: translateY(-10px);
+}
+
+.chroma-hand__card--blocked {
+  filter: brightness(0.42) saturate(0.55);
+}
+
+.chroma-hand__card:focus {
+  outline: none;
+}
+
+.chroma-hand__card:focus-visible {
+  z-index: 1;
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+/* ---------- Actions and status ---------- */
+
+.chroma-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  width: 100%;
+  gap: 0.5rem;
+  min-height: 44px;
+}
+
+.chroma-actions .fp-btn {
+  min-height: 44px;
+}
+
+.chroma-actions__call,
+.chroma-actions__catch {
+  animation: chroma-flash 0.8s ease-in-out infinite alternate;
+}
+
+@keyframes chroma-flash {
+  to {
+    filter: brightness(1.35);
+    box-shadow: 0 0 16px currentColor;
+  }
+}
+
+.chroma__status {
+  margin: 0;
+  min-height: 2.6em;
+  max-width: 32rem;
+  font-size: 0.9rem;
+  color: var(--text);
+  text-align: center;
+}
+
+.chroma__record {
+  margin: 0;
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+/* ---------- Overlays: colour picker, round summary ---------- */
+
+.chroma-summary {
+  position: absolute;
+  inset: 0.5rem;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin: auto;
+  max-width: 22rem;
+  padding: 0.6rem 0.9rem;
+  background: rgba(8, 6, 18, 0.94);
+  border: 1px solid rgba(0, 217, 255, 0.45);
+  border-radius: 10px;
+}
+
+/* The colour picker sits right under your hand, where you just played. */
+.chroma-picker {
+  width: 100%;
+  max-width: 28rem;
+}
+
+.chroma-picker__grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.4rem;
+  width: 100%;
+}
+
+.chroma-picker__btn {
+  --tone: var(--laser-blue);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.3rem;
+  min-width: 0;
+  min-height: 60px;
+  padding: 0.4rem 0.2rem;
+  font-family: var(--font-display);
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--tone);
+  background: color-mix(in srgb, var(--tone) 10%, var(--void));
+  border: 2px solid var(--tone);
+  border-radius: 8px;
+  cursor: pointer;
+  box-shadow: 0 0 12px color-mix(in srgb, var(--tone) 30%, transparent);
+  transition:
+    background-color 140ms ease,
+    transform 140ms ease;
+}
+
+.chroma-picker__btn .cc-shape {
+  width: 1.3rem;
+  height: 1.3rem;
+}
+
+.chroma-picker__btn--pink {
+  --tone: var(--hot-pink);
+}
+
+.chroma-picker__btn--green {
+  --tone: var(--toxic);
+}
+
+.chroma-picker__btn--orange {
+  --tone: var(--orange);
+}
+
+@media (hover: hover) {
+  .chroma-picker__btn:hover {
+    background: color-mix(in srgb, var(--tone) 22%, var(--void));
+  }
+}
+
+.chroma-picker__btn:focus {
+  outline: none;
+}
+
+.chroma-picker__btn:focus-visible {
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+.chroma-summary--success {
+  border-color: rgba(140, 255, 0, 0.5);
+}
+
+.chroma-summary--danger {
+  border-color: rgba(255, 43, 214, 0.5);
+}
+
+.chroma-summary__detail {
+  margin: 0;
+  font-family: var(--font-display);
+  color: var(--toxic);
+}
+
+.chroma-summary__table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+
+.chroma-summary__table th,
+.chroma-summary__table td {
+  padding: 0.2rem 0.4rem;
+  text-align: center;
+  border-bottom: 1px solid var(--surface-2);
+}
+
+.chroma-summary__table th[scope="row"] {
+  text-align: left;
+  font-weight: 400;
+  color: var(--muted);
+}
+
+.chroma-summary__table thead th {
+  font-family: var(--font-display);
+  font-size: 0.7rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.chroma-summary__winner th[scope="row"],
+.chroma-summary__winner td {
+  color: var(--toxic);
+  font-weight: 700;
+}
+
+/* ---------- Wide screens: scores and controls in a side column ---------- */
+
+@container screen (min-width: 900px) and (orientation: landscape) {
+  .chroma {
+    --cc-hand: clamp(56px, calc((var(--play-w) - 290px) * 0.1), 84px);
+    --cc-pile: clamp(60px, calc((var(--play-w) - 290px) * 0.08), 80px);
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 250px;
+    grid-template-rows: auto 1fr;
+    grid-template-areas:
+      "main top"
+      "main bottom";
+    column-gap: clamp(1rem, 3cqw, 2rem);
+    align-items: start;
+  }
+
+  .chroma__main {
+    grid-area: main;
+  }
+
+  .chroma__side-top {
+    grid-area: top;
+    padding-top: 0.5rem;
+  }
+
+  .chroma__side-bottom {
+    grid-area: bottom;
+  }
+
+  .chroma__scores {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
