@@ -16,6 +16,32 @@ When adding an entry for a new game or feature, copy the pattern below:
 
 ---
 
+## `2fdc8f5` — Add 8-Ball
+
+- Standard 8-ball against the computer or a second player on one device.
+  Rules: break from behind the head string (weak break or scratch is a
+  foul, 8 on the break re-racks), open table until the first legal pot,
+  called pocket for the 8, ball in hand anywhere after any foul
+  (scratch, no hit, wrong ball first, no rail), and alternating breaks.
+- Physics is a small deterministic model in `physics.ts` (100×50" table,
+  sliding vs. rolling friction, follow/draw from the cue's top/back
+  spin, english that only acts at cushions, rail jaws, exact-time
+  ball-ball contact). Being deterministic lets the hook settle each
+  shot instantly (and save it) before animating it, and lets the
+  computer test-run shots. The static table is cached in an offscreen
+  layer; redrawing its glows every frame couldn't hold 60fps.
+- The computer has a 1–10 skill slider (Rookie → Shark). Aim and power
+  noise shrink with level, it looks further ahead from level 2, plays
+  safeties from 6 and position and spin from 7. Over 100 racks each,
+  each level beats the one below 58–78% of the time, and level 10 beats
+  level 1 in 96%.
+- Controls: drag on the table to aim (◀ ▶ fine-tune), set a power slider,
+  then press Shoot. Pull-to-shoot was tried first and dropped after
+  playtesting because it felt awkward with both mouse and touch. Spin
+  is a cue-ball dial that resets after each shot, and the Shoot button
+  names the spin you've set. On portrait screens the table turns upright
+  with a full-height power bar beside it.
+
 ## `bdf89b9` — Add Chroma Clash
 
 - New game: an original colour-matching shedding game, you against three
