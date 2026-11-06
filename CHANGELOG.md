@@ -16,6 +16,37 @@ When adding an entry for a new game or feature, copy the pattern below:
 
 ---
 
+## `2033ad9` — Add attract mode to the home floor
+
+- Phase 5. After 8s without input on the home page, one cabinet at a time
+  "wakes" for 3.2s. It shows the same lift, glow and blinking Press start
+  as hover (the card's `data-attract` shares those CSS rules rather than
+  copying them). Its icon also plays a short loop of its game: the snake
+  slithers, 2048 tiles merge, a Reversi disc flips, the Flow pipes draw
+  themselves, and so on.
+- Sequencing is a pure, tested module (`pages/Home/attract.ts`). Each
+  round visits the cabinets in a fresh shuffled order, never the same one
+  twice in a row, and the spotlight rests after two rounds (~77s) until
+  the next interaction followed by idle. Cabinets less than 60% on screen
+  are skipped, so on a phone it only lights what you can see.
+- `useAttract` owns the timers and listeners. Any pointer, key, wheel,
+  scroll or touch stops it at once. Reduced motion and a hidden tab keep
+  it off. Measured in a real browser: first wake at 8.2s, then gaps of
+  3201–3202ms, 24 wakes per run, and the same gaps after leaving and
+  coming back (no doubled timers).
+- The icon loops only use transforms, opacity and stroke offsets, and run
+  only inside a card marked `data-attract`, so the icons look unchanged
+  at rest. Solitaire's and Mahjong's parts are wrapped in `<g>` groups
+  because a CSS transform would replace their SVG `transform` attributes.
+  The Chess knight rears up rather than hopping an L, which on a 32-unit
+  icon either hit the king or landed between squares.
+- Deliberately not done: a real self-playing demo of each game. That
+  would mean a bot per game and fake input fed into live game
+  components, which is a major architectural change for a decorative
+  feature.
+
+---
+
 ## `8ce7acb` — Standardize game controls, confirm prompts, and small text
 
 - Phase 4 consistency pass. Settings everywhere (difficulty, mode, level,
