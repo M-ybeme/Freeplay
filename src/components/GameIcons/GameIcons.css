@@ -233,3 +233,17 @@
   46% { transform: translateY(-4px) rotate(-10deg); }
   58%, 100% { transform: none; }
 }
+
+/* ---------- Spades: a card slaps down onto the trick ---------- */
+
+[data-attract] .gi-sp-card {
+  animation: gi-sp-slap 3s cubic-bezier(0.3, 0, 0.2, 1) both;
+}
+
+@keyframes gi-sp-slap {
+  0% { transform: none; opacity: 1; }
+  12% { transform: translate(3px, -8px) rotate(10deg); opacity: 0; }
+  24% { transform: translate(3px, -8px) rotate(10deg); opacity: 1; }
+  44% { transform: scale(0.94); }
+  52%, 100% { transform: none; opacity: 1; }
+}

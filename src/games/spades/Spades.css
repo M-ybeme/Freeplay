@@ -1,0 +1,458 @@
+/*
+ * Spades: a four-seat card table under UV light. Stacked on phones and
+ * narrow panels (scores, table, hand, controls); on wide landscape
+ * screens the scores and controls move to a side column.
+ */
+.spades {
+  /* Card sizes follow the panel width. */
+  --pc-hand: clamp(50px, calc(var(--play-w) * 0.15), 76px);
+  --pc-trick: clamp(34px, calc(var(--play-w) * 0.115), 66px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  gap: 0.6rem;
+}
+
+.spades__side-top,
+.spades__side-bottom,
+.spades__main {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  gap: 0.6rem;
+}
+
+/* ---------- Scores ---------- */
+
+.spades__scores {
+  display: flex;
+  justify-content: center;
+  gap: 0.6rem;
+}
+
+.spades__team {
+  min-width: 6.5rem;
+}
+
+.spades__team--us .fp-hud-value {
+  color: var(--laser-blue);
+}
+
+.spades__team--them .fp-hud-value {
+  color: var(--hot-pink);
+}
+
+.spades__bags {
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+
+.spades__meta {
+  margin: 0;
+  color: var(--muted);
+}
+
+/* ---------- Table ---------- */
+
+.spades-table {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(3.75rem, 1fr) auto minmax(3.75rem, 1fr);
+  grid-template-areas:
+    ".     north ."
+    "west  trick east"
+    "south south south";
+  align-items: center;
+  justify-items: center;
+  gap: 0.4rem;
+  width: 100%;
+  max-width: 40rem;
+  min-height: 17rem;
+  padding: 0.75rem 0.35rem;
+  background:
+    radial-gradient(ellipse 70% 60% at 50% 50%, rgba(139, 61, 255, 0.14), transparent 75%),
+    var(--void);
+  border: 1px solid rgba(139, 61, 255, 0.4);
+  border-radius: 999px / 140px;
+  box-shadow:
+    inset 0 0 40px rgba(0, 0, 0, 0.6),
+    0 0 18px rgba(139, 61, 255, 0.15);
+}
+
+/* ---------- Seats ---------- */
+
+.spades-seat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.15rem;
+  padding: 0.3rem 0.5rem;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  text-align: center;
+  transition:
+    border-color 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.spades-seat--s2 {
+  grid-area: north;
+}
+
+.spades-seat--s1 {
+  grid-area: west;
+}
+
+.spades-seat--s3 {
+  grid-area: east;
+}
+
+.spades-seat--s0 {
+  grid-area: south;
+  flex-direction: row;
+  gap: 0.5rem;
+}
+
+.spades-seat__name {
+  font-family: var(--font-display);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--hot-pink);
+}
+
+/* Your side reads in your colour. */
+.spades-seat--partner .spades-seat__name,
+.spades-seat--s0 .spades-seat__name {
+  color: var(--laser-blue);
+}
+
+.spades-seat__stats {
+  font-size: 0.75rem;
+  color: var(--text);
+  white-space: nowrap;
+}
+
+/* The side seats are narrow on phones: Bid and Won on their own lines. */
+.spades-seat--s1 .spades-seat__stats,
+.spades-seat--s3 .spades-seat__stats {
+  display: flex;
+  flex-direction: column;
+}
+
+.spades-seat--s1 .spades-seat__dot,
+.spades-seat--s3 .spades-seat__dot {
+  display: none;
+}
+
+.spades-seat__cards {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  min-height: 34px;
+}
+
+.spades-seat__back {
+  --pc-width: 24px;
+}
+
+.spades-seat__count {
+  font-family: var(--font-display);
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+
+/* Whose turn it is. */
+.spades-seat--turn {
+  border-color: rgba(0, 217, 255, 0.55);
+  box-shadow: 0 0 12px rgba(0, 217, 255, 0.25);
+}
+
+/* ---------- Trick ---------- */
+
+.spades-trick {
+  grid-area: trick;
+  position: relative;
+  /* Wide and tall enough that the four cards only just touch. */
+  width: calc(var(--pc-trick) * 3.1);
+  height: calc(var(--pc-trick) * 1.4 * 2.3);
+}
+
+.spades-trick__card {
+  --pc-width: var(--pc-trick);
+  position: absolute;
+  animation: spades-lay 240ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Each card lands on its player's side of the table. */
+.spades-trick__card--s0 {
+  bottom: 0;
+  left: 50%;
+  margin-left: calc(var(--pc-trick) / -2);
+  --from: 0, 40px;
+}
+
+.spades-trick__card--s2 {
+  top: 0;
+  left: 50%;
+  margin-left: calc(var(--pc-trick) / -2);
+  --from: 0, -40px;
+}
+
+.spades-trick__card--s1 {
+  left: 0;
+  top: 50%;
+  margin-top: calc(var(--pc-trick) * -0.7);
+  --from: -40px, 0;
+}
+
+.spades-trick__card--s3 {
+  right: 0;
+  top: 50%;
+  margin-top: calc(var(--pc-trick) * -0.7);
+  --from: 40px, 0;
+}
+
+@keyframes spades-lay {
+  from {
+    transform: translate(var(--from));
+    opacity: 0;
+  }
+}
+
+.spades-trick__card--winner .playing-card {
+  box-shadow:
+    0 0 0 2px var(--toxic),
+    0 0 16px rgba(140, 255, 0, 0.55);
+}
+
+/* ---------- Bidding ---------- */
+
+.spades-bid {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.45rem;
+  width: 100%;
+  max-width: 32rem;
+}
+
+.spades-bid__hint {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--text);
+  text-align: center;
+}
+
+.spades-bid__grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 0.3rem;
+  width: 100%;
+}
+
+.spades-bid__btn {
+  min-width: 0;
+  min-height: 44px;
+  padding: 0;
+  font-size: 0.85rem;
+}
+
+.spades-bid__btn--nil {
+  color: var(--toxic);
+}
+
+/* ---------- Your hand ---------- */
+
+.spades-hand-wrap {
+  width: 100%;
+  max-width: 48rem;
+  container-type: inline-size;
+}
+
+.spades-hand {
+  --pc-width: var(--pc-hand);
+  /* Overlap so the whole hand fits the width, never spreading wider than
+     a comfortable fan. */
+  --step: min(calc(var(--pc-hand) * 0.7), calc((100cqw - var(--pc-hand)) / max(1, var(--n) - 1)));
+  display: flex;
+  justify-content: center;
+  padding-top: 14px;
+}
+
+.spades-hand__card {
+  position: relative;
+  flex: none;
+  padding: 0;
+  margin: 0;
+  background: none;
+  border: 0;
+  border-radius: 6px;
+  cursor: pointer;
+  transition:
+    transform 140ms ease,
+    filter 140ms ease;
+}
+
+.spades-hand__card + .spades-hand__card {
+  margin-left: calc(var(--step) - var(--pc-hand));
+}
+
+.spades-hand__card[aria-disabled="true"] {
+  cursor: default;
+}
+
+@media (hover: hover) {
+  .spades-hand__card:not([aria-disabled="true"]):hover {
+    transform: translateY(-6px);
+  }
+}
+
+.spades-hand__card--lifted,
+.spades-hand__card--lifted:hover {
+  transform: translateY(-14px);
+}
+
+.spades-hand__card--lifted .playing-card {
+  box-shadow:
+    0 0 0 2px var(--laser-blue),
+    0 0 14px rgba(0, 217, 255, 0.5);
+}
+
+/* On your turn, cards you can't play step back. */
+.spades-hand__card--blocked {
+  filter: brightness(0.45) saturate(0.6);
+}
+
+.spades-hand__card:focus {
+  outline: none;
+}
+
+.spades-hand__card:focus-visible {
+  z-index: 1;
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+/* ---------- Status, summary, result ---------- */
+
+.spades__status {
+  margin: 0;
+  min-height: 1.3em;
+  font-size: 0.9rem;
+  color: var(--text);
+  text-align: center;
+}
+
+/* Between hands the summary lies over the table, so it's in view
+   without scrolling (the hand below it is empty by then). */
+.spades-summary {
+  position: absolute;
+  inset: 0.5rem;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  margin: auto;
+  max-width: 22rem;
+  padding: 0.6rem 0.9rem;
+  background: rgba(8, 6, 18, 0.94);
+  border: 1px solid rgba(0, 217, 255, 0.45);
+  border-radius: 10px;
+}
+
+.spades-summary--success {
+  border-color: rgba(140, 255, 0, 0.5);
+}
+
+.spades-summary--danger {
+  border-color: rgba(255, 43, 214, 0.5);
+}
+
+.spades-summary__table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+
+.spades-summary__table th,
+.spades-summary__table td {
+  padding: 0.2rem 0.4rem;
+  text-align: center;
+  border-bottom: 1px solid var(--surface-2);
+}
+
+.spades-summary__table th[scope="row"] {
+  text-align: left;
+  font-weight: 400;
+  color: var(--muted);
+}
+
+.spades-summary__table thead th {
+  font-family: var(--font-display);
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.spades-summary__points td {
+  font-family: var(--font-display);
+  font-weight: 700;
+  color: var(--toxic);
+}
+
+.spades-summary__points td.spades-summary__neg,
+.spades-summary__penalty {
+  color: var(--hot-pink);
+}
+
+.spades__record {
+  margin: 0;
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+.spades__sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* ---------- Wide screens: scores and controls in a side column ---------- */
+
+@container screen (min-width: 900px) and (orientation: landscape) {
+  .spades {
+    --pc-hand: clamp(56px, calc((var(--play-w) - 290px) * 0.11), 86px);
+    --pc-trick: clamp(50px, calc((var(--play-w) - 290px) * 0.075), 70px);
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 250px;
+    grid-template-rows: auto 1fr;
+    grid-template-areas:
+      "main top"
+      "main bottom";
+    column-gap: clamp(1rem, 3cqw, 2rem);
+    align-items: start;
+  }
+
+  .spades__main {
+    grid-area: main;
+  }
+
+  .spades__side-top {
+    grid-area: top;
+    padding-top: 0.5rem;
+  }
+
+  .spades__side-bottom {
+    grid-area: bottom;
+  }
+}

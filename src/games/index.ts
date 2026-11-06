@@ -12,6 +12,7 @@ import { definition as brickBreakerDefinition, default as BrickBreaker } from ".
 import { definition as mahjongDefinition, default as Mahjong } from "./mahjong";
 import { definition as reversiDefinition, default as Reversi } from "./reversi";
 import { definition as chessDefinition, default as Chess } from "./chess";
+import { definition as spadesDefinition, default as Spades } from "./spades";
 
 export interface GameEntry {
   definition: GameDefinition;
@@ -31,6 +32,7 @@ export const games: GameEntry[] = [
   { definition: mahjongDefinition, Component: Mahjong },
   { definition: reversiDefinition, Component: Reversi },
   { definition: chessDefinition, Component: Chess },
+  { definition: spadesDefinition, Component: Spades },
 ];
 
 export function getGameById(id: string): GameEntry | undefined {
