@@ -12,6 +12,7 @@ export function BlackjackIcon({ className }: IconProps) {
         strokeWidth="1.75"
         strokeLinejoin="miter"
       />
+      <g className="gi-bj-front">
       <polygon
         points="12,10 27,10 27,27 16,27 12,23"
         fill="var(--surface)"
@@ -27,6 +28,7 @@ export function BlackjackIcon({ className }: IconProps) {
         fill="var(--hot-pink)"
         transform="rotate(45 20.5 18.5)"
       />
+      </g>
     </svg>
   );
 }

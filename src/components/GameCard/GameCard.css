@@ -137,8 +137,10 @@
 
 /* ---------- Interaction ---------- */
 
-/* Walking up to a machine: it lifts, glows, and the attract text blinks. */
-.game-card:focus-visible {
+/* Walking up to a machine (or attract mode waking it): it lifts, glows,
+   and the attract text blinks. */
+.game-card:focus-visible,
+.game-card[data-attract] {
   transform: translateY(-3px);
   border-color: color-mix(in srgb, var(--accent) 60%, #2a2440);
   box-shadow:
@@ -158,7 +160,8 @@
   }
 }
 
-.game-card:focus-visible .game-card__icon {
+.game-card:focus-visible .game-card__icon,
+.game-card[data-attract] .game-card__icon {
   filter: drop-shadow(0 0 10px var(--accent)) brightness(1.2);
   transform: scale(1.1);
 }
@@ -170,7 +173,8 @@
   }
 }
 
-.game-card:focus-visible .game-card__start {
+.game-card:focus-visible .game-card__start,
+.game-card[data-attract] .game-card__start {
   opacity: 1;
   text-shadow: 0 0 8px rgba(140, 255, 0, 0.6);
   animation: game-card-blink 900ms steps(1) infinite;

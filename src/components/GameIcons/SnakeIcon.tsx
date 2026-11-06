@@ -6,6 +6,7 @@ export function SnakeIcon({ className }: IconProps) {
   return (
     <svg viewBox="0 0 32 32" className={className} aria-hidden="true" focusable="false">
       <polyline
+        className="gi-snake-body"
         points="5,25 12,25 12,17 19,17 19,10"
         fill="none"
         stroke="var(--toxic)"

@@ -1,5 +1,7 @@
+import { useRef } from "react";
 import { games } from "../../games";
 import { GameCard } from "../../components/GameCard/GameCard";
+import { useAttract } from "./useAttract";
 import "./Home.css";
 
 /*
@@ -8,6 +10,10 @@ import "./Home.css";
  * decorative and sit behind everything.
  */
 export function Home() {
+  const gridRef = useRef<HTMLDivElement>(null);
+  // Attract mode: after a quiet spell, cabinets wake one at a time.
+  const awake = useAttract(gridRef, games.length);
+
   return (
     <div className="home">
       <div className="home__floor" aria-hidden="true" />
@@ -32,9 +38,9 @@ export function Home() {
             {String(games.length).padStart(2, "0")} machines online
           </p>
         </div>
-        <div className="home__grid">
+        <div className="home__grid" ref={gridRef}>
           {games.map((game, i) => (
-            <GameCard key={game.definition.id} game={game.definition} index={i} />
+            <GameCard key={game.definition.id} game={game.definition} index={i} attract={i === awake} />
           ))}
         </div>
       </section>

@@ -13,7 +13,7 @@ export function ColorSortIcon({ className }: IconProps) {
         strokeLinejoin="round"
       />
       <path d="M12.2 19.4 A4 4 0 0 0 19.8 19.4 L19.8 15 L12.2 15 Z" fill="var(--toxic)" />
-      <rect x="12.2" y="9" width="7.6" height="4.5" fill="var(--hot-pink)" />
+      <rect className="gi-cs-block" x="12.2" y="9" width="7.6" height="4.5" fill="var(--hot-pink)" />
       <line x1="9" y1="4" x2="23" y2="4" stroke="var(--muted)" strokeWidth="2" strokeLinecap="round" />
     </svg>
   );

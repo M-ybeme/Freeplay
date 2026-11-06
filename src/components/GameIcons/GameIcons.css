@@ -1,0 +1,235 @@
+/*
+ * Attract-mode loops: each cabinet icon acts out its game for about three
+ * seconds while its card carries data-attract (see pages/Home/useAttract).
+ * At rest every part sits exactly where the SVG draws it. Only transforms,
+ * opacity and stroke offsets move, and reduced motion never reaches here
+ * (the spotlight is off, and theme.css stops animations as a backstop).
+ */
+
+[data-attract] [class^="gi-"],
+[data-attract] [class*=" gi-"] {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+/* ---------- Higher or Lower: up, then down ---------- */
+
+[data-attract] .gi-hol-up {
+  animation: gi-hol-up 3s ease-in-out both;
+}
+
+[data-attract] .gi-hol-down {
+  animation: gi-hol-down 3s ease-in-out both;
+}
+
+@keyframes gi-hol-up {
+  0%, 45%, 100% { transform: none; }
+  15%, 30% { transform: translateY(-3px); }
+}
+
+@keyframes gi-hol-down {
+  0%, 50%, 100% { transform: none; }
+  65%, 80% { transform: translateY(3px); }
+}
+
+/* ---------- Snake: the dashed body slides toward the head ---------- */
+
+[data-attract] .gi-snake-body {
+  animation: gi-snake-slither 0.7s linear infinite;
+}
+
+@keyframes gi-snake-slither {
+  to { stroke-dashoffset: -6.7; }
+}
+
+/* ---------- 2048: corners slide in, the centre pops ---------- */
+
+.gi-2048-tl { --dx: 7px; --dy: 7px; }
+.gi-2048-tr { --dx: -7px; --dy: 7px; }
+.gi-2048-bl { --dx: 7px; --dy: -7px; }
+.gi-2048-br { --dx: -7px; --dy: -7px; }
+
+[data-attract] .gi-2048-tile {
+  animation: gi-2048-slide 3s cubic-bezier(0.5, 0, 0.2, 1) both;
+}
+
+[data-attract] .gi-2048-merge {
+  animation: gi-2048-pop 3s ease-out both;
+}
+
+@keyframes gi-2048-slide {
+  0%, 12% { transform: none; opacity: 1; }
+  32% { transform: translate(var(--dx), var(--dy)); opacity: 0; }
+  70% { transform: none; opacity: 0; }
+  85%, 100% { transform: none; opacity: 1; }
+}
+
+@keyframes gi-2048-pop {
+  0%, 30% { transform: none; }
+  40% { transform: scale(1.3); }
+  52%, 100% { transform: none; }
+}
+
+/* ---------- Blackjack: the front card flips, the pip flashes ---------- */
+
+[data-attract] .gi-bj-front {
+  animation: gi-bj-flip 3s ease-in-out both;
+}
+
+@keyframes gi-bj-flip {
+  0%, 15% { transform: none; }
+  32% { transform: scaleX(0); }
+  50%, 100% { transform: none; }
+}
+
+/* ---------- Minesweeper: the crosshair turns, the core flashes ---------- */
+
+[data-attract] .gi-ms-ticks {
+  transform-box: view-box;
+  animation: gi-ms-turn 3s cubic-bezier(0.6, 0, 0.2, 1) both;
+}
+
+[data-attract] .gi-ms-core {
+  animation: gi-ms-flash 3s ease-out both;
+}
+
+@keyframes gi-ms-turn {
+  0%, 10% { transform: none; }
+  45%, 100% { transform: rotate(90deg); }
+}
+
+@keyframes gi-ms-flash {
+  0%, 45% { transform: none; opacity: 1; }
+  52% { transform: scale(1.8); opacity: 0.6; }
+  62%, 100% { transform: none; opacity: 1; }
+}
+
+/* ---------- Flow: both pipes draw from dot to dot ---------- */
+
+[data-attract] .gi-flow-pipe {
+  stroke-dasharray: 1 1;
+  animation: gi-flow-draw 3s ease-in-out both;
+}
+
+[data-attract] .gi-flow-pipe--late {
+  animation-delay: 0.5s;
+}
+
+@keyframes gi-flow-draw {
+  0% { stroke-dashoffset: 0; }
+  10% { stroke-dashoffset: 1; }
+  45%, 100% { stroke-dashoffset: 0; }
+}
+
+/* ---------- Color Sort: the pink block drops in and settles ---------- */
+
+[data-attract] .gi-cs-block {
+  animation: gi-cs-drop 3s cubic-bezier(0.5, 0, 0.5, 1) both;
+}
+
+@keyframes gi-cs-drop {
+  0% { transform: none; opacity: 1; }
+  12% { transform: translateY(-11px); opacity: 0; }
+  22% { transform: translateY(-11px); opacity: 1; }
+  48% { transform: none; }
+  54% { transform: translateY(-1.5px); }
+  60%, 100% { transform: none; opacity: 1; }
+}
+
+/* ---------- Solitaire: the fan spreads, then closes ---------- */
+
+.gi-sol-left { --turn: -9deg; }
+.gi-sol-right { --turn: 9deg; }
+
+[data-attract] .gi-sol-fan {
+  transform-box: view-box;
+  transform-origin: 16px 27px;
+  animation: gi-sol-spread 3s ease-in-out both;
+}
+
+@keyframes gi-sol-spread {
+  0%, 10% { transform: none; }
+  40%, 60% { transform: rotate(var(--turn)); }
+  90%, 100% { transform: none; }
+}
+
+/* ---------- Brick Breaker: the ball rides its path, a brick breaks ---------- */
+
+[data-attract] .gi-bb-ball {
+  animation: gi-bb-ball 3s ease-in-out both;
+}
+
+[data-attract] .gi-bb-brick {
+  animation: gi-bb-break 3s steps(1, end) both;
+}
+
+[data-attract] .gi-bb-paddle {
+  animation: gi-bb-paddle 3s ease-in-out both;
+}
+
+@keyframes gi-bb-ball {
+  0% { transform: none; }
+  15% { transform: translate(-9px, 9px); }
+  45% { transform: translate(3px, -6px); }
+  70%, 100% { transform: none; }
+}
+
+@keyframes gi-bb-break {
+  0% { opacity: 1; }
+  45% { opacity: 0; }
+  50% { opacity: 0.6; }
+  55% { opacity: 0; }
+  85%, 100% { opacity: 1; }
+}
+
+@keyframes gi-bb-paddle {
+  0%, 10% { transform: none; }
+  18% { transform: translateX(-1.5px); }
+  40%, 100% { transform: none; }
+}
+
+/* ---------- Mahjong: the top tile lifts off as a match, then returns ---------- */
+
+[data-attract] .gi-mj-top {
+  animation: gi-mj-lift 3s ease-in-out both;
+}
+
+@keyframes gi-mj-lift {
+  0%, 15% { transform: none; opacity: 1; }
+  40% { transform: translate(-2px, -6px); opacity: 0; }
+  65% { transform: none; opacity: 0; }
+  85%, 100% { transform: none; opacity: 1; }
+}
+
+/* ---------- Reversi: a pink disc flips over to cyan ---------- */
+
+.gi-rv-flip {
+  stroke: transparent;
+  stroke-width: 2;
+}
+
+[data-attract] .gi-rv-flip {
+  animation: gi-rv-flip 3s ease-in-out both;
+}
+
+@keyframes gi-rv-flip {
+  0%, 15% { transform: none; fill: var(--hot-pink); stroke: transparent; r: 4.6px; }
+  32% { transform: scaleX(0); fill: var(--hot-pink); stroke: transparent; r: 4.6px; }
+  33% { transform: scaleX(0); fill: transparent; stroke: var(--laser-blue); r: 4px; }
+  50%, 100% { transform: none; fill: transparent; stroke: var(--laser-blue); r: 4px; }
+}
+
+/* ---------- Chess: the knight rears up twice ---------- */
+
+[data-attract] .gi-ch-knight {
+  transform-origin: 50% 100%;
+  animation: gi-ch-rear 3s ease-in-out both;
+}
+
+@keyframes gi-ch-rear {
+  0%, 10% { transform: none; }
+  22% { transform: translateY(-4px) rotate(-10deg); }
+  34% { transform: none; }
+  46% { transform: translateY(-4px) rotate(-10deg); }
+  58%, 100% { transform: none; }
+}

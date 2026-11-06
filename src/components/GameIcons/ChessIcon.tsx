@@ -15,7 +15,7 @@ export function ChessIcon({ className }: IconProps) {
         strokeWidth="1.4"
         strokeLinejoin="round"
       />
-      <path d="M18.5 26l.8-4.4-2.1-1.6.5-2.6 3.1-3.1.3-1.8 1.8 1.6c2.4 1 3.7 3.9 3.2 7.6l-.5 4.3z" fill="var(--hot-pink)" />
+      <path className="gi-ch-knight" d="M18.5 26l.8-4.4-2.1-1.6.5-2.6 3.1-3.1.3-1.8 1.8 1.6c2.4 1 3.7 3.9 3.2 7.6l-.5 4.3z" fill="var(--hot-pink)" />
     </svg>
   );
 }

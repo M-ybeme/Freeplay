@@ -11,6 +11,7 @@ import { BrickBreakerIcon } from "./BrickBreakerIcon";
 import { MahjongIcon } from "./MahjongIcon";
 import { ReversiIcon } from "./ReversiIcon";
 import { ChessIcon } from "./ChessIcon";
+import "./GameIcons.css";
 
 interface IconProps {
   className?: string;

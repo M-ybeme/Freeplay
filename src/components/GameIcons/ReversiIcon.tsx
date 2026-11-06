@@ -10,7 +10,7 @@ export function ReversiIcon({ className }: IconProps) {
       <line x1="3" y1="16" x2="29" y2="16" stroke="var(--line)" strokeWidth="1" />
       <circle cx="9.5" cy="9.5" r="4" fill="none" stroke="var(--laser-blue)" strokeWidth="2" />
       <circle cx="22.5" cy="22.5" r="4" fill="none" stroke="var(--laser-blue)" strokeWidth="2" />
-      <circle cx="22.5" cy="9.5" r="4.6" fill="var(--hot-pink)" />
+      <circle className="gi-rv-flip" cx="22.5" cy="9.5" r="4.6" fill="var(--hot-pink)" />
       <circle cx="9.5" cy="22.5" r="4.6" fill="var(--hot-pink)" />
     </svg>
   );

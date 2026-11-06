@@ -8,6 +8,8 @@ interface GameCardProps {
   game: GameDefinition;
   /** Position in the grid, used to stagger the entrance animation. */
   index?: number;
+  /** Attract mode: this cabinet is awake (hover look plus its icon loop). */
+  attract?: boolean;
 }
 
 /* Each cabinet's marquee and screen glow take their category's colour, so
@@ -27,11 +29,11 @@ const CATEGORY_ACCENT: Record<GameCategory, string> = {
  * its name, its icon on a CRT screen, and a control deck. The description
  * is kept for screen readers and as a tooltip rather than as body copy.
  */
-export function GameCard({ game, index = 0 }: GameCardProps) {
+export function GameCard({ game, index = 0, attract = false }: GameCardProps) {
   const style = { "--i": index, "--accent": CATEGORY_ACCENT[game.category] } as CSSProperties;
 
   return (
-    <Link to={`/game/${game.id}`} className="game-card" style={style} title={game.description}>
+    <Link to={`/game/${game.id}`} className="game-card" style={style} title={game.description} data-attract={attract || undefined}>
       <span className="game-card__marquee">
         <span className="game-card__name">{game.name}</span>
       </span>
