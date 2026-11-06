@@ -16,6 +16,44 @@ When adding an entry for a new game or feature, copy the pattern below:
 
 ---
 
+## `a1c21e3` — Generate Flow puzzles with clean routes and a single solution
+
+- Reported as "easy puzzles with no winnable solution". A brute-force
+  solver found every generated puzzle technically solvable (3,000 of
+  3,000), but 98% of Easy puzzles (1,475 of 1,500) and 299 of 300 Medium
+  ones could only be finished with a route that touches itself: a U-turn
+  running alongside itself, often a colour filling a two-wide block, or
+  two side-by-side dots that had to be joined the long way round (402 of
+  840 adjacent pairs). Players rule those routes out, so the puzzles read
+  as impossible.
+- Cause: the generator drew one snake through every cell and cut it into
+  pieces, and such pieces almost always hug themselves.
+- New generator (`attemptRoutes`): every cell starts as its own route,
+  and routes are joined end to end at random, favouring short ones, but
+  only when the joined route stays clean (`routeTouchesItself`). Board
+  sizes and pair counts are unchanged. A quality gate caps any route at
+  60% of the board and allows at most one pair of side-by-side dots,
+  always joined directly.
+- `countSolutions`, a bounded backtracking solver, keeps only puzzles
+  with exactly one solution, so each can be reasoned out like a real
+  Flow board. Measured over 500/500/150 puzzles: all clean, all
+  single-solution; generation averages 0.6ms (Easy), 2.9ms (Medium) and
+  41ms (Hard), with a worst case of 186ms on Hard.
+- If no single-solution layout turns up within 6,000 attempts (never
+  seen), the first clean layout is used, then a fixed board per
+  difficulty (`FALLBACK_ROUTES`, checked by tests).
+- `validatePuzzle` now rejects self-touching routes, so a saved
+  old-style puzzle is replaced with a fresh one on load, including one in
+  progress.
+- Checked through the real UI by dragging along each route: Easy, Medium
+  and Hard won on desktop and Easy on a 375px phone, with no console
+  errors.
+- Tests: 18 added (clean routes and single solutions per difficulty,
+  adjacent dots, fallbacks, the solver, old saves rejected). Two
+  validation tests used a self-touching U as their "valid" board and now
+  use two straight rows. The full suite takes about 14s, mostly from the
+  Hard single-solution sweep.
+
 ## `29c93c6` — Let game endings play out, add View board, and fix touch hover
 
 - Six games (Chess, Reversi, 2048, Mahjong, Snake, Brick Breaker) put an
