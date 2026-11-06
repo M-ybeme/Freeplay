@@ -12,6 +12,9 @@
   flex-shrink: 0;
   container-type: inline-size;
   background-color: var(--card-face);
+  /* Faint card stock: a little lighter at the top-left, a little cooler at
+     the bottom-right, so a face reads as printed board, not a flat fill. */
+  background-image: linear-gradient(160deg, #f2f0fa 0%, var(--card-face) 50%, #dad6ea 100%);
   border: 1px solid var(--card-face-2);
   border-radius: 4px;
   clip-path: polygon(10% 0, 100% 0, 100% 90%, 90% 100%, 0 100%, 0 10%);
@@ -39,6 +42,16 @@
 
 .playing-card--black {
   color: var(--card-ink);
+}
+
+/* A thin printed frame inside the edge, chamfered like the card. */
+.playing-card:not(.playing-card--back)::before {
+  content: "";
+  position: absolute;
+  inset: 3cqw;
+  border: 1px solid color-mix(in srgb, currentColor 14%, transparent);
+  clip-path: polygon(8% 0, 100% 0, 100% 92%, 92% 100%, 0 100%, 0 8%);
+  pointer-events: none;
 }
 
 /*
@@ -140,73 +153,92 @@
   height: 100%;
 }
 
+/* The ace's single pip sits in a chamfered ring, so it reads as the
+   card's emblem rather than a lone pip. */
+.playing-card__ace {
+  position: relative;
+}
+
+.playing-card__ace::before {
+  content: "";
+  position: absolute;
+  width: 58cqw;
+  aspect-ratio: 1;
+  border: 1px solid color-mix(in srgb, currentColor 35%, transparent);
+  outline: 1px solid color-mix(in srgb, currentColor 12%, transparent);
+  outline-offset: 2cqw;
+  clip-path: polygon(16% 0, 100% 0, 100% 84%, 84% 100%, 0 100%, 0 16%);
+  transform: rotate(45deg) scale(0.86);
+}
+
 .playing-card__ace-icon {
-  width: 40cqw;
-  height: 40cqw;
-  filter: drop-shadow(0 0 6px rgba(0, 0, 0, 0.15));
+  position: relative;
+  width: 36cqw;
+  height: 36cqw;
 }
 
 /* ---------- Face cards (J/Q/K) ---------- */
 
 /*
- * Court cards: a framed inner panel tinted with the suit colour, chamfered
- * like the card itself, holding rank chevrons, the letter, a rule, the
- * suit and the name. Inset horizontally so the frame clears the corner
- * index strip.
+ * Court cards: a framed panel tinted with the suit colour, chamfered like
+ * the card, holding a two-ended figure (CardArt.tsx). Inset horizontally
+ * so the frame clears the corner index strip.
  */
 .playing-card__center--face {
-  inset: 13% 22%;
+  inset: 12% 21%;
 }
 
 .playing-card__face {
   position: relative;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 2.5cqw;
   width: 100%;
   height: 100%;
   border: 1px solid color-mix(in srgb, currentColor 40%, transparent);
-  background:
-    linear-gradient(180deg, color-mix(in srgb, currentColor 14%, transparent), color-mix(in srgb, currentColor 4%, transparent));
-  clip-path: polygon(14% 0, 100% 0, 100% 90%, 86% 100%, 0 100%, 0 10%);
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, currentColor 10%, transparent),
+    color-mix(in srgb, currentColor 3%, transparent) 50%,
+    color-mix(in srgb, currentColor 10%, transparent)
+  );
+  clip-path: polygon(14% 0, 100% 0, 100% 92%, 86% 100%, 0 100%, 0 8%);
 }
 
-.playing-card__face-chevrons {
-  width: 22cqw;
-  height: 16cqw;
+.pc-court {
+  position: absolute;
+  inset: 3% 4%;
+  width: 92%;
+  height: 94%;
+  overflow: visible;
+}
+
+.pc-court__body {
+  fill: color-mix(in srgb, currentColor 18%, var(--card-face));
+  stroke: currentColor;
+  stroke-width: 1.1;
+  stroke-linejoin: round;
+}
+
+.pc-court__head {
+  fill: var(--card-face);
+  stroke: currentColor;
+  stroke-width: 1.1;
+  stroke-linejoin: round;
+}
+
+.pc-court__gear {
+  fill: currentColor;
+}
+
+.pc-court__line {
   fill: none;
   stroke: currentColor;
-  stroke-width: 2.2;
+  stroke-width: 1.1;
   stroke-linecap: square;
-  opacity: 0.85;
 }
 
-.playing-card__face-rule {
-  width: 60%;
-  height: 1px;
-  background: color-mix(in srgb, currentColor 45%, transparent);
-}
-
-.playing-card__face-letter {
-  font-family: var(--font-display);
-  font-weight: 700;
-  font-size: 28cqw;
-  line-height: 1;
-}
-
-.playing-card__face-suit {
-  width: 13cqw;
-  height: 13cqw;
-}
-
-.playing-card__face-label {
-  font-family: monospace;
-  font-size: 7cqw;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  opacity: 0.75;
+.pc-court__plate {
+  fill: var(--card-face);
+  stroke: currentColor;
+  stroke-width: 1.1;
 }
 
 /* ---------- Compact (very small cards) ---------- */
@@ -239,9 +271,15 @@
     font-size: 34cqw;
   }
 
+  /* "10" sits in a row with its suit at this size; at 27cqw the pair ran
+     into the suit glyph. Smaller and tighter it keeps a clear gap. */
   .playing-card__rank--ten {
-    font-size: 27cqw;
-    letter-spacing: -0.08em;
+    font-size: 22cqw;
+    letter-spacing: -0.03em;
+  }
+
+  .playing-card:not(.playing-card--back)::before {
+    display: none;
   }
 
   .playing-card__index-suit {
@@ -262,43 +300,85 @@
 
 /* ---------- Card back ---------- */
 
+/*
+ * The back: a void field with a cyan/purple lattice, a lit chamfered frame
+ * and a diamond emblem around FP (CardArt.tsx). It stays darker than any
+ * face so a table of backs recedes, but its top edge is lit (inset
+ * highlight) so a stack of face-down cards in a Solitaire column can be
+ * counted edge by edge.
+ */
 .playing-card--back {
   background-color: var(--void);
   background-image:
-    repeating-linear-gradient(45deg, rgba(0, 217, 255, 0.07) 0 2px, transparent 2px 10px),
-    repeating-linear-gradient(-45deg, rgba(139, 61, 255, 0.07) 0 2px, transparent 2px 10px);
-  border: 1px solid rgba(0, 217, 255, 0.3);
+    repeating-linear-gradient(45deg, rgba(0, 217, 255, 0.13) 0 1.5px, transparent 1.5px 8px),
+    repeating-linear-gradient(-45deg, rgba(139, 61, 255, 0.15) 0 1.5px, transparent 1.5px 8px);
+  border: 1px solid rgba(0, 217, 255, 0.5);
+  box-shadow:
+    0 2px 6px rgba(0, 0, 0, 0.45),
+    inset 0 2px 0 rgba(0, 217, 255, 0.45),
+    inset 0 0 0 1px rgba(0, 217, 255, 0.18);
 }
 
-.playing-card__back-frame {
+.pc-back {
   position: absolute;
-  inset: 12%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: 1px solid rgba(0, 217, 255, 0.22);
-  clip-path: polygon(14% 0, 100% 0, 100% 86%, 86% 100%, 0 100%, 0 14%);
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  fill: none;
+}
+
+.pc-back__frame {
+  stroke: rgba(0, 217, 255, 0.55);
+  stroke-width: 1;
+  fill: rgba(5, 5, 15, 0.55);
+}
+
+.pc-back__inner {
+  stroke: rgba(139, 61, 255, 0.55);
+  stroke-width: 0.6;
+}
+
+.pc-back__ticks {
+  stroke: rgba(0, 217, 255, 0.8);
+  stroke-width: 1.2;
+}
+
+.pc-back__emblem {
+  stroke: rgba(0, 217, 255, 0.6);
+  stroke-width: 1;
+  fill: rgba(0, 217, 255, 0.06);
+}
+
+.pc-back__emblem-inner {
+  stroke: rgba(139, 61, 255, 0.6);
+  stroke-width: 0.6;
 }
 
 /*
- * Card backs recede by default: a table can show 20+ of them, and a
+ * The mark stays muted by default: a table can show 20+ backs, and a
  * glowing mark on each pulled the eye away from the cards that matter.
  * A layout can light one up (e.g. Solitaire's stock) with
  * .playing-card--back-lit.
  */
-.playing-card__back-mark {
+.pc-back__mark {
+  fill: rgba(0, 217, 255, 0.6);
   font-family: var(--font-display);
   font-weight: 700;
-  font-size: 22cqw;
+  font-size: 9px;
   letter-spacing: 0.05em;
-  color: rgba(0, 217, 255, 0.4);
-}
-
-.playing-card--back-lit .playing-card__back-mark {
-  color: var(--laser-blue);
-  text-shadow: 0 0 8px rgba(0, 217, 255, 0.6);
 }
 
 .playing-card--back-lit {
-  border-color: rgba(0, 217, 255, 0.65);
+  border-color: rgba(0, 217, 255, 0.85);
+}
+
+.playing-card--back-lit .pc-back__frame,
+.playing-card--back-lit .pc-back__emblem {
+  stroke: var(--laser-blue);
+  filter: drop-shadow(0 0 1.5px rgba(0, 217, 255, 0.8));
+}
+
+.playing-card--back-lit .pc-back__mark {
+  fill: var(--laser-blue);
+  filter: drop-shadow(0 0 2px rgba(0, 217, 255, 0.8));
 }

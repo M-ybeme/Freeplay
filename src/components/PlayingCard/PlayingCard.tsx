@@ -1,12 +1,10 @@
+import { CardBackArt, CourtFigure } from "./CardArt";
 import { SuitIcon } from "./SuitIcon";
 import { PIP_LAYOUTS } from "./pipLayouts";
 import { cardName, isRedSuit, type Card } from "./types";
 import "./PlayingCard.css";
 
-const FACE_LABELS: Record<string, string> = { J: "Jack", Q: "Queen", K: "King" };
-// Rank insignia for court cards: one, two or three chevrons stacked above
-// the letter, so J/Q/K read as a hierarchy at a glance, not just a letter.
-const FACE_CHEVRONS: Record<string, number> = { J: 1, Q: 2, K: 3 };
+const COURTS = new Set(["J", "Q", "K"]);
 
 interface PlayingCardProps {
   card?: Card;
@@ -28,9 +26,7 @@ export function PlayingCard({ card, faceDown, className }: PlayingCardProps) {
         role="img"
         aria-label="Hidden card"
       >
-        <div className="playing-card__back-frame">
-          <span className="playing-card__back-mark">FP</span>
-        </div>
+        <CardBackArt />
       </div>
     );
   }
@@ -51,7 +47,7 @@ export function PlayingCard({ card, faceDown, className }: PlayingCardProps) {
       </span>
 
       <div
-        className={`playing-card__center${PIP_LAYOUTS[card.rank] ? " playing-card__center--pips" : ""}${FACE_LABELS[card.rank] ? " playing-card__center--face" : ""}`}
+        className={`playing-card__center${PIP_LAYOUTS[card.rank] ? " playing-card__center--pips" : ""}${COURTS.has(card.rank) ? " playing-card__center--face" : ""}`}
         aria-hidden="true"
       >
         <CardCenter rank={card.rank} suit={card.suit} />
@@ -78,19 +74,10 @@ function CardCenter({ rank, suit }: Card) {
     );
   }
 
-  const faceLabel = FACE_LABELS[rank];
-  if (faceLabel) {
+  if (COURTS.has(rank)) {
     return (
       <div className="playing-card__face">
-        <svg className="playing-card__face-chevrons" viewBox="0 0 24 18" aria-hidden="true" focusable="false">
-          {Array.from({ length: FACE_CHEVRONS[rank] }, (_, i) => (
-            <polyline key={i} points={`3,${8 + i * 4.5} 12,${3 + i * 4.5} 21,${8 + i * 4.5}`} />
-          ))}
-        </svg>
-        <span className="playing-card__face-letter">{rank}</span>
-        <span className="playing-card__face-rule" />
-        <SuitIcon suit={suit} className="playing-card__face-suit" />
-        <span className="playing-card__face-label">{faceLabel}</span>
+        <CourtFigure rank={rank} suit={suit} />
       </div>
     );
   }
