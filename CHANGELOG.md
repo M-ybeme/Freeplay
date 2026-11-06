@@ -16,6 +16,61 @@ When adding an entry for a new game or feature, copy the pattern below:
 
 ---
 
+## `bdf89b9` — Add Chroma Clash
+
+- New game: an original colour-matching shedding game, you against three
+  computer players. Its name, card art and symbols are its own.
+  - 108 cards in four neon colours. Each colour has a shape (circle,
+    triangle, diamond, square) on every card and in the picker, so colour
+    is never the only cue.
+  - Match colour, number or symbol, or play a wild. Wild Draw Four is
+    only legal while holding nothing of the current colour. That's
+    enforced, so there's no challenge rule.
+  - The rule choices (asked before building): no stacking draw cards;
+    when you can't play, draw one and you may play it; going down to one
+    card without calling "last card" costs 2; points race to 500, or a
+    Short 200.
+- Rules are pure functions in `logic.ts` with 31 tests. The round carries
+  its own random state, so reshuffling the discard pile mid-round stays
+  pure and a saved game resumes exactly. A save is only resumed if it
+  still holds exactly one full deck.
+- `ai.ts` is one rule-based player used in all three computer seats. It
+  sees only its own hand, the pile and everyone's card counts.
+  - It stays in its strongest colour and sheds points.
+  - It saves Skip and Draw Two for when the next player is down to two
+    cards, and saves Wild Draw Four for that too.
+  - It draws rather than spend its only wild while holding five or more
+    cards, and names its most-held colour.
+  - Over 1,000 bot-only games every move was legal, every seat won about
+    25%, and a game to 500 took about 9 rounds of about 50 turns. A
+    first-legal-card player put in one seat won only 15%.
+  - 7 tests, including 60 full simulated games.
+- Last card: you can call with two cards on your turn or with one card
+  after playing. Miss it and the 1.6s window closes with "Caught! +2".
+  Computer players forget 15% of the time, and a "Catch West!" button
+  appears for that same window.
+- Computer moves take 650ms (measured at about 665ms), or 250ms with
+  reduced motion. The game saves on every change, keeps a W/L record,
+  and asks before throwing away a game in progress.
+- Table layout follows Spades: opponents as small card stacks with
+  counts, and in the centre the draw pile, discard, current-colour chip
+  and direction arrow. Your hand is a fan that wraps onto another row
+  past 12 cards. The round summary lies over the table.
+- Found by playing it at 320–1440px:
+  - The colour picker first lay over the table, which on a 320×640 phone
+    is scrolled out of view once you've tapped your hand. It now sits
+    right under the hand.
+  - The skip mark (a slashed circle) read as the arcade font's slashed
+    zero. It's now a skip-forward mark.
+- The table and fan stay local to this game rather than shared with
+  Spades. The two differ (card stacks vs bids, piles vs a trick), so it's
+  worth sharing only if a third table game needs the same thing.
+- Home cabinet icon: a +4 card over a pink triangle card, which flips to
+  its wild face in attract mode. A dot was tried first and said nothing
+  about the game.
+
+---
+
 ## `cc91f29` — Add Spades
 
 - New game: partnership Spades. You (South) and a computer partner
